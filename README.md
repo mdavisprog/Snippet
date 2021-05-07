@@ -1,2 +1,2 @@
 # Snippet
-Snippet is a visual programming language that combines the expressive elements of text based languages with the flow visualization of visual programming languages.
+Snippet is a visual programming language that combines the expressive elements of text programming with the flow visualization of visual programming.
