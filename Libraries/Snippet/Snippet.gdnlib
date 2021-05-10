@@ -1,0 +1,20 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="snippet_"
+reloadable=true
+
+[entry]
+
+OSX.64="res://Libraries/Snippet/Mac/x64/libSnippet.dylib"
+OSX.32="res://Libraries/Snippet/Mac/x64/libSnippet.dylib"
+Windows.64="res://Libraries/Snippet/Windows/x64/Snippet.dll"
+Windows.32="res://Libraries/Snippet/Windows/x64/Snippet.dll"
+
+[dependencies]
+
+OSX.64=[  ]
+OSX.32=[  ]
+Windows.64=[  ]
+Windows.32=[  ]

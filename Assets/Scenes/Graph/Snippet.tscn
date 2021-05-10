@@ -1,0 +1,31 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://Assets/Scripts/Components/Background2D.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Scripts/Components/Label2D.gd" type="Script" id=2]
+[ext_resource path="res://Assets/Fonts/Roboto/Regular/Roboto-Regular-24.tres" type="DynamicFont" id=3]
+[ext_resource path="res://Assets/Scripts/Graph/Snippet.gd" type="Script" id=4]
+[ext_resource path="res://Assets/Scenes/Graph/Pin.tscn" type="PackedScene" id=5]
+
+[sub_resource type="StyleBoxFlat" id=1]
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color( 0, 0, 0, 0.341176 )
+shadow_size = 10
+anti_aliasing_size = 4
+
+[node name="Snippet" type="Node2D"]
+script = ExtResource( 4 )
+Border = Vector2( 20, 20 )
+PinScene = ExtResource( 5 )
+
+[node name="Background" type="Node2D" parent="."]
+script = ExtResource( 1 )
+Box = SubResource( 1 )
+Size = Vector2( 67, 49 )
+
+[node name="Title" type="Node2D" parent="Background"]
+script = ExtResource( 2 )
+FontRef = ExtResource( 3 )
+Text = "Title"

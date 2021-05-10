@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Assets/Themes/Default.tres" type="Theme" id=1]
+[ext_resource path="res://Assets/Scripts/UI/Controls/AutoComplete.gd" type="Script" id=2]
+
+[node name="AutoComplete" type="PopupDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ItemList" type="ItemList" parent="ScrollContainer"]
+margin_right = 1024.0
+margin_bottom = 600.0
+focus_mode = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+allow_reselect = true

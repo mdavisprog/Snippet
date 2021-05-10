@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://Assets/Scripts/UI/Snippet/SnippetWindow.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Scenes/UI/FloatingWindow.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/Scenes/UI/Snippet/SnippetToolbar.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Scenes/UI/Snippet/SnippetWindowTabs.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Scenes/UI/Controls/StatusBar.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Scenes/Language/VirtualMachine.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Assets/Scenes/UI/Controls/AutoComplete.tscn" type="PackedScene" id=7]
+
+[node name="SnippetWindow" instance=ExtResource( 2 )]
+script = ExtResource( 1 )
+
+[node name="Margins" type="MarginContainer" parent="Panel/VBoxContainer" index="1"]
+margin_top = 18.0
+margin_right = 1024.0
+margin_bottom = 600.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 4
+custom_constants/margin_left = 4
+
+[node name="Contents" type="VBoxContainer" parent="Panel/VBoxContainer/Margins" index="0"]
+margin_left = 4.0
+margin_right = 1020.0
+margin_bottom = 582.0
+
+[node name="Toolbar" parent="Panel/VBoxContainer/Margins/Contents" index="0" instance=ExtResource( 3 )]
+anchor_right = 0.0
+margin_right = 1016.0
+
+[node name="Tabs" parent="Panel/VBoxContainer/Margins/Contents" index="1" instance=ExtResource( 4 )]
+margin_top = 28.0
+margin_right = 1016.0
+margin_bottom = 553.0
+
+[node name="StatusBar" parent="Panel/VBoxContainer/Margins/Contents" index="2" instance=ExtResource( 5 )]
+margin_top = 557.0
+margin_right = 1016.0
+margin_bottom = 582.0
+
+[node name="Code" parent="." index="1" instance=ExtResource( 6 )]
+
+[node name="CompileTimer" type="Timer" parent="." index="2"]
+one_shot = true
+
+[node name="AutoCompleteTimer" type="Timer" parent="." index="3"]
+wait_time = 0.25
+one_shot = true
+
+[node name="AutoComplete" parent="." index="4" instance=ExtResource( 7 )]
+margin_right = -824.0
+margin_bottom = -400.0
