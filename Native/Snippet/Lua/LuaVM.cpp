@@ -44,7 +44,13 @@ static int print(lua_State *L)
 		buffer += lua_tostring(L, i);
 	}
 
-	Godot::print(buffer);
+	// Retrieve the LuaVM upvalue set when the lua_State was initialized.
+	int i = lua_upvalueindex(1);
+	LuaVM *owner = (LuaVM*)lua_touserdata(L, i);
+	if (owner != nullptr)
+	{
+		owner->emit_signal("OnPrint", buffer);
+	}
 
 	return 0;
 }
@@ -60,6 +66,7 @@ void LuaVM::_register_methods()
 	register_method("Compile", &LuaVM::Compile);
 	register_method("Execute", &LuaVM::Execute);
 	register_method("Reset", &LuaVM::Reset);
+	register_signal<LuaVM>("OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
 }
 
 void *LuaVM::alloc(void *ud, void *ptr, size_t osize, size_t nsize)
@@ -185,7 +192,9 @@ bool LuaVM::InitState()
 		luaL_openlibs(State);
 
 		lua_getglobal(State, "_G");
-		luaL_setfuncs(State, base_overrides, 0);
+		// Set an upvalue for this lua_State to refer back to the owning VM object.
+		lua_pushlightuserdata(State, this);
+		luaL_setfuncs(State, base_overrides, 1);
 		lua_pop(State, 1);
 	}
 

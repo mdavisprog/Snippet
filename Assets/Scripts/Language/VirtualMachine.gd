@@ -38,8 +38,11 @@ var CompileResult: Reference = null
 var ExecResult: Reference = null
 
 func _ready() -> void:
+	var _Error = null
 	if VMClass:
-		VM = VMClass.new()
+		if not VM:
+			VM = VMClass.new()
+			_Error = VM.connect("OnPrint", self, "OnPrint")
 	
 
 func Reset() -> void:
@@ -68,3 +71,7 @@ func Execute(Code: String) -> Reference:
 		ExecResult.Success = false
 	
 	return ExecResult
+
+func OnPrint(Contents: String) -> void:
+	print(Contents)
+	

@@ -7,6 +7,15 @@ This document provides a location to place all future tasks.
 [ ] Default maximize on startup.
 [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 
+### Output Window
+[x] Emit signal from VM when a 'print' occurs.
+[ ] Provide an interface to log globally. Signals should be emitted when a log occurs.
+[ ] Make the bottom dock resizable.
+[ ] Click on focused tab to collapse/expand dock.
+[ ] Compile native changes for Mac.
+
+### Items
+
 ## Unsorted
 * Left click and drag to make a selection box on the UI layer. After completion, should check to see if any snippets are enclosed in the region's world space.
 * Make moving windows transparent. Similar to Kubuntu windows.
