@@ -9,10 +9,11 @@ This document provides a location to place all future tasks.
 
 ### Output Window
 [x] Emit signal from VM when a 'print' occurs.
-[ ] Provide an interface to log globally. Signals should be emitted when a log occurs.
+[x] Provide an interface to log globally. Signals should be emitted when a log occurs.
 [ ] Make the bottom dock resizable.
 [ ] Click on focused tab to collapse/expand dock.
 [ ] Compile native changes for Mac.
+[ ] Clear output before any unit test run. Display which snippet is being run.
 
 ### Items
 

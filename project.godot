@@ -59,6 +59,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Assets/Scripts/Components/Label2D.gd"
 }, {
+"base": "RichTextLabel",
+"class": "OutputText",
+"language": "GDScript",
+"path": "res://Assets/Scripts/UI/Controls/OutputText.gd"
+}, {
 "base": "Reference",
 "class": "Parser",
 "language": "GDScript",
@@ -165,6 +170,7 @@ _global_script_class_icons={
 "FloatingWindow": "",
 "GraphPopupMenu": "",
 "Label2D": "",
+"OutputText": "",
 "Parser": "",
 "ParserResult": "",
 "Pin": "",
@@ -195,6 +201,7 @@ config/icon="res://icon.png"
 [autoload]
 
 Utility="*res://Assets/Scripts/Utility.gd"
+Log="*res://Assets/Scripts/Log.gd"
 
 [rendering]
 

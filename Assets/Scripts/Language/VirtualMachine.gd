@@ -73,5 +73,5 @@ func Execute(Code: String) -> Reference:
 	return ExecResult
 
 func OnPrint(Contents: String) -> void:
-	print(Contents)
+	Log.Info(Contents)
 	
