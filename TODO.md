@@ -11,7 +11,7 @@ This document provides a location to place all future tasks.
 [x] Emit signal from VM when a 'print' occurs.
 [x] Provide an interface to log globally. Signals should be emitted when a log occurs.
 [x] Migrated window sizing logic into its own node for portability. Converted FloatingWindow to use this node.
-[ ] Make the bottom dock resizable.
+[x] Make the bottom dock resizable.
 [ ] Click on focused tab to collapse/expand dock.
 [ ] Compile native changes for Mac.
 [ ] Clear output before any unit test run. Display which snippet is being run.

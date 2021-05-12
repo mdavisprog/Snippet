@@ -27,3 +27,11 @@ extends TabContainer
 
 # The output window used to display output from snippets.
 onready var Output: OutputText = $Output
+
+# The sizer used for this dock.
+onready var Sizer: DynamicSizer = $DynamicSizer
+
+func _ready() -> void:
+	Sizer.MarginN = get_constant("top_margin")
+	
+	
