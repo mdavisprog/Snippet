@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Assets/Scripts/UI/FloatingWindow.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Textures/Close.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Scripts/Components/DynamicSizer.gd" type="Script" id=3]
 
 [sub_resource type="AtlasTexture" id=1]
 flags = 4
@@ -67,3 +68,6 @@ stretch_mode = 5
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Sizer" type="Node" parent="."]
+script = ExtResource( 3 )

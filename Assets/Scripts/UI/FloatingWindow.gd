@@ -26,9 +26,6 @@ extends Control
 
 # Control that mimics the WindowDialog control but outside of the popup ecosystem.
 
-# The area size for the sizer handles.
-const SIZER_HANDLE_SIZE = 5
-
 # Access to hide the close button.
 export(bool) var HideCloseButton = false setget SetHideCloseButton
 
@@ -38,19 +35,20 @@ enum OP {
 	RESIZE,
 }
 
-enum SIZER {N = 1, S = 2, E = 4, W = 8}
-
 # The current operation being performed on the window.
 var Op = OP.NONE
-
-# The flags currently applied to the sizer.
-var SizerFlags = 0
 
 # Reference to the Title label.
 onready var Title: Label = $Panel/VBoxContainer/TitleContainer/Title
 
 # Adjust the size of the close button to match the height of the title.
 onready var CloseButton: TextureButton = $Panel/CloseButton
+
+# Background panel for all contents. Is also used to block mouse input.
+onready var Contents: Panel = $Panel
+
+# Separate node that can handle resizing the window.
+onready var Sizer: DynamicSizer = $Sizer
 
 func _ready() -> void:
 	var _Error = null
@@ -63,6 +61,7 @@ func _ready() -> void:
 		return
 	
 	_Error = connect("resized", self, "OnResized")
+	_Error = Sizer.connect("OnDrag", self, "OnSizer")
 	
 	if CloseButton:
 		_Error = CloseButton.connect("pressed", self, "OnClosePressed")
@@ -76,12 +75,6 @@ func _enter_tree() -> void:
 		return
 	
 
-func has_point(point: Vector2) -> bool:
-	var Bounds = Rect2(Vector2.ZERO, rect_size)
-	Bounds.position += Vector2(-SIZER_HANDLE_SIZE, -SIZER_HANDLE_SIZE)
-	Bounds.size += Vector2(SIZER_HANDLE_SIZE * 2, SIZER_HANDLE_SIZE * 2)
-	return Bounds.has_point(point)
-
 func _gui_input(event: InputEvent) -> void:
 	if Engine.editor_hint:
 		return
@@ -90,48 +83,16 @@ func _gui_input(event: InputEvent) -> void:
 	if MouseButton:
 		if MouseButton.pressed:
 			if MouseButton.button_index == BUTTON_LEFT:
-				if SizerFlags != 0:
-					Op = OP.RESIZE
-				else:
-					var PanelNode: Control = $Panel
-					if PanelNode and PanelNode.get_rect().has_point(MouseButton.position):
-						Op = OP.MOVE
+				if Contents.get_rect().has_point(MouseButton.position):
+					Op = OP.MOVE
 		else:
 			Op = OP.NONE
 	
 	var MouseMotion = event as InputEventMouseMotion
 	if MouseMotion:
 		match (Op):
-			OP.NONE:
-				SizerFlags = GetSizerFlags(MouseMotion.global_position)
-				
-				var CursorShape = CURSOR_ARROW
-				if SizerFlags & SIZER.N:
-					if SizerFlags & SIZER.E: CursorShape = CURSOR_BDIAGSIZE
-					elif SizerFlags & SIZER.W: CursorShape = CURSOR_FDIAGSIZE
-					else: CursorShape = CURSOR_VSIZE
-				elif SizerFlags & SIZER.S:
-					if SizerFlags & SIZER.W: CursorShape = CURSOR_BDIAGSIZE
-					elif SizerFlags & SIZER.E: CursorShape = CURSOR_FDIAGSIZE
-					else: CursorShape = CURSOR_VSIZE
-				elif SizerFlags & SIZER.E or SizerFlags & SIZER.W:
-					CursorShape = CURSOR_HSIZE
-				
-				if get_cursor_shape() != CursorShape:
-					mouse_default_cursor_shape = CursorShape
 			OP.MOVE:
 				rect_position += MouseMotion.relative
-			OP.RESIZE:
-				if SizerFlags & SIZER.N:
-					rect_position.y += MouseMotion.relative.y
-					rect_size.y += -MouseMotion.relative.y
-				if SizerFlags & SIZER.S:
-					rect_size.y += MouseMotion.relative.y
-				if SizerFlags & SIZER.W:
-					rect_position.x += MouseMotion.relative.x
-					rect_size.x += -MouseMotion.relative.x
-				if SizerFlags & SIZER.E:
-					rect_size.x += MouseMotion.relative.x
 	
 
 func OnTitleResized() -> void:
@@ -167,7 +128,7 @@ func UpdateCloseButton() -> void:
 	CloseButton.rect_size = CloseButton.rect_min_size
 	
 	# Position the button in the top left corner.
-	CloseButton.rect_position = Vector2(rect_size.x - CloseButton.rect_size.x - SIZER_HANDLE_SIZE, SIZER_HANDLE_SIZE)
+	CloseButton.rect_position = Vector2(rect_size.x - CloseButton.rect_size.x - 5, 5)
 	
 	update()
 	
@@ -187,18 +148,6 @@ func SetHideCloseButton(Value: bool) -> void:
 		update()
 	
 
-func GetSizerFlags(Point: Vector2) -> int:
-	var Result = 0
+func OnSizer() -> void:
+	Op = OP.RESIZE
 	
-	var Bounds: Rect2 = get_rect()
-	if Bounds.position.y <= Point.y and Point.y <= Bounds.position.y + SIZER_HANDLE_SIZE:
-		Result = SIZER.N
-	elif Bounds.end.y - SIZER_HANDLE_SIZE <= Point.y and Point.y <= Bounds.end.y:
-		Result = SIZER.S
-	
-	if Bounds.position.x <= Point.x and Point.x <= Bounds.position.x + SIZER_HANDLE_SIZE:
-		Result |= SIZER.W
-	elif Bounds.end.x - SIZER_HANDLE_SIZE <= Point.x and Point.x <= Bounds.end.x:
-		Result |= SIZER.E
-	
-	return Result
