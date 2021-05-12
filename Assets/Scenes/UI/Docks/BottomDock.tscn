@@ -1,14 +1,16 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Assets/Themes/Default.tres" type="Theme" id=1]
 [ext_resource path="res://Assets/Scripts/UI/Docks/BottomDock.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Scenes/UI/Controls/OutputText.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Scripts/Components/DynamicSizer.gd" type="Script" id=4]
+[ext_resource path="res://Assets/Fonts/Roboto/Regular/Roboto-Regular-14.tres" type="DynamicFont" id=5]
 
 [node name="BottomDock" type="TabContainer"]
 margin_right = 10.0
 margin_bottom = 39.0
 theme = ExtResource( 1 )
+custom_fonts/font = ExtResource( 5 )
 tab_align = 0
 script = ExtResource( 2 )
 __meta__ = {
@@ -17,7 +19,7 @@ __meta__ = {
 
 [node name="Output" parent="." instance=ExtResource( 3 )]
 margin_left = 5.0
-margin_top = 34.0
+margin_top = 32.0
 margin_right = -5.0
 margin_bottom = -5.0
 
