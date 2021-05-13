@@ -158,6 +158,7 @@ func OnCompileTimer() -> void:
 func RunUnitTest() -> void:
 	# Make sure the VM has a clean slate.
 	Code.Reset()
+	Log.Clear()
 	
 	# The first thing we need to do is define the function. This is done by executing
 	# the main function so it is defined. This should succeed if it passed the
@@ -173,6 +174,8 @@ func RunUnitTest() -> void:
 	# Combine the base unit test with any custom unit test code.
 	var Source = UTBase.text + "\n"
 	Source += UTEdit.text
+	
+	Log.Info("Running unit tests for snippet '%s'." % This.GetTitle())
 	
 	# Now run the unit tests.
 	Result = Code.Execute(Source)

@@ -14,7 +14,7 @@ This document provides a location to place all future tasks.
 [x] Make the bottom dock resizable.
 [x] Click on focused tab to collapse/expand dock.
 [ ] Compile native changes for Mac.
-[ ] Clear output before any unit test run. Display which snippet is being run.
+[x] Clear output before any unit test run. Display which snippet is being run.
 
 ### Items
 

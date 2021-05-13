@@ -31,6 +31,9 @@ extends Node
 # Contents: String
 signal OnLog(Type, Contents)
 
+# Emitted when there is a clear request made to the Log system.
+signal OnClear()
+
 # Types of logs that can be dispatched.
 enum TYPE {INFO, WARN, ERROR}
 
@@ -44,4 +47,8 @@ func Warn(Contents: String) -> void:
 
 func Error(Contents: String) -> void:
 	emit_signal("OnLog", TYPE.ERROR, Contents)
+	
+
+func Clear() -> void:
+	emit_signal("OnClear")
 	

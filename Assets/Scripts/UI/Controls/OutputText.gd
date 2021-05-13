@@ -27,11 +27,16 @@ extends RichTextLabel
 
 func _ready() -> void:
 	var _Error = Log.connect("OnLog", self, "OnLog")
+	_Error = Log.connect("OnClear", self, "OnClear")
 	
 
 func OnLog(_Type: int, Contents: String) -> void:
 	print(Contents)
 	AddLine(Contents)
+	
+
+func OnClear() -> void:
+	clear()
 	
 
 func AddLine(Line: String) -> void:

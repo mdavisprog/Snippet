@@ -92,6 +92,9 @@ func SetTitle(Title: String) -> void:
 		TitleNode.Text = Title
 	
 
+func GetTitle() -> String:
+	return TitleNode.Text
+
 func SetColor(InColor: Color) -> void:
 	if State == STATE.LOCKED:
 		return
