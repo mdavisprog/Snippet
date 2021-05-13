@@ -2,19 +2,10 @@
 This document provides a location to place all future tasks.
 
 ## v0.1
-[ ] Global output window to display any output and status messages.
+[x] Global output window to display any output and status messages.
 [ ] Separate 'Run' button for running all connected snippets vs unit test.
 [ ] Default maximize on startup.
 [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
-
-### Output Window
-[x] Emit signal from VM when a 'print' occurs.
-[x] Provide an interface to log globally. Signals should be emitted when a log occurs.
-[x] Migrated window sizing logic into its own node for portability. Converted FloatingWindow to use this node.
-[x] Make the bottom dock resizable.
-[x] Click on focused tab to collapse/expand dock.
-[ ] Compile native changes for Mac.
-[x] Clear output before any unit test run. Display which snippet is being run.
 
 ### Items
 
