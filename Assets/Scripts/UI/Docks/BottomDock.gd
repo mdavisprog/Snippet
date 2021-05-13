@@ -25,6 +25,9 @@ extends TabContainer
 
 # Controls to be displayed on the bottom of the main viewport.
 
+# The height of this dock. Used to restore the value when being expanded.
+var Height = 0.0
+
 # The output window used to display output from snippets.
 onready var Output: OutputText = $Output
 
@@ -34,4 +37,15 @@ onready var Sizer: DynamicSizer = $DynamicSizer
 func _ready() -> void:
 	Sizer.MarginN = get_constant("top_margin")
 	
+	var _Error = connect("tab_selected", self, "OnTabSelected")
+	
+
+func OnTabSelected(Tab: int) -> void:
+	if Tab == current_tab:
+		var TopMargin = get_constant("top_margin")
+		if margin_top == -TopMargin:
+			margin_top = Height
+		else:
+			Height = margin_top
+			margin_top = -TopMargin
 	
