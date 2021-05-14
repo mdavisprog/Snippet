@@ -35,6 +35,9 @@ onready var PopupsNode: Popups = $Popups
 # Place for scene instancing.
 onready var UIFactoryNode: UIFactory = $UIFactory
 
+# Virtual machine used to execute all connected snippets.
+onready var Code: VirtualMachine = $Code
+
 func _ready() -> void:
 	var _Error = null
 	
@@ -87,4 +90,53 @@ func EditSnippet(Item: Snippet) -> void:
 	add_child(SnippetWindowInstance)
 	SnippetWindowInstance.Show(Item)
 	SnippetWindowInstance.Editor.Select("New_Snippet")
+	var _Error = SnippetWindowInstance.connect("OnRunAll", self, "OnRun")
+	
+
+# TODO: Look into placing this into a separate system.
+func OnRun() -> void:
+	if not Code:
+		return
+	
+	if not WorkspaceNode:
+		return
+	
+	Log.Clear()
+	Log.Info("Running program.")
+	
+	var Next: Snippet = WorkspaceNode.MainSnippet
+	while Next:
+		var Name: String = Next.GetTitle()
+		print("Running snippet: %s" % Name)
+		
+		# Translate the snippet text into Lua code first.
+		# TODO: May be able to store this since process is done automatically when
+		# the developer is making changes to the snippet.
+		var Result = Code.ToLua(Next.Text)
+		if not Result.Success:
+			print("Failed to convert to lua for snippet '%s'." % Name)
+			break
+		
+		# Reset to a clean slate for each snippet for now.
+		# TODO: Need to pass on data returned from this snippet to the next connected snippet.
+		Code.Reset()
+		
+		var ExecResult = Code.Execute(Result.Code)
+		if not ExecResult.Success:
+			print("Failed to load function for snippet '%s'." % Name)
+			break
+		
+		# Now call the function.
+		# TODO: Properly retrieve the results of the this execution to be passed into the
+		# next execution.
+		var Args = PoolStringArray()
+		for _I in range(Result.Arguments.size()): Args.append("nil")
+		var FnCall = Result.FunctionName + "(" + Args.join(",") + ")"
+		
+		ExecResult = Code.Execute(FnCall)
+		if not ExecResult.Success:
+			print("Failed to run snippet '%s'." % Name)
+			break
+		
+		Next = Next.GetNextSnippet()
 	

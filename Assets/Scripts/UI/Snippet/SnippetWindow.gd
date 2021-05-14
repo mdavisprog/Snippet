@@ -25,6 +25,9 @@ extends FloatingWindow
 
 # Collection of controls that allow for editing the contents of a snippet.
 
+# Signal emitted when the developer requests to run the program.
+signal OnRunAll()
+
 # The snippet associated with this window.
 var This: Snippet = null
 
@@ -89,6 +92,8 @@ func Show(InSnippet: Snippet) -> void:
 func OnAction(Action: int) -> void:
 	match (Action):
 		SnippetToolbar.ACTION.RUN:
+			emit_signal("OnRunAll")
+		SnippetToolbar.ACTION.RUNUT:
 			RunUnitTest()
 	
 

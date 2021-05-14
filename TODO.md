@@ -6,6 +6,13 @@ This document provides a location to place all future tasks.
 [ ] Separate 'Run' button for running all connected snippets vs unit test.
 [x] Default maximize on startup.
 [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
+[ ] Refocus opened snippet editor for same snippets. Prevent duplicate snippet editors for the same snippet.
+
+### connected_snippets
+[x] Provide a separate run button for running whole program vs unit test.
+[ ] Investigate the need to pass Lua states between snippets.
+[ ] Investigate passing return values from a snippet to the next snippet.
+[ ] Should translated snippet code be stored?
 
 ### Items
 

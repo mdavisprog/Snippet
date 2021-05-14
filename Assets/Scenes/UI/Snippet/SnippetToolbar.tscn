@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Assets/Scripts/UI/Snippet/SnippetToolbar.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Textures/Play.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Textures/PlayUT.png" type="Texture" id=3]
 
 [sub_resource type="AtlasTexture" id=1]
 flags = 4
@@ -18,9 +19,24 @@ flags = 4
 atlas = ExtResource( 2 )
 region = Rect2( 0, 0, 20, 32 )
 
+[sub_resource type="AtlasTexture" id=4]
+flags = 4
+atlas = ExtResource( 3 )
+region = Rect2( 28, 0, 28, 32 )
+
+[sub_resource type="AtlasTexture" id=5]
+flags = 4
+atlas = ExtResource( 3 )
+region = Rect2( 56, 0, 28, 32 )
+
+[sub_resource type="AtlasTexture" id=6]
+flags = 4
+atlas = ExtResource( 3 )
+region = Rect2( 0, 0, 28, 32 )
+
 [node name="SnippetToolbar" type="HBoxContainer"]
 anchor_right = 1.0
-margin_right = -1004.0
+margin_right = -957.0
 margin_bottom = 24.0
 script = ExtResource( 1 )
 __meta__ = {
@@ -35,5 +51,16 @@ rect_min_size = Vector2( 15, 24 )
 texture_normal = SubResource( 1 )
 texture_hover = SubResource( 2 )
 texture_disabled = SubResource( 3 )
+expand = true
+stretch_mode = 5
+
+[node name="RunUT" type="TextureButton" parent="."]
+margin_left = 19.0
+margin_right = 40.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 21, 24 )
+texture_normal = SubResource( 4 )
+texture_hover = SubResource( 5 )
+texture_disabled = SubResource( 6 )
 expand = true
 stretch_mode = 5

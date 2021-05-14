@@ -220,3 +220,19 @@ func GetPinSize() -> Vector2:
 		return OutputPin.GetSize()
 	
 	return Vector2.ZERO
+
+func GetNextSnippet() -> Snippet:
+	if not OutputPin:
+		return null
+	
+	var Connection: PinConnection = OutputPin.Connection
+	
+	if not Connection:
+		return null
+	
+	if not Connection.EndPin:
+		return null
+	
+	# The pin's parent is the background node. The parent of that node is the snippet.
+	return Connection.EndPin.get_parent().get_parent() as Snippet
+	
