@@ -4,7 +4,7 @@ This document provides a location to place all future tasks.
 ## v0.1
 [x] Global output window to display any output and status messages.
 [ ] Separate 'Run' button for running all connected snippets vs unit test.
-[ ] Default maximize on startup.
+[x] Default maximize on startup.
 [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 
 ### Items

@@ -26,3 +26,6 @@ extends Node
 func _ready():
 	print("Welcome to " + ProjectSettings.get_setting("application/config/name") + ".")
 	
+	if not OS.is_debug_build():
+		OS.window_maximized = true
+	
