@@ -234,5 +234,4 @@ func GetNextSnippet() -> Snippet:
 		return null
 	
 	# The pin's parent is the background node. The parent of that node is the snippet.
-	return Connection.EndPin.get_parent().get_parent() as Snippet
-	
+	return Connection.EndPin.get_parent().get_parent()
