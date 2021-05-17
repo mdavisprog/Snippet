@@ -35,6 +35,7 @@ void LuaResult::_register_methods()
 	register_method("GetMessage", &LuaResult::GetMessage);
 
 	register_property<LuaResult, bool>("Success", &LuaResult::Success, false);
+	register_property<LuaResult, Array>("Results", &LuaResult::Results, Array());
 }
 
 LuaResult::LuaResult()
@@ -48,6 +49,7 @@ LuaResult::~LuaResult()
 void LuaResult::_init()
 {
 	Success = false;
+	Results = Array();
 	Error = Ref<LuaError>(LuaError::_new());
 }
 

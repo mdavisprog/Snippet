@@ -48,6 +48,7 @@ public:
 	String GetMessage() const;
 
 	bool Success;
+	Array Results;
 
 	// https://github.com/godotengine/godot-cpp/issues/417
 	// Reference members unfortunately cannot be exported to script so will need to handle

@@ -7,12 +7,18 @@ This document provides a location to place all future tasks.
 [x] Default maximize on startup.
 [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 [ ] Refocus opened snippet editor for same snippets. Prevent duplicate snippet editors for the same snippet.
+[ ] Add tooltips for snippet window buttons.
+[ ] Print runtime stack trace to output window.
 
 ### connected_snippets
 [x] Provide a separate run button for running whole program vs unit test.
 [ ] Investigate the need to pass Lua states between snippets.
 [ ] Investigate passing return values from a snippet to the next snippet.
 [ ] Should translated snippet code be stored?
+[ ] Should snippet function be placed in a table?
+[ ] Move parse result to a cached variable.
+[ ] Disable 'Run unit tests' button if snippet cache is invalid or error.
+[ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
 
 ### Items
 
@@ -35,4 +41,7 @@ This document provides a location to place all future tasks.
 	* Could just allow it but throw compile error if 'main' function is not found.
 * May need to handle Lua keywords? Better error messages for keywords.
 * Only open a small portion of the standard lua libraries.
+* Trim available functions in the global namespace.
 * Add Success color state for line and status bar.
+* Compile time errors should only highlight left margin.
+* Quick key to run unit tests.

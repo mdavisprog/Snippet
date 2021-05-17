@@ -54,6 +54,7 @@ public:
 	void _init();
 	Ref<LuaResult> Compile(const String &Source);
 	Ref<LuaResult> Execute(const String &Source);
+	Ref<LuaResult> Call(const String &FnName, Variant Args);
 	void Reset();
 
 private:

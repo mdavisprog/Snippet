@@ -61,10 +61,117 @@ static const luaL_Reg base_overrides[] =
 	{nullptr, nullptr}
 };
 
+static void PushVariant(lua_State *State, const Variant &Arg)
+{
+	switch (Arg.get_type())
+	{
+	case Variant::BOOL: lua_pushboolean(State, (bool)Arg == true ? 1 : 0); break;
+	case Variant::INT: lua_pushinteger(State, (int)Arg); break;
+	case Variant::REAL: lua_pushnumber(State, (float)Arg); break;
+	case Variant::STRING:
+		{
+			String Data = (String)Arg;
+			lua_pushstring(State, Data.ascii().get_data());
+		} break;
+	case Variant::ARRAY:
+		{
+			const Array Data = (Array)Arg;
+			lua_newtable(State);
+			for (int I = 0; I < Data.size(); I++)
+			{
+				lua_pushinteger(State, I + 1);
+				PushVariant(State, Data[I]);
+				lua_settable(State, -3);
+			}
+		} break;
+	default:
+		{
+			Godot::print("Unhandled Variant: {0}", Arg.get_type());
+			lua_pushnil(State);
+		} break;
+	}
+}
+
+static Variant ToVariant(lua_State *State, int Index)
+{
+	Variant Result;
+
+	switch (lua_type(State, Index))
+	{
+	case LUA_TBOOLEAN:
+		{
+			Result = lua_toboolean(State, Index) == 1 ? true : false;
+		} break;
+
+	case LUA_TNUMBER:
+		{
+			if (lua_isinteger(State, Index))
+			{
+				Result = lua_tointeger(State, Index);
+			}
+			else
+			{
+				Result = lua_tonumber(State, Index);
+			}
+		} break;
+
+	case LUA_TSTRING:
+		{
+			Result = lua_tostring(State, Index);
+		} break;
+
+	case LUA_TTABLE:
+		{
+			Array Table;
+
+			lua_pushnil(State);
+			while (lua_next(State, -2) != 0)
+			{
+				// Grab the value which should be at the top of the stack.
+				Table.append(ToVariant(State, -1));
+
+				// Pop the value. The key should be the only thing left on the stack for the next iteration.
+				lua_pop(State, 1);
+			}
+
+			Result = Table;
+		} break;
+
+	case LUA_TFUNCTION:
+		{
+			Result = "Function";
+		} break;
+
+	default:
+		{
+			Godot::print("Unhandled Lua type: {0}", lua_type(State, Index));
+		} break;
+	}
+
+	return Result;
+}
+
+static void PrintStack(lua_State *State)
+{
+	if (State == nullptr)
+	{
+		Godot::print("Invalid state.");
+		return;
+	}
+
+	int Size = lua_gettop(State);
+	Godot::print("Stack size: {0}", Size);
+	for (int I = Size; I > 0; --I)
+	{
+		Godot::print("   {0}: {1}", I, String(ToVariant(State, I)));
+	}
+}
+
 void LuaVM::_register_methods()
 {
 	register_method("Compile", &LuaVM::Compile);
 	register_method("Execute", &LuaVM::Execute);
+	register_method("Call", &LuaVM::Call);
 	register_method("Reset", &LuaVM::Reset);
 	register_signal<LuaVM>("OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
 }
@@ -127,7 +234,7 @@ void LuaVM::_init()
 
 Ref<LuaResult> LuaVM::Compile(const String &Source)
 {
-	LuaResult *Result = LuaResult::_new();
+	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
 
 	if (State == nullptr)
 	{
@@ -170,9 +277,44 @@ Ref<LuaResult> LuaVM::Execute(const String &Source)
 		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::RUNTIME);
 		lua_pop(State, 1);
 	}
+
+	return Result;
+}
+
+Ref<LuaResult> LuaVM::Call(const String &FnName, Variant Args)
+{
+	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
+
+	if (State == nullptr)
+	{
+		return Result;
+	}
+
+	int Type = lua_getglobal(State, FnName.ascii().get_data());
+	if (Type != LUA_TFUNCTION)
+	{
+		Godot::print_error(FnName.format("Failed to find function {0}.", FnName), "LuaVM::Call", __FILE__, __LINE__);
+		return Result;
+	}
+
+	PushVariant(State, Args);
+
+	Result->Success = lua_pcall_handler(State, 1, LUA_MULTRET) == LUA_OK;
+	if (Result->Success)
+	{
+		int Results = lua_gettop(State);
+
+		for (int I = 1; I <= Results; I++)
+		{
+			Result->Results.append(ToVariant(State, I));
+		}
+
+		lua_pop(State, Results);
+	}
 	else
 	{
-		// TODO: Retrieve return values.
+		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::RUNTIME);
+		lua_pop(State, 1);
 	}
 
 	return Result;
