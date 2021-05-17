@@ -31,6 +31,9 @@ signal OnRunAll()
 # The snippet associated with this window.
 var This: Snippet = null
 
+# The result of a parse that occurs after text has been entered.
+var ParseResult: ParserResult = null
+
 # The toolbar used for registering signals.
 onready var Toolbar: SnippetToolbar = $Panel/VBoxContainer/Margins/Contents/Toolbar
 
@@ -77,6 +80,8 @@ func _ready() -> void:
 	_Error = AutoCompleteWindow.connect("OnConfirm", self, "OnAutoCompleteConfirm")
 	
 	Status.text = ""
+	
+	ToggleRunButtons(false)
 	
 
 func Show(InSnippet: Snippet) -> void:
@@ -125,6 +130,7 @@ func UpdateStatusBar(VMResult) -> void:
 	
 
 func OnSnippetTextChanged() -> void:
+	ToggleRunButtons(false)
 	CompileTimer.start()
 	AutoCompleteTimer.start()
 	
@@ -135,26 +141,26 @@ func OnCompileTimer() -> void:
 	
 	Editor.ClearLineStates()
 	Code.Reset()
-	var Result: ParserResult = Code.ToLua(Editor.text)
-	if not Result.Success:
+	ParseResult = Code.ToLua(Editor.text)
+	if not ParseResult.Success:
 		return
 	
 	This.Text = Editor.text
-	This.SetTitle(Result.FunctionName)
+	This.SetTitle(ParseResult.FunctionName)
 	
-	var CompileResult = Code.Compile(Result.Code)
+	var CompileResult = Code.Compile(ParseResult.Code)
 	Lua.readonly = false
-	Lua.text = Result.Code
+	Lua.text = ParseResult.Code
 	Lua.readonly = true
 	
 	UpdateStatusBar(CompileResult)
 	
-	Toolbar.Run.disabled = not CompileResult.Success
+	ToggleRunButtons(CompileResult.Success)
 	
 	var Args = PoolStringArray()
-	for _I in range(Result.Arguments.size()): Args.append("nil")
+	for _I in range(ParseResult.Arguments.size()): Args.append("nil")
 	
-	UTBase.text = Result.FunctionName + "(" + Args.join(",") + ")"
+	UTBase.text = ParseResult.FunctionName + "(" + Args.join(",") + ")"
 	
 	if not CompileResult.Success:
 		Editor.SetLineState(CompileResult.GetLine(), BaseTextEdit.LINE_STATE.ERROR)
@@ -173,18 +179,23 @@ func RunUnitTest() -> void:
 		Editors.current_tab = 0
 		UpdateStatusBar(Result)
 	
+	var FnName: String = This.GetTitle()
+	
 	# Focus the unit test edit control.
 	Editors.current_tab = 1
 	
-	# Combine the base unit test with any custom unit test code.
-	var Source = UTBase.text + "\n"
-	Source += UTEdit.text
+	Log.Info("Running unit tests for snippet '%s'." % FnName)
 	
-	Log.Info("Running unit tests for snippet '%s'." % This.GetTitle())
-	
-	# Now run the unit tests.
-	Result = Code.Execute(Source)
+	# First, run the base unit test and ensure no invalid operations occur.
+	# TODO: Pass in parsed arguments results. This will require a cached ParserResult
+	# object that was generated after text has been entered.
+	Result = Code.VM.Call(FnName, null)
 	UpdateStatusBar(Result)
+	
+	# TODO: Custom unit test code should just do a raw execute. It is up to
+	# the developer on how this unit test behaves and should assert if there is
+	# an error.
+	# var Source += UTEdit.text
 	
 
 func OnAutoComplete() -> void:
@@ -222,4 +233,9 @@ func OnAutoComplete() -> void:
 
 func OnAutoCompleteConfirm(Item: String) -> void:
 	Editor.SetWordAtCursor(Item)
+	
+
+func ToggleRunButtons(Enabled: bool) -> void:
+	Toolbar.Run.disabled = not Enabled
+	Toolbar.RunUT.disabled = not Enabled
 	

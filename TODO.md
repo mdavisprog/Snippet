@@ -16,9 +16,11 @@ This document provides a location to place all future tasks.
 [ ] Investigate passing return values from a snippet to the next snippet.
 [ ] Should translated snippet code be stored?
 [ ] Should snippet function be placed in a table?
-[ ] Move parse result to a cached variable.
-[ ] Disable 'Run unit tests' button if snippet cache is invalid or error.
+[x] Move parse result to a cached variable.
+[x] Disable 'Run unit tests' button if snippet cache is invalid or error.
 [ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
+[ ] Store last compiled time in the ParserResult object.
+[ ] Ignore checking in native shared library file.
 
 ### Items
 
@@ -45,3 +47,5 @@ This document provides a location to place all future tasks.
 * Add Success color state for line and status bar.
 * Compile time errors should only highlight left margin.
 * Quick key to run unit tests.
+* Allow any snippet to use any programming language?
+* Update to VisualStudio 2019 compiler.
