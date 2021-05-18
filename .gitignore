@@ -7,3 +7,6 @@ bin/
 Native/bin
 Native/Build
 *.manifest
+*.dll
+*.dylib
+*.so

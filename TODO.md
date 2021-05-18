@@ -11,17 +11,12 @@ This document provides a location to place all future tasks.
 [ ] Print runtime stack trace to output window.
 [ ] Auto-complete window stays up if no suggestions are available.
 
-### connected_snippets
-[x] Provide a separate run button for running whole program vs unit test.
-[ ] Investigate the need to pass Lua states between snippets.
-[ ] Investigate passing return values from a snippet to the next snippet.
-[ ] Should translated snippet code be stored?
-[ ] Should snippet function be placed in a table?
-[x] Move parse result to a cached variable.
-[x] Disable 'Run unit tests' button if snippet cache is invalid or error.
+### refactor_snippets
+[ ] Deprecate default function declaration for each new snippet.
+[ ] Pass return values from current snippet to the next connected snippet.
+[ ] Deprecate translating snippet code to Lua code. For now, just execute the raw code in the snippet. 
 [ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
-[ ] Store last compiled time in the ParserResult object.
-[ ] Ignore checking in native shared library file.
+[ ] Set snippet title through editable label.
 
 ### Items
 
@@ -50,3 +45,4 @@ This document provides a location to place all future tasks.
 * Quick key to run unit tests.
 * Allow any snippet to use any programming language?
 * Update to VisualStudio 2019 compiler.
+* Snippet database file could be a cached file in a hidden folder. Filename can be relative path from root hash.
