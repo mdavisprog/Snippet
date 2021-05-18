@@ -152,7 +152,7 @@ func CreateMainSnippet() -> void:
 	# For now, offset a little so it is displayed when the app starts.
 	# In the future, the camera should focus on the world origin.
 	MainSnippet = AddSnippet(Vector2.ZERO, false)
-	MainSnippet.Text = "function main(args)\nend"
+	MainSnippet.Text = "print(\"hello world!\")"
 	MainSnippet.SetTitle("main")
 	MainSnippet.RemovePin(Pin.TYPE.INPUT)
 	FocusPoint(Vector2(-200, -50))

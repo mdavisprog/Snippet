@@ -50,7 +50,7 @@ onready var BackgroundNode: Background2D = $Background
 onready var TitleNode: Label2D = $Background/Title
 
 # The text associated with this snippet.
-var Text = "function New_Snippet()\nend"
+var Text = "print(\"hello world!\")"
 
 # The script to execute for unit tests.
 var Text_Tests = ""
