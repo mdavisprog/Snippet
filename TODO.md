@@ -9,6 +9,7 @@ This document provides a location to place all future tasks.
 [ ] Refocus opened snippet editor for same snippets. Prevent duplicate snippet editors for the same snippet.
 [ ] Add tooltips for snippet window buttons.
 [ ] Print runtime stack trace to output window.
+[ ] Auto-complete window stays up if no suggestions are available.
 
 ### connected_snippets
 [x] Provide a separate run button for running whole program vs unit test.

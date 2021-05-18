@@ -70,12 +70,12 @@ static void PushVariant(lua_State *State, const Variant &Arg)
 	case Variant::REAL: lua_pushnumber(State, (float)Arg); break;
 	case Variant::STRING:
 		{
-			String Data = (String)Arg;
+			String Data = Arg;
 			lua_pushstring(State, Data.ascii().get_data());
 		} break;
 	case Variant::ARRAY:
 		{
-			const Array Data = (Array)Arg;
+			Array Data = Arg;
 			lua_newtable(State);
 			for (int I = 0; I < Data.size(); I++)
 			{
@@ -163,7 +163,22 @@ static void PrintStack(lua_State *State)
 	Godot::print("Stack size: {0}", Size);
 	for (int I = Size; I > 0; --I)
 	{
-		Godot::print("   {0}: {1}", I, String(ToVariant(State, I)));
+		Variant Item = ToVariant(State, I);
+
+		if (Item.get_type() == Variant::ARRAY)
+		{
+			// Printing arrays has been a challenge with GDNative across MSVC and clang-apple.
+			// Attempting to use format specifiers directly into the Array variant would only index an
+			// element instead of just indexing the whole array, even through it isn't the first item in the list.
+			// Due to errors with conversions between Variant and other types on other platforms, a PoolStringArray
+			// is used as an intermediary to dump the contents of the array. Could probably update
+			// the constructor to allow for this. Will need to investigate further.
+			Array Args = Item;
+			PoolStringArray Pool(Args);
+			Item = Pool;
+		}
+
+		Godot::print("   {0}: {1}", I, Item);
 	}
 }
 
