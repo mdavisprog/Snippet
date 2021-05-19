@@ -71,6 +71,9 @@ onready var AutoCompleteTimer: Timer = $AutoCompleteTimer
 # The auto complete window used to display suggestions to the developer.
 onready var AutoCompleteWindow: AutoComplete = $AutoComplete
 
+# Control that is visible when the title needs to be edited.
+onready var TitleEdit: LineEdit = $Panel/VBoxContainer/TitleContainer/TitleEdit
+
 func _ready() -> void:
 	var _Error = Toolbar.connect("OnAction", self, "OnAction")
 	_Error = Editor.connect("text_changed", self, "OnSnippetTextChanged")
@@ -78,6 +81,9 @@ func _ready() -> void:
 	_Error = CompileTimer.connect("timeout", self, "OnCompileTimer")
 	_Error = AutoCompleteTimer.connect("timeout", self, "OnAutoComplete")
 	_Error = AutoCompleteWindow.connect("OnConfirm", self, "OnAutoCompleteConfirm")
+	_Error = Title.connect("gui_input", self, "OnTitleGuiInput")
+	_Error = TitleEdit.connect("text_entered", self, "OnTitleEditChanged")
+	_Error = TitleEdit.connect("focus_exited", self, "OnTitleEditUnfocus")
 	
 	Status.text = ""
 	
@@ -87,6 +93,7 @@ func _ready() -> void:
 func Show(InSnippet: Snippet) -> void:
 	This = InSnippet
 	Editor.text = This.Text
+	Title.text = This.GetTitle()
 	OnSnippetTextChanged()
 	
 	var Bounds: Rect2 = InSnippet.BackgroundNode.GetBounds(InSnippet.global_position)
@@ -141,26 +148,19 @@ func OnCompileTimer() -> void:
 	
 	Editor.ClearLineStates()
 	Code.Reset()
-	ParseResult = Code.ToLua(Editor.text)
-	if not ParseResult.Success:
-		return
 	
-	This.Text = Editor.text
-	This.SetTitle(ParseResult.FunctionName)
+	var Source: String = Editor.text
+	This.Text = Source
 	
-	var CompileResult = Code.Compile(ParseResult.Code)
+	var CompileResult = Code.Compile(Source)
 	Lua.readonly = false
-	Lua.text = ParseResult.Code
+	Lua.text = Source
 	Lua.readonly = true
 	
 	UpdateStatusBar(CompileResult)
-	
 	ToggleRunButtons(CompileResult.Success)
 	
-	var Args = PoolStringArray()
-	for _I in range(ParseResult.Arguments.size()): Args.append("nil")
-	
-	UTBase.text = ParseResult.FunctionName + "(" + Args.join(",") + ")"
+	UTBase.text = This.GetTitle() + "()"
 	
 	if not CompileResult.Success:
 		Editor.SetLineState(CompileResult.GetLine(), BaseTextEdit.LINE_STATE.ERROR)
@@ -171,25 +171,13 @@ func RunUnitTest() -> void:
 	Code.Reset()
 	Log.Clear()
 	
-	# The first thing we need to do is define the function. This is done by executing
-	# the main function so it is defined. This should succeed if it passed the
-	# compilation phase.
-	var Result = Code.Execute(Lua.text)
-	if not Result.Success:
-		Editors.current_tab = 0
-		UpdateStatusBar(Result)
-	
 	var FnName: String = This.GetTitle()
-	
-	# Focus the unit test edit control.
-	Editors.current_tab = 1
-	
 	Log.Info("Running unit tests for snippet '%s'." % FnName)
 	
 	# First, run the base unit test and ensure no invalid operations occur.
 	# TODO: Pass in parsed arguments results. This will require a cached ParserResult
 	# object that was generated after text has been entered.
-	Result = Code.VM.Call(FnName, null)
+	var Result = Code.Execute(Editor.text)
 	UpdateStatusBar(Result)
 	
 	# TODO: Custom unit test code should just do a raw execute. It is up to
@@ -238,4 +226,33 @@ func OnAutoCompleteConfirm(Item: String) -> void:
 func ToggleRunButtons(Enabled: bool) -> void:
 	Toolbar.Run.disabled = not Enabled
 	Toolbar.RunUT.disabled = not Enabled
+	
+
+func OnTitleGuiInput(event: InputEvent) -> void:
+	var MouseButton = event as InputEventMouseButton
+	if MouseButton:
+		if MouseButton.doubleclick and MouseButton.button_index == BUTTON_LEFT:
+			EditTitle()
+			# Calling set_input_as_handled did not seem to work and will need more
+			# investigation. For now, just defer the call to ensure the window is not moved.
+			call_deferred("CancelOp")
+	
+
+func EditTitle() -> void:
+	Title.visible = false
+	TitleEdit.visible = true
+	TitleEdit.text = Title.text
+	TitleEdit.select_all()
+	TitleEdit.grab_focus()
+	
+
+func OnTitleEditChanged(Text: String) -> void:
+	This.SetTitle(Text)
+	Title.text = Text
+	OnTitleEditUnfocus()
+	
+
+func OnTitleEditUnfocus() -> void:
+	Title.visible = true
+	TitleEdit.visible = false
 	

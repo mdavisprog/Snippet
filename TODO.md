@@ -2,21 +2,24 @@
 This document provides a location to place all future tasks.
 
 ## v0.1
-[x] Global output window to display any output and status messages.
-[ ] Separate 'Run' button for running all connected snippets vs unit test.
-[x] Default maximize on startup.
-[ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
-[ ] Refocus opened snippet editor for same snippets. Prevent duplicate snippet editors for the same snippet.
-[ ] Add tooltips for snippet window buttons.
-[ ] Print runtime stack trace to output window.
-[ ] Auto-complete window stays up if no suggestions are available.
+ [x] Global output window to display any output and status messages.
+ [ ] Separate 'Run' button for running all connected snippets vs unit test.
+ [x] Default maximize on startup.
+ [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
+ [ ] Refocus opened snippet editor for same snippets. Prevent duplicate snippet editors for the same snippet.
+ [ ] Add tooltips for snippet window buttons.
+ [ ] Print runtime stack trace to output window.
+ [ ] Auto-complete window stays up if no suggestions are available.
 
 ### refactor_snippets
-[ ] Deprecate default function declaration for each new snippet.
-[ ] Pass return values from current snippet to the next connected snippet.
-[ ] Deprecate translating snippet code to Lua code. For now, just execute the raw code in the snippet. 
-[ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
-[ ] Set snippet title through editable label.
+ [x] Deprecate default function declaration for each new snippet.
+ [ ] Pass return values from current snippet to the next connected snippet.
+ [x] Deprecate translating snippet code to Lua code. For now, just execute the raw code in the snippet. 
+ [ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
+ [x] Set snippet title through editable label.
+ [ ] Take minimum size into account when resizing.
+ [ ] Snippet option to edit name.
+ [ ] Update default 'main' snippet code.
 
 ### Items
 

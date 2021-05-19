@@ -76,10 +76,10 @@ func OnWorkspaceOperation(Phase: int, Operation: int) -> void:
 	
 
 func OnWorkspaceAddSnippet(Item: Snippet) -> void:
-	EditSnippet(Item)
+	EditSnippet(Item, true)
 	
 
-func EditSnippet(Item: Snippet) -> void:
+func EditSnippet(Item: Snippet, IsNew := false) -> void:
 	if not Item:
 		return
 	
@@ -91,6 +91,9 @@ func EditSnippet(Item: Snippet) -> void:
 	SnippetWindowInstance.Show(Item)
 	SnippetWindowInstance.Editor.Select("New_Snippet")
 	var _Error = SnippetWindowInstance.connect("OnRunAll", self, "OnRun")
+	
+	if IsNew:
+		SnippetWindowInstance.EditTitle()
 	
 
 # TODO: Look into placing this into a separate system.
