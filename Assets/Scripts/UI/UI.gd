@@ -110,35 +110,15 @@ func OnRun() -> void:
 	var Next: Snippet = WorkspaceNode.MainSnippet
 	while Next:
 		var Name: String = Next.GetTitle()
-		print("Running snippet: %s" % Name)
-		
-		# Translate the snippet text into Lua code first.
-		# TODO: May be able to store this since process is done automatically when
-		# the developer is making changes to the snippet.
-		var Result = Code.ToLua(Next.Text)
-		if not Result.Success:
-			print("Failed to convert to lua for snippet '%s'." % Name)
-			break
+		var Source: String = Next.Text
 		
 		# Reset to a clean slate for each snippet for now.
 		# TODO: Need to pass on data returned from this snippet to the next connected snippet.
 		Code.Reset()
 		
-		var ExecResult = Code.Execute(Result.Code)
+		var ExecResult = Code.Execute(Source)
 		if not ExecResult.Success:
-			print("Failed to load function for snippet '%s'." % Name)
-			break
-		
-		# Now call the function.
-		# TODO: Properly retrieve the results of the this execution to be passed into the
-		# next execution.
-		var Args = PoolStringArray()
-		for _I in range(Result.Arguments.size()): Args.append("nil")
-		var FnCall = Result.FunctionName + "(" + Args.join(",") + ")"
-		
-		ExecResult = Code.Execute(FnCall)
-		if not ExecResult.Success:
-			print("Failed to run snippet '%s'." % Name)
+			print("Failed to execute snippet '%s'." % Name)
 			break
 		
 		Next = Next.GetNextSnippet()

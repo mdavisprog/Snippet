@@ -20,7 +20,7 @@ This document provides a location to place all future tasks.
  [ ] Take minimum size into account when resizing.
  [ ] Snippet option to edit name.
  [x] Update default 'main' snippet code.
- [ ] Update 'Run' option for all snippets to mimic the unit test run.
+ [x] Update 'Run' option for all snippets to mimic the unit test run.
 
 ### Items
 
