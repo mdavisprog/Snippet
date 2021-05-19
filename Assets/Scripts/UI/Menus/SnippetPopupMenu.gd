@@ -28,6 +28,7 @@ extends BasePopupMenu
 # List of actions that can be taken on a snippet.
 enum {
 	EDIT,
+	EDIT_TITLE,
 	DELETE
 }
 
@@ -44,10 +45,12 @@ func SetSnippet(InSnippetRef: Snippet) -> void:
 	SnippetRef = InSnippetRef
 	if SnippetRef:
 		add_item("Edit", EDIT)
+		add_item("Edit Name", EDIT_TITLE)
 		add_item("Delete", DELETE)
 		
 		var WorkspaceNode: Workspace = get_node_or_null(Utility.GetWorkspacePath())
 		if WorkspaceNode and WorkspaceNode.MainSnippet == SnippetRef:
+			set_item_disabled(EDIT_TITLE, true)
 			set_item_disabled(DELETE, true)
 		
 		SnippetRef.SetState(Snippet.STATE.LOCKED)
@@ -56,11 +59,9 @@ func SetSnippet(InSnippetRef: Snippet) -> void:
 func OnPressed(Id: int) -> void:
 	match (Id):
 		EDIT:
-			var UIFactoryNode: UIFactory = get_node_or_null(Utility.GetUIFactoryPath())
-			if UIFactoryNode and UIFactoryNode.SnippetWindowTemplate:
-				var Instance: SnippetWindow = UIFactoryNode.SnippetWindowTemplate.instance()
-				get_parent().add_child(Instance)
-				Instance.Show(SnippetRef)
+			ShowSnippetEditor(Id)
+		EDIT_TITLE:
+			ShowSnippetEditor(Id)
 		DELETE:
 			SnippetRef.queue_free()
 	
@@ -69,4 +70,15 @@ func OnHide() -> void:
 	if SnippetRef:
 		SnippetRef.SetState(Snippet.STATE.NORMAL)
 		SnippetRef.OnMouseExited()
+	
+
+func ShowSnippetEditor(Op: int) -> void:
+	var UIFactoryNode: UIFactory = get_node_or_null(Utility.GetUIFactoryPath())
+	if UIFactoryNode.SnippetWindowTemplate:
+		var Instance: SnippetWindow = UIFactoryNode.SnippetWindowTemplate.instance()
+		get_parent().add_child(Instance)
+		Instance.Show(SnippetRef)
+		
+		if Op == EDIT_TITLE:
+			Instance.EditTitle()
 	

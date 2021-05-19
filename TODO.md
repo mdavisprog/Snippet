@@ -18,7 +18,7 @@ This document provides a location to place all future tasks.
  [ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
  [x] Set snippet title through editable label.
  [ ] Take minimum size into account when resizing.
- [ ] Snippet option to edit name.
+ [x] Snippet option to edit name.
  [x] Update default 'main' snippet code.
  [x] Update 'Run' option for all snippets to mimic the unit test run.
 
