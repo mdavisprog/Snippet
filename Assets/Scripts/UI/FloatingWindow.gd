@@ -53,9 +53,6 @@ onready var Sizer: DynamicSizer = $Sizer
 func _ready() -> void:
 	var _Error = null
 	
-	if Title:
-		_Error = Title.connect("resized", self, "OnTitleResized")
-	
 	if Engine.editor_hint:
 		# Editor only code just go here.
 		return
@@ -93,18 +90,6 @@ func _gui_input(event: InputEvent) -> void:
 		match (Op):
 			OP.MOVE:
 				rect_position += MouseMotion.relative
-	
-
-func OnTitleResized() -> void:
-	if not Title:
-		return
-	
-	if Title.text.empty():
-		margin_top = 0
-	else:
-		margin_top = -Title.rect_size.y
-	
-	UpdateCloseButton()
 	
 
 func UpdateCloseButton() -> void:
@@ -150,4 +135,8 @@ func SetHideCloseButton(Value: bool) -> void:
 
 func OnSizer() -> void:
 	Op = OP.RESIZE
+	
+
+func CancelOp() -> void:
+	Op = OP.NONE
 	
