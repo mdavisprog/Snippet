@@ -239,6 +239,10 @@ func OnTitleGuiInput(event: InputEvent) -> void:
 	
 
 func EditTitle() -> void:
+	var WorkspaceNode: Workspace = get_node_or_null(Utility.GetWorkspacePath())
+	if WorkspaceNode and WorkspaceNode.MainSnippet == This:
+		return
+	
 	Title.visible = false
 	TitleEdit.visible = true
 	TitleEdit.text = Title.text
