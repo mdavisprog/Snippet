@@ -30,9 +30,18 @@ func _ready() -> void:
 	_Error = Log.connect("OnClear", self, "OnClear")
 	
 
-func OnLog(_Type: int, Contents: String) -> void:
+func OnLog(Type: int, Contents: String) -> void:
+	var PopColor = false
+	match (Type):
+		Log.TYPE.ERROR:
+			push_color(Color.red)
+			PopColor = true
+	
 	print(Contents)
 	AddLine(Contents)
+	
+	if PopColor:
+		pop()
 	
 
 func OnClear() -> void:

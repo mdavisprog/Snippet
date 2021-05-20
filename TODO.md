@@ -12,7 +12,7 @@ This document provides a location to place all future tasks.
 - [ ] Auto-complete window stays up if no suggestions are available.
 
 ### runtime_stack_output
-- [ ] Color error messages red in output window.
+- [x] Color error messages red in output window.
 - [ ] Highlight line number when unit test fails.
 - [ ] Print stack output when full run is used.
 
