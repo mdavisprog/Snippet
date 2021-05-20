@@ -55,11 +55,13 @@ public:
 	Ref<LuaResult> Compile(const String &Source);
 	Ref<LuaResult> Execute(const String &Source);
 	Ref<LuaResult> Call(const String &FnName, Variant Args);
+	void PushArguments(const Array &Args);
 	void Reset();
 
 private:
 	bool InitState();
 	void Close();
+	Array GetReturnValues(lua_State *State) const;
 };
 
 }

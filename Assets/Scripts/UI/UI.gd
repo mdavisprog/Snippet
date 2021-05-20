@@ -107,6 +107,7 @@ func OnRun() -> void:
 	Log.Clear()
 	Log.Info("Running program.")
 	
+	var ExecResult = null
 	var Next: Snippet = WorkspaceNode.MainSnippet
 	while Next:
 		var Name: String = Next.GetTitle()
@@ -116,7 +117,10 @@ func OnRun() -> void:
 		# TODO: Need to pass on data returned from this snippet to the next connected snippet.
 		Code.Reset()
 		
-		var ExecResult = Code.Execute(Source)
+		if ExecResult:
+			Code.VM.PushArguments(ExecResult.Results)
+		
+		ExecResult = Code.Execute(Source)
 		if not ExecResult.Success:
 			print("Failed to execute snippet '%s'." % Name)
 			break

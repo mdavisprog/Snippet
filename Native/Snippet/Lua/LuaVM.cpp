@@ -187,6 +187,7 @@ void LuaVM::_register_methods()
 	register_method("Compile", &LuaVM::Compile);
 	register_method("Execute", &LuaVM::Execute);
 	register_method("Call", &LuaVM::Call);
+	register_method("PushArguments", &LuaVM::PushArguments);
 	register_method("Reset", &LuaVM::Reset);
 	register_signal<LuaVM>("OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
 }
@@ -287,7 +288,11 @@ Ref<LuaResult> LuaVM::Execute(const String &Source)
 	}
 
 	Result->Success = lua_pcall_handler(State, 0, LUA_MULTRET) == LUA_OK;
-	if (!Result->Success)
+	if (Result->Success)
+	{
+		Result->Results = GetReturnValues(State);
+	}
+	else
 	{
 		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::RUNTIME);
 		lua_pop(State, 1);
@@ -317,14 +322,7 @@ Ref<LuaResult> LuaVM::Call(const String &FnName, Variant Args)
 	Result->Success = lua_pcall_handler(State, 1, LUA_MULTRET) == LUA_OK;
 	if (Result->Success)
 	{
-		int Results = lua_gettop(State);
-
-		for (int I = 1; I <= Results; I++)
-		{
-			Result->Results.append(ToVariant(State, I));
-		}
-
-		lua_pop(State, Results);
+		Result->Results = GetReturnValues(State);
 	}
 	else
 	{
@@ -333,6 +331,23 @@ Ref<LuaResult> LuaVM::Call(const String &FnName, Variant Args)
 	}
 
 	return Result;
+}
+
+void LuaVM::PushArguments(const Array &Args)
+{
+	if (State == nullptr)
+	{
+		return;
+	}
+
+	lua_getglobal(State, "_G");
+	for (int I = 0; I < Args.size(); I++)
+	{
+		PushVariant(State, Args[I]);
+		String Field = String("arg{0}").format(Array::make(I));
+		lua_setfield(State, -2, Field.ascii().get_data());
+	}
+	lua_pop(State, 1);
 }
 
 void LuaVM::Reset()
@@ -365,6 +380,22 @@ void LuaVM::Close()
 		lua_close(State);
 		State = nullptr;
 	}
+}
+
+Array LuaVM::GetReturnValues(lua_State *State) const
+{
+	Array Result;
+
+	int Count = lua_gettop(State);
+
+	for (int I = 1; I <= Count; I++)
+	{
+		Result.append(ToVariant(State, I));
+	}
+
+	lua_pop(State, Count);
+
+	return Result;
 }
 
 }

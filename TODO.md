@@ -13,7 +13,7 @@ This document provides a location to place all future tasks.
 
 ### refactor_snippets
  [x] Deprecate default function declaration for each new snippet.
- [ ] Pass return values from current snippet to the next connected snippet.
+ [x] Pass return values from current snippet to the next connected snippet.
  [x] Deprecate translating snippet code to Lua code. For now, just execute the raw code in the snippet. 
  [ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
  [x] Set snippet title through editable label.
@@ -50,3 +50,4 @@ This document provides a location to place all future tasks.
 * Allow any snippet to use any programming language?
 * Update to VisualStudio 2019 compiler.
 * Snippet database file could be a cached file in a hidden folder. Filename can be relative path from root hash.
+* Investigate ways to have snippets return a name with the value so that it can be referenced by that name in the connected snippet.
