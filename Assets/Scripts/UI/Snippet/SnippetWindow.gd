@@ -77,7 +77,6 @@ onready var TitleEdit: LineEdit = $Panel/VBoxContainer/TitleContainer/TitleEdit
 func _ready() -> void:
 	var _Error = Toolbar.connect("OnAction", self, "OnAction")
 	_Error = Editor.connect("text_changed", self, "OnSnippetTextChanged")
-	_Error = Editors.connect("tab_changed", self, "OnTabChanged")
 	_Error = CompileTimer.connect("timeout", self, "OnCompileTimer")
 	_Error = AutoCompleteTimer.connect("timeout", self, "OnAutoComplete")
 	_Error = AutoCompleteWindow.connect("OnConfirm", self, "OnAutoCompleteConfirm")
@@ -109,30 +108,8 @@ func OnAction(Action: int) -> void:
 			RunUnitTest()
 	
 
-func OnTabChanged(Tab: int) -> void:
-	if not Code:
-		return
-	
-	if Editors.get_tab_control(Tab) == UTControl:
-		UpdateStatusBar(Code.ExecResult)
-	else:
-		UpdateStatusBar(Code.CompileResult)
-	
-
-func UpdateStatusBar(VMResult) -> void:
-	if not VMResult:
-		return
-	
-	var Success: bool = VMResult.Success
-	
-	var Active: Control = Editors.get_current_tab_control()
-	match (Active):
-		Editor:
-			Status.text = "Success" if Success else "Failed to compile."
-		_:
-			# Update the text with a proper error message from VMResult if one exists.
-			Status.text = "Success" if Success else VMResult.GetMessage()
-	
+func UpdateStatusBar(Success: bool, Error: String) -> void:
+	Status.text = "Success" if Success else Error
 	Status.SetError(not Success)
 	
 
@@ -157,7 +134,7 @@ func OnCompileTimer() -> void:
 	Lua.text = Source
 	Lua.readonly = true
 	
-	UpdateStatusBar(CompileResult)
+	UpdateStatusBar(CompileResult.Success, "Failed to compile.")
 	ToggleRunButtons(CompileResult.Success)
 	
 	UTBase.text = This.GetTitle() + "()"
@@ -178,7 +155,10 @@ func RunUnitTest() -> void:
 	# TODO: Pass in parsed arguments results. This will require a cached ParserResult
 	# object that was generated after text has been entered.
 	var Result = Code.Execute(Editor.text)
-	UpdateStatusBar(Result)
+	UpdateStatusBar(Result.Success, "Failed to run unit tests.")
+	
+	if not Result.Success:
+		Log.Error("\n" + Result.GetMessage())
 	
 	# TODO: Custom unit test code should just do a raw execute. It is up to
 	# the developer on how this unit test behaves and should assert if there is
