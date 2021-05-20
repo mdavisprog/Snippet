@@ -57,14 +57,17 @@ func _input(event: InputEvent) -> void:
 		if Drag:
 			var Position: Vector2 = GetPosition()
 			var Size: Vector2 = GetSize()
+			var MinSize: Vector2 = GetMinSize()
 			if Flags & SIZER.N:
-				Position.y += MouseMotion.relative.y
-				Size.y -= MouseMotion.relative.y
+				if Size.y - MouseMotion.relative.y > MinSize.y:
+					Position.y += MouseMotion.relative.y
+					Size.y -= MouseMotion.relative.y
 			if Flags & SIZER.S:
 				Size.y += MouseMotion.relative.y
 			if Flags & SIZER.W:
-				Position.x += MouseMotion.relative.x
-				Size.x -= MouseMotion.relative.x
+				if Size.x - MouseMotion.relative.x > MinSize.x:
+					Position.x += MouseMotion.relative.x
+					Size.x -= MouseMotion.relative.x
 			if Flags & SIZER.E:
 				Size.x += MouseMotion.relative.x
 			
@@ -118,6 +121,15 @@ func GetSize() -> Vector2:
 	var ParentControl = get_parent() as Control
 	if ParentControl:
 		Result = ParentControl.rect_size
+	
+	return Result
+
+func GetMinSize() -> Vector2:
+	var Result = Vector2.ZERO
+	
+	var ParentControl = get_parent() as Control
+	if ParentControl:
+		Result = ParentControl.rect_min_size
 	
 	return Result
 

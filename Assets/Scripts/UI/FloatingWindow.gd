@@ -59,6 +59,7 @@ func _ready() -> void:
 	
 	_Error = connect("resized", self, "OnResized")
 	_Error = Sizer.connect("OnDrag", self, "OnSizer")
+	_Error = Title.connect("resized", self, "OnTitleResized")
 	
 	if CloseButton:
 		_Error = CloseButton.connect("pressed", self, "OnClosePressed")
@@ -90,6 +91,10 @@ func _gui_input(event: InputEvent) -> void:
 		match (Op):
 			OP.MOVE:
 				rect_position += MouseMotion.relative
+	
+
+func OnTitleResized() -> void:
+	rect_min_size = Title.rect_size + Vector2(25, 0)
 	
 
 func UpdateCloseButton() -> void:

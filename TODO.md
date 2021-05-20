@@ -15,12 +15,12 @@ This document provides a location to place all future tasks.
  [x] Deprecate default function declaration for each new snippet.
  [x] Pass return values from current snippet to the next connected snippet.
  [x] Deprecate translating snippet code to Lua code. For now, just execute the raw code in the snippet. 
- [ ] 'CallExpanded' function which accepts an array and pushes each element as each individual parameter instead of a table.
  [x] Set snippet title through editable label.
- [ ] Take minimum size into account when resizing.
+ [x] Take minimum size into account when resizing.
  [x] Snippet option to edit name.
  [x] Update default 'main' snippet code.
  [x] Update 'Run' option for all snippets to mimic the unit test run.
+ [ ] Prevent 'main' snippet title edit through snippet window.
 
 ### Items
 

@@ -256,3 +256,8 @@ func OnTitleEditUnfocus() -> void:
 	Title.visible = true
 	TitleEdit.visible = false
 	
+
+func OnTitleResized() -> void:
+	rect_min_size.x = Title.rect_size.x + 25
+	rect_min_size.y = (Editor.rect_global_position.y - rect_global_position.y) * 2
+	
