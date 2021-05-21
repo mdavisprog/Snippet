@@ -31,8 +31,7 @@ namespace godot
 
 void LuaResult::_register_methods()
 {
-	register_method("GetLine", &LuaResult::GetLine);
-	register_method("GetMessage", &LuaResult::GetMessage);
+	register_method("GetError", &LuaResult::GetError);
 
 	register_property<LuaResult, bool>("Success", &LuaResult::Success, false);
 	register_property<LuaResult, Array>("Results", &LuaResult::Results, Array());
@@ -53,14 +52,9 @@ void LuaResult::_init()
 	Error = Ref<LuaError>(LuaError::_new());
 }
 
-int LuaResult::GetLine() const
+Ref<LuaError> LuaResult::GetError() const
 {
-	return Error->Line;
-}
-
-String LuaResult::GetMessage() const
-{
-	return Error->Message;
+	return Error;
 }
 
 }

@@ -122,7 +122,7 @@ func OnRun() -> void:
 		
 		ExecResult = Code.Execute(Source)
 		if not ExecResult.Success:
-			print("Failed to execute snippet '%s'." % Name)
+			Log.Error("Failed to execute snippet '" + Name + "'.\n" + ExecResult.GetError().Contents);
 			break
 		
 		Next = Next.GetNextSnippet()

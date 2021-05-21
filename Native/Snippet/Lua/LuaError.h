@@ -31,6 +31,8 @@ SOFTWARE.
 
 namespace godot
 {
+	class LuaStackTrace;
+	class LuaStackTraceElement;
 
 class LuaError : public Reference
 {
@@ -51,16 +53,18 @@ public:
 	void _init();
 	bool IsSyntax() const;
 	bool IsRuntime() const;
+	Ref<LuaStackTrace> GetStackTrace() const;
+	Ref<LuaStackTraceElement> GetTop() const;
 
 	// Native Functions
-	void Parse(const String &Contents, TYPE InType);
-
-	int Line;
-	String Message;
-	String Descriptor;
+	void Parse(const String &InContents, TYPE InType);
 
 private:
+	Ref<LuaStackTraceElement> CreateElement(const String &Line) const;
+
 	TYPE Type;
+	Ref<LuaStackTrace> StackTrace;
+	String Contents;
 };
 
 }

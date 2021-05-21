@@ -44,8 +44,7 @@ public:
 	~LuaResult();
 
 	void _init();
-	int GetLine() const;
-	String GetMessage() const;
+	Ref<LuaError> GetError() const;
 
 	bool Success;
 	Array Results;

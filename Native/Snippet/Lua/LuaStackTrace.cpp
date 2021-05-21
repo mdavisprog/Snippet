@@ -24,31 +24,67 @@ SOFTWARE.
 
 */
 
-#include "Lua/LuaError.h"
-#include "Lua/LuaStackTrace.h"
-#include "Lua/LuaStackTraceElement.h"
-#include "Lua/LuaResult.h"
-#include "Lua/LuaVM.h"
-#include "SnippetStub.h"
+#include "LuaStackTrace.h"
+#include "LuaStackTraceElement.h"
 
-extern "C" void GDN_EXPORT snippet_gdnative_init(godot_gdnative_init_options *Options)
+namespace godot
 {
-	godot::Godot::gdnative_init(Options);
+
+void LuaStackTrace::_register_methods()
+{
+	register_method("Count", &LuaStackTrace::Count);
+	register_method("Get", &LuaStackTrace::Get);
+	register_method("Top", &LuaStackTrace::Top);
 }
 
-extern "C" void GDN_EXPORT snippet_gdnative_terminate(godot_gdnative_terminate_options *Options)
+LuaStackTrace::LuaStackTrace()
 {
-	godot::Godot::gdnative_terminate(Options);
 }
 
-extern "C" void GDN_EXPORT snippet_nativescript_init(void *Handle)
+LuaStackTrace::~LuaStackTrace()
 {
-	godot::Godot::nativescript_init(Handle);
+}
 
-	godot::register_class<godot::LuaError>();
-	godot::register_class<godot::LuaStackTrace>();
-	godot::register_class<godot::LuaStackTraceElement>();
-	godot::register_class<godot::LuaResult>();
-	godot::register_class<godot::LuaVM>();
-	godot::register_class<godot::SnippetStub>();
+void LuaStackTrace::_init()
+{
+	Elements = Array();
+}
+
+int LuaStackTrace::Count() const
+{
+	return Elements.size();
+}
+
+Ref<LuaStackTraceElement> LuaStackTrace::Get(int Index) const
+{
+	Ref<LuaStackTraceElement> Result;
+
+	if (Index >= 0 && Index < Count())
+	{
+		Result = Elements[Index];
+	}
+
+	return Result;
+}
+
+Ref<LuaStackTraceElement> LuaStackTrace::Top() const
+{
+	return Elements.back();
+}
+
+void LuaStackTrace::Clear()
+{
+	Elements.clear();
+}
+
+void LuaStackTrace::Push(const Ref<LuaStackTraceElement> &Element)
+{
+	Elements.append(Element);
+}
+
+void LuaStackTrace::PushFront(const Ref<LuaStackTraceElement> &Element)
+{
+	Elements.push_front(Element);
+}
+
 }

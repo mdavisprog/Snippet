@@ -26,19 +26,34 @@ SOFTWARE.
 
 #include "LuaError.h"
 
+#include "LuaStackTrace.h"
+#include "LuaStackTraceElement.h"
 #include <vector>
 
 namespace godot
 {
 
+static String Pop(PoolStringArray &Stack)
+{
+	String Result = "";
+
+	if (Stack.size() > 0)
+	{
+		Result = String(Stack[0]);
+		Stack.remove(0);
+	}
+
+	return Result;
+}
+
 void LuaError::_register_methods()
 {
 	register_method("IsSyntax", &LuaError::IsSyntax);
 	register_method("IsRuntime", &LuaError::IsRuntime);
+	register_method("GetStackTrace", &LuaError::GetStackTrace);
+	register_method("GetTop", &LuaError::GetTop);
 
-	register_property<LuaError, int>("Line", &LuaError::Line, 1);
-	register_property<LuaError, String>("Message", &LuaError::Message, "");
-	register_property<LuaError, String>("Descriptor", &LuaError::Descriptor, "");
+	register_property<LuaError, String>("Contents", &LuaError::Contents, "");
 }
 
 LuaError::LuaError()
@@ -51,12 +66,9 @@ LuaError::~LuaError()
 
 void LuaError::_init()
 {
-	Line = 1;
-	Message = "";
-	Descriptor = "";
-
-	// PRIVATE
 	Type = TYPE::SYNTAX;
+	StackTrace = Ref<LuaStackTrace>(LuaStackTrace::_new());
+	Contents = "";
 }
 
 bool LuaError::IsSyntax() const
@@ -69,39 +81,70 @@ bool LuaError::IsRuntime() const
 	return Type == TYPE::RUNTIME;
 }
 
-void LuaError::Parse(const String &Contents, TYPE InType)
+Ref<LuaStackTrace> LuaError::GetStackTrace() const
 {
-	Message = Contents;
+	return StackTrace;
+}
+
+Ref<LuaStackTraceElement> LuaError::GetTop() const
+{
+	return StackTrace->Top();
+}
+
+void LuaError::Parse(const String &InContents, TYPE InType)
+{
+	Contents = InContents;
 	Type = InType;
+	StackTrace->Clear();
 
 	if (Type == TYPE::SYNTAX)
 	{
-		PoolStringArray Tokens = Contents.split(":", false);
-
 		// Should expect something like this:
 		// [type Contents]:Line:Message
 
-		static auto Pop = [](PoolStringArray &Stack)
+		// Syntax errors generally shouldn't be described as a call stack.
+		Ref<LuaStackTraceElement> Element = CreateElement(Contents);
+		if (Element != nullptr)
 		{
-			String Result = "";
-
-			if (Stack.size() > 0)
-			{
-				Result = String(Stack[0]);
-				Stack.remove(0);
-			}
-
-			return Result;
-		};
-
-		Descriptor = Pop(Tokens);
-		Line = Pop(Tokens).to_int();
-		Message = Pop(Tokens);
+			StackTrace->Push(Element);
+		}
 	}
 	else
 	{
-		// TODO: Need to split error message and parse stack trace.
+		PoolStringArray Lines = Contents.split("\n", false);
+
+		for (int I = 0; I < Lines.size(); I++)
+		{
+			const String &Line = Lines[I];
+			if (Line == "stack traceback:")
+			{
+				continue;
+			}
+
+			Ref<LuaStackTraceElement> Element = CreateElement(Line);
+			if (Element != nullptr)
+			{
+				// Stack is unwound from top most first so elements need to be pushed onto the internal stack
+				// in reverse order.
+				StackTrace->PushFront(Element);
+			}
+		}
 	}
+}
+
+Ref<LuaStackTraceElement> LuaError::CreateElement(const String &Line) const
+{
+	if (Line.empty())
+	{
+		return nullptr;
+	}
+
+	PoolStringArray Tokens = Line.split(":", false);
+	Ref<LuaStackTraceElement> Element = Ref<LuaStackTraceElement>(LuaStackTraceElement::_new());
+	Element->Descriptor = Pop(Tokens);
+	Element->Line = Pop(Tokens).to_int();
+	Element->Message = Pop(Tokens);
+	return Element;
 }
 
 }

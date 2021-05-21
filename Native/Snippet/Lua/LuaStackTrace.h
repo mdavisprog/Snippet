@@ -24,31 +24,37 @@ SOFTWARE.
 
 */
 
-#include "Lua/LuaError.h"
-#include "Lua/LuaStackTrace.h"
-#include "Lua/LuaStackTraceElement.h"
-#include "Lua/LuaResult.h"
-#include "Lua/LuaVM.h"
-#include "SnippetStub.h"
+#pragma once
 
-extern "C" void GDN_EXPORT snippet_gdnative_init(godot_gdnative_init_options *Options)
+#include "Godot.hpp"
+#include "Reference.hpp"
+
+namespace godot
 {
-	godot::Godot::gdnative_init(Options);
-}
+	class LuaStackTraceElement;
 
-extern "C" void GDN_EXPORT snippet_gdnative_terminate(godot_gdnative_terminate_options *Options)
+class LuaStackTrace : public Reference
 {
-	godot::Godot::gdnative_terminate(Options);
-}
+	GODOT_CLASS(LuaStackTrace, Reference)
 
-extern "C" void GDN_EXPORT snippet_nativescript_init(void *Handle)
-{
-	godot::Godot::nativescript_init(Handle);
+public:
+	static void _register_methods();
 
-	godot::register_class<godot::LuaError>();
-	godot::register_class<godot::LuaStackTrace>();
-	godot::register_class<godot::LuaStackTraceElement>();
-	godot::register_class<godot::LuaResult>();
-	godot::register_class<godot::LuaVM>();
-	godot::register_class<godot::SnippetStub>();
+	LuaStackTrace();
+	~LuaStackTrace();
+
+	void _init();
+	int Count() const;
+	Ref<LuaStackTraceElement> Get(int Index) const;
+	Ref<LuaStackTraceElement> Top() const;
+
+	// Native Functions
+	void Clear();
+	void Push(const Ref<LuaStackTraceElement> &Element);
+	void PushFront(const Ref<LuaStackTraceElement> &Element);
+
+private:
+	Array Elements;
+};
+
 }

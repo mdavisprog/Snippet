@@ -24,31 +24,29 @@ SOFTWARE.
 
 */
 
-#include "Lua/LuaError.h"
-#include "Lua/LuaStackTrace.h"
-#include "Lua/LuaStackTraceElement.h"
-#include "Lua/LuaResult.h"
-#include "Lua/LuaVM.h"
-#include "SnippetStub.h"
+#pragma once
 
-extern "C" void GDN_EXPORT snippet_gdnative_init(godot_gdnative_init_options *Options)
+#include "Godot.hpp"
+#include "Reference.hpp"
+
+namespace godot
 {
-	godot::Godot::gdnative_init(Options);
-}
 
-extern "C" void GDN_EXPORT snippet_gdnative_terminate(godot_gdnative_terminate_options *Options)
+class LuaStackTraceElement : public Reference
 {
-	godot::Godot::gdnative_terminate(Options);
-}
+	GODOT_CLASS(LuaStackTraceElement, Reference)
 
-extern "C" void GDN_EXPORT snippet_nativescript_init(void *Handle)
-{
-	godot::Godot::nativescript_init(Handle);
+public:
+	static void _register_methods();
 
-	godot::register_class<godot::LuaError>();
-	godot::register_class<godot::LuaStackTrace>();
-	godot::register_class<godot::LuaStackTraceElement>();
-	godot::register_class<godot::LuaResult>();
-	godot::register_class<godot::LuaVM>();
-	godot::register_class<godot::SnippetStub>();
+	LuaStackTraceElement();
+	~LuaStackTraceElement();
+
+	void _init();
+
+	int Line;
+	String Descriptor;
+	String Message;
+};
+
 }

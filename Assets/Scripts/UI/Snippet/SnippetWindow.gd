@@ -134,13 +134,9 @@ func OnCompileTimer() -> void:
 	Lua.text = Source
 	Lua.readonly = true
 	
-	UpdateStatusBar(CompileResult.Success, "Failed to compile.")
+	SetError(CompileResult)
 	ToggleRunButtons(CompileResult.Success)
-	
 	UTBase.text = This.GetTitle() + "()"
-	
-	if not CompileResult.Success:
-		Editor.SetLineState(CompileResult.GetLine(), BaseTextEdit.LINE_STATE.ERROR)
 	
 
 func RunUnitTest() -> void:
@@ -155,10 +151,7 @@ func RunUnitTest() -> void:
 	# TODO: Pass in parsed arguments results. This will require a cached ParserResult
 	# object that was generated after text has been entered.
 	var Result = Code.Execute(Editor.text)
-	UpdateStatusBar(Result.Success, "Failed to run unit tests.")
-	
-	if not Result.Success:
-		Log.Error("\n" + Result.GetMessage())
+	SetError(Result, true)
 	
 	# TODO: Custom unit test code should just do a raw execute. It is up to
 	# the developer on how this unit test behaves and should assert if there is
@@ -244,4 +237,23 @@ func OnTitleEditUnfocus() -> void:
 func OnTitleResized() -> void:
 	rect_min_size.x = Title.rect_size.x + 25
 	rect_min_size.y = (Editor.rect_global_position.y - rect_global_position.y) * 2
+	
+
+func SetError(Result: Reference, PrintContents := false) -> void:
+	if not Result:
+		return
+	
+	var Message = ""
+	if not Result.Success:
+		var Error = Result.GetError()
+		var Top = Error.GetTop()
+		
+		if PrintContents:
+			Log.Error("\n" + Error.Contents)
+		
+		if Top:
+			Message = Top.Message
+			Editor.SetLineState(Top.Line, BaseTextEdit.LINE_STATE.ERROR)
+	
+	UpdateStatusBar(Result.Success, Message)
 	
