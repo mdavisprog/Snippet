@@ -23,6 +23,9 @@
 class_name UI
 extends Control
 
+# The tooltip font to use.
+export(Font) var TooltipFont
+
 # Hold a reference to the Workspace node.
 var WorkspaceNode: Workspace = null
 
@@ -48,6 +51,9 @@ func _ready() -> void:
 			_Error = WorkspaceNode.connect("OnAddSnippet", self, "OnWorkspaceAddSnippet")
 		else:
 			push_error("No valid Workspace node found at: " + Utility.GetWorkspacePath())
+	
+	if TooltipFont:
+		theme.set_font("font", "TooltipLabel", TooltipFont)
 	
 
 func _gui_input(event: InputEvent) -> void:

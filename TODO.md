@@ -7,7 +7,7 @@ This document provides a location to place all future tasks.
 - [x] Default maximize on startup.
 - [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 - [ ] Refocus opened snippet editor for same snippets. Prevent duplicate snippet editors for the same snippet.
-- [ ] Add tooltips for snippet window buttons.
+- [x] Add tooltips for snippet window buttons.
 - [x] Print runtime stack trace to output window.
 - [ ] Auto-complete window stays up if no suggestions are available.
 - [ ] BUG: Deleting connected node does not disconnect connected nodes.
