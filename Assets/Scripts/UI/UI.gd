@@ -92,6 +92,11 @@ func EditSnippet(Item: Snippet, IsNew := false) -> void:
 	if not UIFactoryNode or not UIFactoryNode.SnippetWindowTemplate:
 		return
 	
+	var Items: Array = get_tree().get_nodes_in_group("SnippetWindows")
+	for I in Items:
+		if I.This == Item:
+			return
+	
 	var SnippetWindowInstance: SnippetWindow = UIFactoryNode.SnippetWindowTemplate.instance()
 	add_child(SnippetWindowInstance)
 	SnippetWindowInstance.Show(Item)

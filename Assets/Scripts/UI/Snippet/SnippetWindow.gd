@@ -88,6 +88,8 @@ func _ready() -> void:
 	
 	ToggleRunButtons(false)
 	
+	add_to_group("SnippetWindows")
+	
 
 func Show(InSnippet: Snippet) -> void:
 	This = InSnippet

@@ -73,6 +73,13 @@ func OnHide() -> void:
 	
 
 func ShowSnippetEditor(Op: int) -> void:
+	var Items: Array = get_tree().get_nodes_in_group("SnippetWindows")
+	for I in Items:
+		if I.This == SnippetRef:
+			if Op == EDIT_TITLE:
+				I.EditTitle()
+			return
+	
 	var UIFactoryNode: UIFactory = get_node_or_null(Utility.GetUIFactoryPath())
 	if UIFactoryNode.SnippetWindowTemplate:
 		var Instance: SnippetWindow = UIFactoryNode.SnippetWindowTemplate.instance()
