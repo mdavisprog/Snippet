@@ -10,7 +10,7 @@ This document provides a location to place all future tasks.
 - [x] Print runtime stack trace to output window.
 - [x] Auto-complete window stays up if no suggestions are available.
 - [ ] BUG: Deleting connected node does not disconnect connected nodes.
-- [ ] BUG: Deleting snippet while editor window is open does not remove window.
+- [x] BUG: Deleting snippet while editor window is open does not remove window.
 
 ## v0.2
 - [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua

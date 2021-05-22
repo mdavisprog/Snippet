@@ -29,7 +29,7 @@ extends FloatingWindow
 signal OnRunAll()
 
 # The snippet associated with this window.
-var This: Snippet = null
+var This: Snippet = null setget SetSnippet
 
 # The result of a parse that occurs after text has been entered.
 var ParseResult: ParserResult = null
@@ -92,7 +92,7 @@ func _ready() -> void:
 	
 
 func Show(InSnippet: Snippet) -> void:
-	This = InSnippet
+	SetSnippet(InSnippet)
 	Editor.text = This.Text
 	Title.text = This.GetTitle()
 	OnSnippetTextChanged()
@@ -259,4 +259,14 @@ func SetError(Result: Reference, PrintContents := false) -> void:
 			Editor.SetLineState(Top.Line, BaseTextEdit.LINE_STATE.ERROR)
 	
 	UpdateStatusBar(Result.Success, Message)
+	
+
+func SetSnippet(Value: Snippet) -> void:
+	This = Value
+	if This:
+		var _Error = This.connect("tree_exited", self, "OnSnippetExit")
+	
+
+func OnSnippetExit() -> void:
+	queue_free()
 	
