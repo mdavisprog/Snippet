@@ -111,7 +111,7 @@ func GetLineHeight() -> float:
 func GetWordAtCursorStart() -> int:
 	var Result: PoolIntArray = search(" ", SEARCH_BACKWARDS, cursor_get_line(), cursor_get_column())
 	if not Result:
-		return cursor_get_column()
+		return 0
 	
 	var Line: int = Result[SEARCH_RESULT_LINE]
 	var Col: int = Result[SEARCH_RESULT_COLUMN]
@@ -120,7 +120,7 @@ func GetWordAtCursorStart() -> int:
 		# Did not find a space. Check for tab.
 		Result = search("\t", SEARCH_BACKWARDS, cursor_get_line(), cursor_get_column())
 		if not Result:
-			return cursor_get_column()
+			return 0
 		
 		Line = Result[SEARCH_RESULT_LINE]
 		Col = Result[SEARCH_RESULT_COLUMN]
@@ -128,13 +128,13 @@ func GetWordAtCursorStart() -> int:
 		if Line != cursor_get_line():
 			return cursor_get_column()
 	
-	return Col
+	return Col + 1
 
 func GetWordAtCursor() -> String:
 	var Line: int = cursor_get_line()
 	var Column: int = GetWordAtCursorStart()
 	
-	select(Line, Column + 1, Line, cursor_get_column())
+	select(Line, Column, Line, cursor_get_column())
 	var Result: String = get_selection_text()
 	deselect()
 	return Result
@@ -143,7 +143,7 @@ func SetWordAtCursor(Word: String) -> void:
 	var Line: int = cursor_get_line()
 	var Column: int = GetWordAtCursorStart()
 	
-	select(Line, Column + 1, Line, cursor_get_column())
+	select(Line, Column, Line, cursor_get_column())
 	insert_text_at_cursor(Word)
 	
 

@@ -12,9 +12,6 @@ This document provides a location to place all future tasks.
 - [ ] BUG: Deleting connected node does not disconnect connected nodes.
 - [ ] BUG: Deleting snippet while editor window is open does not remove window.
 
-### autocomplete_issues
-- [ ] Auto-complete doesn't work with cursor at 0 on line.
-
 ## v0.2
 - [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 
