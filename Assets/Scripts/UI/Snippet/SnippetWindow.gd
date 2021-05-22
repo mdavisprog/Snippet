@@ -186,6 +186,7 @@ func OnAutoComplete() -> void:
 		AutoCompleteWindow.List.add_item(I)
 	
 	if AutoCompleteWindow.List.get_item_count() == 0:
+		AutoCompleteWindow.visible = false
 		return
 	
 	AutoCompleteWindow.List.select(0)
