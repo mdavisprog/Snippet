@@ -147,3 +147,22 @@ func Modify(InPin: Pin) -> void:
 	Active.End = Active.get_global_mouse_position()
 	InPin.Connection = null
 	
+
+func Disconnect(InPin: Pin) -> void:
+	if not InPin:
+		return
+	
+	if not InPin.Connection:
+		return
+	
+	if InPin.Type == Pin.TYPE.OUTPUT:
+		if InPin.Connection.EndPin:
+			InPin.Connection.EndPin.Connection = null
+	else:
+		var Other = InPin.Connection.get_parent() as Pin
+		if Other:
+			Other.Connection = null
+	
+	InPin.Connection.queue_free()
+	InPin.Connection = null
+	

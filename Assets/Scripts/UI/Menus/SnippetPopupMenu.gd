@@ -63,6 +63,7 @@ func OnPressed(Id: int) -> void:
 		EDIT_TITLE:
 			ShowSnippetEditor(Id)
 		DELETE:
+			SnippetRef.Clean()
 			SnippetRef.queue_free()
 	
 

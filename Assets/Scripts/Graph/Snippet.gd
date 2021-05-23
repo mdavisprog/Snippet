@@ -76,13 +76,6 @@ func _ready() -> void:
 	InputPin = NewPin(Pin.TYPE.INPUT)
 	OutputPin = NewPin()
 	
-	# Below was an attempt to use the shape's mouse notifications for the selection
-	# system. But ran into an issue where closing the snippet editor window would stop
-	# the Area2D from receiving just the mouse notifications.
-#	if AreaNode:
-#		_Error = AreaNode.connect("mouse_entered", self, "OnMouseEntered")
-#		_Error = AreaNode.connect("mouse_exited", self, "OnMouseExited")
-	
 
 func SetTitle(Title: String) -> void:
 	if State == STATE.LOCKED:
@@ -235,3 +228,12 @@ func GetNextSnippet() -> Snippet:
 	
 	# The pin's parent is the background node. The parent of that node is the snippet.
 	return Connection.EndPin.get_parent().get_parent()
+
+func Clean() -> void:
+	var Connections: ConnectionManager = get_node_or_null(Utility.GetConnectionManager())
+	if not Connections:
+		return
+	
+	Connections.Disconnect(InputPin)
+	Connections.Disconnect(OutputPin)
+	
