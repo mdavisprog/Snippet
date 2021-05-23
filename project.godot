@@ -99,6 +99,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Assets/Scripts/Graph/Snippet.gd"
 }, {
+"base": "Node2D",
+"class": "SnippetGraph",
+"language": "GDScript",
+"path": "res://Assets/Scripts/Graph/SnippetGraph.gd"
+}, {
 "base": "BasePopupMenu",
 "class": "SnippetPopupMenu",
 "language": "GDScript",
@@ -159,7 +164,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Assets/Scripts/Language/VirtualMachine.gd"
 }, {
-"base": "Node2D",
+"base": "Node",
 "class": "Workspace",
 "language": "GDScript",
 "path": "res://Assets/Scripts/Graph/Workspace.gd"
@@ -183,6 +188,7 @@ _global_script_class_icons={
 "PinConnection": "",
 "Popups": "",
 "Snippet": "",
+"SnippetGraph": "",
 "SnippetPopupMenu": "",
 "SnippetTextEdit": "",
 "SnippetToolbar": "",

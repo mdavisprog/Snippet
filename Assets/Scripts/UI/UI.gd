@@ -26,8 +26,8 @@ extends Control
 # The tooltip font to use.
 export(Font) var TooltipFont
 
-# Hold a reference to the Workspace node.
-var WorkspaceNode: Workspace = null
+# Hold a reference to the SnippetGraph node.
+var SnippetGraphNode: SnippetGraph = null
 
 # HACK: Keep track developer workspace operations. Prevent opening context menu.
 var PerformedOp = false
@@ -44,13 +44,13 @@ onready var Code: VirtualMachine = $Code
 func _ready() -> void:
 	var _Error = null
 	
-	if not WorkspaceNode:
-		WorkspaceNode = get_node_or_null(Utility.GetWorkspacePath())
-		if WorkspaceNode:
-			_Error = WorkspaceNode.connect("OnOperation", self, "OnWorkspaceOperation")
-			_Error = WorkspaceNode.connect("OnAddSnippet", self, "OnWorkspaceAddSnippet")
+	if not SnippetGraphNode:
+		SnippetGraphNode = get_node_or_null(Utility.GetSnippetGraphPath())
+		if SnippetGraphNode:
+			_Error = SnippetGraphNode.connect("OnOperation", self, "OnSnippetGraphOperation")
+			_Error = SnippetGraphNode.connect("OnAddSnippet", self, "OnSnippetGraphAddSnippet")
 		else:
-			push_error("No valid Workspace node found at: " + Utility.GetWorkspacePath())
+			push_error("No valid SnippetGraph node found at: " + Utility.GetSnippetGraphPath())
 	
 	if TooltipFont:
 		theme.set_font("font", "TooltipLabel", TooltipFont)
@@ -61,27 +61,27 @@ func _gui_input(event: InputEvent) -> void:
 	if MouseButton:
 		if MouseButton.button_index == BUTTON_RIGHT:
 			if not MouseButton.pressed and not PerformedOp:
-				if WorkspaceNode:
-					if WorkspaceNode.HoveredSnippet:
-						PopupsNode.SnippetMenu.SetSnippet(WorkspaceNode.HoveredSnippet)
+				if SnippetGraphNode:
+					if SnippetGraphNode.HoveredSnippet:
+						PopupsNode.SnippetMenu.SetSnippet(SnippetGraphNode.HoveredSnippet)
 						PopupsNode.SnippetMenu.popup_at_mouse()
 					else:
 						PopupsNode.GraphMenu.popup_at_mouse()
 	
 
-func OnWorkspaceOperation(Phase: int, Operation: int) -> void:
+func OnSnippetGraphOperation(Phase: int, Operation: int) -> void:
 	match (Phase):
-		Workspace.Phases.Begin:
+		SnippetGraph.PHASES.BEGIN:
 			PerformedOp = false
-		Workspace.Phases.End:
+		SnippetGraph.PHASES.END:
 			PerformedOp = true
 	
 	match (Operation):
-		Workspace.Ops.Edit:
-			EditSnippet(WorkspaceNode.SelectedSnippet)
+		SnippetGraph.OPS.EDIT:
+			EditSnippet(SnippetGraphNode.SelectedSnippet)
 	
 
-func OnWorkspaceAddSnippet(Item: Snippet) -> void:
+func OnSnippetGraphAddSnippet(Item: Snippet) -> void:
 	EditSnippet(Item, true)
 	
 
@@ -112,14 +112,14 @@ func OnRun() -> void:
 	if not Code:
 		return
 	
-	if not WorkspaceNode:
+	if not SnippetGraphNode:
 		return
 	
 	Log.Clear()
 	Log.Info("Running program.")
 	
 	var ExecResult = null
-	var Next: Snippet = WorkspaceNode.MainSnippet
+	var Next: Snippet = SnippetGraphNode.MainSnippet
 	while Next:
 		var Name: String = Next.GetTitle()
 		var Source: String = Next.Text

@@ -36,7 +36,6 @@ func _ready() -> void:
 func OnPressed(Id: int) -> void:
 	match (Id):
 		New_Function:
-			var WorkspaceNode: Workspace = get_node(Utility.GetWorkspacePath())
-			if WorkspaceNode:
-				var _Item: Snippet = WorkspaceNode.AddSnippet(get_global_mouse_position())
+			var SnippetGraphNode: SnippetGraph = get_node(Utility.GetSnippetGraphPath())
+			var _Item: Snippet = SnippetGraphNode.AddSnippet(get_global_mouse_position())
 	

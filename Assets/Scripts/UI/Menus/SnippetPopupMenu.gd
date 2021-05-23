@@ -48,8 +48,8 @@ func SetSnippet(InSnippetRef: Snippet) -> void:
 		add_item("Edit Name", EDIT_TITLE)
 		add_item("Delete", DELETE)
 		
-		var WorkspaceNode: Workspace = get_node_or_null(Utility.GetWorkspacePath())
-		if WorkspaceNode and WorkspaceNode.MainSnippet == SnippetRef:
+		var SnippetGraphNode: SnippetGraph = get_node_or_null(Utility.GetSnippetGraphPath())
+		if SnippetGraphNode.MainSnippet == SnippetRef:
 			set_item_disabled(EDIT_TITLE, true)
 			set_item_disabled(DELETE, true)
 		

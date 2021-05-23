@@ -2,12 +2,12 @@
 
 [ext_resource path="res://Assets/Scripts/Main.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Scenes/UI/UI.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Assets/Scenes/Graph/Workspace.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Scenes/Graph/SnippetGraph.tscn" type="PackedScene" id=3]
 
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
 
-[node name="Workspace" parent="." instance=ExtResource( 3 )]
+[node name="SnippetGraph" parent="." instance=ExtResource( 3 )]
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 

@@ -44,9 +44,8 @@ static func GetUIPath() -> NodePath:
 	return @"/root/Main/UILayer/UI"
 	
 
-static func GetWorkspacePath() -> NodePath:
-	return @"/root/Main/Workspace"
-	
+static func GetSnippetGraphPath() -> NodePath:
+	return @"/root/Main/SnippetGraph"
 
 static func GetConnectionManager() -> NodePath:
 	return @"/root/Main/Workspace/Connections"

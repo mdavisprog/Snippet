@@ -4,16 +4,23 @@ This document provides a location to place all future tasks.
 ## v0.2
 - [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 	- [ ] Create workspace option which creates a .snippet folder.
+	- [ ] App should default to no open workspace.
+	- [ ] Automatic 'main' snippet created with new workspace.
+- [ ] BUG: Resizing viewport will resize all FloatingWindow instances.
+- [ ] Get working project for Linux.
+	- [ ] Compile C++ library for Linux.
+	- [ ] Setup export for Linux platform.
+- [ ] Change icon.
+- [ ] Change splash screen.
+- [ ] Change 'File' menu bar icon.
+- [ ] Allow unit test to define values used in the snippet.
+- [ ] Runtime visualization.
+- [ ] Documentation.
 
 ## Unsorted
 * Left click and drag to make a selection box on the UI layer. After completion, should check to see if any snippets are enclosed in the region's world space.
 * Make moving windows transparent. Similar to Kubuntu windows.
-* Rework 'File' menu image. Edges and corners of fold should match standard corner.
-	* Should also convert to a single image with two states like the close button to reduce need for custom code logic.
 * Workspace input should be blocked by snippet windows.
-* Compile C++ library for Linux.
-* Get working project for Linux.
-* Add connection pins for snippets that dictate the logical flow of a program. When a snippet is connected, the return values of the previous snippet should be passed as the last arguments of the connected snippet.
 * Dragging off of a connection pin should bring up a context menu. Developer should be able to quickly add a snippet this way.
 * Callback support. Developers should be able to call a function called 'callout' which takes a snippet name and some arguments. These callouts will create additional output pins which allows other developers to create a snippet which is called when the 'callout' is called.
 * Create a title region on a node for the label.
@@ -34,3 +41,11 @@ This document provides a location to place all future tasks.
 * Investigate ways to have snippets return a name with the value so that it can be referenced by that name in the connected snippet.
 * Look at different ways to show compile errors instead of in the output window.
 	* Could maybe show in a tooltip window. Maybe the autocomplete window?
+* Full debugging support.
+	* Should be able to set breakpoints.
+	* Should be able to inspect all data in each snippet.
+* Runtime visualization.
+	* Executing snippets should be animated to show snippet was executed.
+	* Connections should play an animation when execution has transferred between snippets.
+* Networking Support.
+	* Host should be able to accept client connections and begin working in the same workspace together.

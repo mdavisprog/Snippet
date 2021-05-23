@@ -215,8 +215,8 @@ func OnTitleGuiInput(event: InputEvent) -> void:
 	
 
 func EditTitle() -> void:
-	var WorkspaceNode: Workspace = get_node_or_null(Utility.GetWorkspacePath())
-	if WorkspaceNode and WorkspaceNode.MainSnippet == This:
+	var SnippetGraphNode: SnippetGraph = get_node_or_null(Utility.GetSnippetGraphPath())
+	if SnippetGraphNode.MainSnippet == This:
 		return
 	
 	Title.visible = false
