@@ -34,9 +34,12 @@ static func GetTop(InControl: Control) -> Control:
 	if not Result:
 		return InControl
 	
+	var Last = null
 	while Result:
+		Last = Result
 		Result = Result.get_parent_control()
 	
+	Result = Last
 	return Result
 	
 

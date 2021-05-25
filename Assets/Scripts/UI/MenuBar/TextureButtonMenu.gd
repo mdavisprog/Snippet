@@ -37,14 +37,8 @@ func _ready() -> void:
 		Instance = PopupMenu.new()
 		
 		# The the top most control
-		var Last: Control = self
-		var Next: Control = get_parent_control()
-		while Next:
-			Last = Next
-			Next = Next.get_parent_control()
-		
-		if Last:
-			Last.call_deferred("add_child", Instance)
+		var Top: Control = Utility.GetTop(self)
+		Top.call_deferred("add_child", Instance)
 		
 		_Error = Instance.connect("id_pressed", self, "OnSelected")
 		_Error = Instance.connect("popup_hide", self, "PopupClosed")
