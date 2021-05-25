@@ -57,6 +57,9 @@ func _ready() -> void:
 	
 
 func _gui_input(event: InputEvent) -> void:
+	if not Workspace.IsLoaded():
+		return
+	
 	var MouseButton = event as InputEventMouseButton
 	if MouseButton:
 		if MouseButton.button_index == BUTTON_RIGHT:

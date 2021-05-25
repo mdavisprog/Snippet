@@ -20,8 +20,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-class_name Workspace
 extends Node
 
-#
-#
+# Manages the loading and saving of a workspace.
+
+# List of states a workspace can be in.
+enum STATE {
+	NONE,
+	LOADED,
+}
+
+# The current state.
+var State = STATE.NONE
+
+func IsLoaded() -> bool:
+	return State == STATE.LOADED
