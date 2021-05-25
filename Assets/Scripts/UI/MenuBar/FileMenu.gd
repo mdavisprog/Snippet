@@ -26,16 +26,42 @@ extends TextureButtonMenu
 # This class handles all options available to the user via the 'File' option.
 
 enum {
-	Quit
+	NEW,
+	QUIT
 }
+
+var Explorer: FileDialog = null
 
 func _ready() -> void:
 	if Instance:
-		Instance.add_item("Quit", Quit)
+		Instance.add_item("New", NEW)
+		Instance.add_item("Quit", QUIT)
+	
+	if not Explorer:
+		Explorer = FileDialog.new()
+		Explorer.access = FileDialog.ACCESS_FILESYSTEM
+		Explorer.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+		var _Error = Explorer.connect("dir_selected", self, "OnDirSelected")
+		
+		var Top: Control = Utility.GetTop(self)
+		Top.call_deferred("add_child", Explorer)
 	
 
 func OnSelected(Id: int) -> void:
 	match (Id):
-		Quit:
+		NEW:
+			Explorer.mode = FileDialog.MODE_OPEN_DIR
+			Explorer.popup_centered_ratio()
+		QUIT:
 			get_tree().quit(0)
+	
+
+func OnDirSelected(Dir: String) -> void:
+	if Workspace.Exists(Dir):
+		Log.Error("Workspace already exists at '%s'." % Dir)
+		return
+	
+	if not Workspace.Create(Dir):
+		Log.Error("Failed to create a new workspace at '%s'." % Dir)
+		return
 	

@@ -71,6 +71,10 @@ var HoveredSnippet: Snippet = null
 # The main snippet. This is where a full program execution begins.
 var MainSnippet: Snippet = null
 
+func _ready() -> void:
+	var _Error = Workspace.connect("OnStateChange", self, "OnWorkspaceState")
+	
+
 func _input(event: InputEvent) -> void:
 	if not MainSnippet:
 		return
@@ -162,3 +166,9 @@ func FocusPoint(Point: Vector2) -> void:
 	position = Point + Size * 0.5
 	
 
+func OnWorkspaceState(State: int) -> void:
+	match (State):
+		Workspace.STATE.LOADED:
+			if not MainSnippet:
+				CreateMainSnippet()
+	
