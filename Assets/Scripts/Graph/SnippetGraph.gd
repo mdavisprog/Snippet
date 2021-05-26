@@ -169,6 +169,10 @@ func FocusPoint(Point: Vector2) -> void:
 
 func OnWorkspaceState(State: int) -> void:
 	match (State):
+		Workspace.STATE.NONE:
+			if MainSnippet:
+				MainSnippet.queue_free()
+				MainSnippet = null
 		Workspace.STATE.LOADED:
 			if not MainSnippet:
 				CreateMainSnippet()

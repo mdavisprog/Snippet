@@ -64,6 +64,15 @@ func Create(InLocation: String) -> bool:
 	emit_signal("OnStateChange", State)
 	return true
 
+func Close() -> void:
+	if not IsLoaded():
+		return
+	
+	Location = ""
+	State = STATE.NONE
+	emit_signal("OnStateChange", State)
+	
+
 func Exists(InLocation: String) -> bool:
 	var Absolute = GetPath(InLocation)
 	var Dir = Directory.new()

@@ -27,24 +27,32 @@ extends TextureButtonMenu
 
 enum {
 	NEW,
+	CLOSE,
 	QUIT
 }
 
 var Explorer: FileDialog = null
 
 func _ready() -> void:
+	var _Error = null
 	if Instance:
 		Instance.add_item("New", NEW)
+		Instance.add_item("Close", CLOSE)
+		Instance.add_separator()
 		Instance.add_item("Quit", QUIT)
+		
+		Instance.set_item_disabled(CLOSE, true)
 	
 	if not Explorer:
 		Explorer = FileDialog.new()
 		Explorer.access = FileDialog.ACCESS_FILESYSTEM
 		Explorer.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
-		var _Error = Explorer.connect("dir_selected", self, "OnDirSelected")
+		_Error = Explorer.connect("dir_selected", self, "OnDirSelected")
 		
 		var Top: Control = Utility.GetTop(self)
 		Top.call_deferred("add_child", Explorer)
+	
+	_Error = Workspace.connect("OnStateChange", self, "OnWorkspaceState")
 	
 
 func OnSelected(Id: int) -> void:
@@ -52,6 +60,8 @@ func OnSelected(Id: int) -> void:
 		NEW:
 			Explorer.mode = FileDialog.MODE_OPEN_DIR
 			Explorer.popup_centered_ratio()
+		CLOSE:
+			Workspace.Close()
 		QUIT:
 			get_tree().quit(0)
 	
@@ -64,4 +74,12 @@ func OnDirSelected(Dir: String) -> void:
 	if not Workspace.Create(Dir):
 		Log.Error("Failed to create a new workspace at '%s'." % Dir)
 		return
+	
+
+func OnWorkspaceState(State: int) -> void:
+	match (State):
+		Workspace.STATE.NONE:
+			Instance.set_item_disabled(CLOSE, true)
+		Workspace.STATE.LOADED:
+			Instance.set_item_disabled(CLOSE, false)
 	
