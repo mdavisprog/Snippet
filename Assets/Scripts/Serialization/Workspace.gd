@@ -59,7 +59,7 @@ func Create(InLocation: String) -> bool:
 	if Dir.make_dir(Absolute) != OK:
 		return false
 	
-	Location = Absolute
+	Location = InLocation
 	State = STATE.LOADED
 	emit_signal("OnStateChange", State)
 	return true
@@ -68,3 +68,24 @@ func Exists(InLocation: String) -> bool:
 	var Absolute = GetPath(InLocation)
 	var Dir = Directory.new()
 	return Dir.dir_exists(Absolute)
+
+func SaveSnippet(Name: String, Source: String, UTSource: String) -> bool:
+	if not IsLoaded():
+		return false
+	
+	var Absolute: String = Location + "/" + Name + ".lua"
+	
+	var Handle = File.new()
+	if Handle.open(Absolute, File.WRITE_READ) != OK:
+		return false
+	
+	Handle.store_string(Source)
+	Handle.close()
+	
+	Absolute = Absolute.trim_suffix(".lua") + ".ut.lua"
+	if Handle.open(Absolute, File.WRITE_READ) != OK:
+		return false
+	
+	Handle.store_string(UTSource)
+	Handle.close()
+	return true

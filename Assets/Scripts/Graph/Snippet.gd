@@ -237,3 +237,6 @@ func Clean() -> void:
 	Connections.Disconnect(InputPin)
 	Connections.Disconnect(OutputPin)
 	
+
+func Save() -> bool:
+	return Workspace.SaveSnippet(GetTitle(), Text, Text_Tests)

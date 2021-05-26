@@ -12,6 +12,10 @@ This document provides a location to place all future tasks.
 	- [ ] Open a workspace.
 		- [ ] Grab all lua files and create a snippet for each file paired with its unit test file.
 	- [ ] Save snippet graph locations to a GRAPH file. JSON format. For now, just save on exit/close.
+	- [ ] Prompt developer if they would like to overwrite existing workspace when creating a new workspace.
+	- [x] Creating main snippet should create the main.lua and main.unittest.lua.
+	- [ ] Serialize changes made to snippets when window is closed.
+	- [ ] Rename snippets if title changes.
 - [ ] BUG: Resizing viewport will resize all FloatingWindow instances.
 - [ ] Get working project for Linux.
 	- [ ] Compile C++ library for Linux.

@@ -158,6 +158,7 @@ func CreateMainSnippet() -> void:
 	MainSnippet.Text = "print(\"hello world!\")"
 	MainSnippet.SetTitle("main")
 	MainSnippet.RemovePin(Pin.TYPE.INPUT)
+	var _Result = MainSnippet.Save()
 	FocusPoint(Vector2(-200, -50))
 	
 
