@@ -10,8 +10,8 @@ This document provides a location to place all future tasks.
 	- [ ] Workspace settings to set name.
 	- [x] Close existing workspace.
 	- [x] Open a workspace.
-		- [ ] Grab all lua files and create a snippet for each file paired with its unit test file.
-	- [ ] Save snippet graph locations to a GRAPH file. JSON format. For now, just save on exit/close.
+		- [x] Grab all lua files and create a snippet for each file paired with its unit test file.
+	- [x] Save snippet graph locations to a GRAPH file. JSON format. For now, just save on exit/close.
 	- [ ] Prompt developer if they would like to overwrite existing workspace when creating a new workspace.
 	- [x] Creating main snippet should create the main.lua and main.unittest.lua.
 	- [ ] Serialize changes made to snippets when window is closed.

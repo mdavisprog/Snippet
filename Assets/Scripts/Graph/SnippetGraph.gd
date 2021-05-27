@@ -172,16 +172,56 @@ func OnWorkspaceState(State: int) -> void:
 			if MainSnippet:
 				MainSnippet.queue_free()
 				MainSnippet = null
+		Workspace.STATE.CLOSING:
+			Save()
 		Workspace.STATE.LOADED:
-			var Data: Array = Workspace.GetSnippetData()
-			for Item in Data:
-				if Item.Name == "main":
-					CreateMainSnippet()
-					MainSnippet.Text = Item.Source
-					MainSnippet.Text_Tests = Item.UTSource
-			
-			# Create a default one if one was not loaded.
-			if not MainSnippet:
-				CreateMainSnippet()
-				var _Result = MainSnippet.Save()
+			Load()
+	
+
+func Save() -> void:
+	var Snippets: Array = get_tree().get_nodes_in_group("Snippet")
+	
+	var Buffer = []
+	for Item in Snippets:
+		var Entry = {
+			"Name": Item.GetTitle(),
+			"Position": {
+				"X": Item.position.x,
+				"Y": Item.position.y
+			}
+		}
+		Buffer.append(Entry)
+	
+	var _Result = Workspace.SaveVariant("GRAPH", Buffer)
+	
+
+func Load() -> void:
+	var List = []
+	# First, add snippets based on available files.
+	var Data: Array = Workspace.GetSnippetData()
+	for Item in Data:
+		var NewSnippet = AddSnippet(Vector2.ZERO, false)
+		NewSnippet.Text = Item.Source
+		NewSnippet.Text_Tests = Item.UTSource
+		NewSnippet.SetTitle(Item.Name)
+		
+		if Item.Name == "main":
+			MainSnippet = NewSnippet
+			MainSnippet.RemovePin(Pin.TYPE.INPUT)
+		
+		List.append(NewSnippet)
+	
+	if not MainSnippet:
+		CreateMainSnippet()
+		var _Result = MainSnippet.Save()
+	
+	# Now, load in the graph data to position the snippets.
+	var Buffer = Workspace.LoadVariant("GRAPH")
+	if not Buffer:
+		return
+	
+	for Item in Buffer:
+		for Element in List:
+			if Element.GetTitle() == Item.Name:
+				Element.position = Vector2(Item.Position.X, Item.Position.Y)
 	

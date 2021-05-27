@@ -32,6 +32,7 @@ signal OnStateChange(NewState)
 # List of states a workspace can be in.
 enum STATE {
 	NONE,
+	CLOSING,
 	LOADED,
 }
 
@@ -40,6 +41,12 @@ var State = STATE.NONE
 
 # The absolute path to the loaded workspace.
 var Location = ""
+
+func _notification(what: int) -> void:
+	match (what):
+		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
+			Close()
+	
 
 func IsLoaded() -> bool:
 	return State == STATE.LOADED
@@ -67,6 +74,7 @@ func Close() -> void:
 	if not IsLoaded():
 		return
 	
+	emit_signal("OnStateChange", STATE.CLOSING)
 	Location = ""
 	State = STATE.NONE
 	emit_signal("OnStateChange", State)
@@ -152,5 +160,39 @@ func GetSnippetData() -> Array:
 				Log.Warn("Failed to open file '%s' with error code '%d'." % [Absolute, Error])
 			
 		FileName = Dir.get_next()
+	
+	return Result
+
+func SaveVariant(FileName: String, Variant) -> bool:
+	if not IsLoaded():
+		return false
+	
+	var Absolute: String = GetPath(Location).plus_file(FileName)
+	var Handle = File.new()
+	var Error = Handle.open(Absolute, File.WRITE)
+	if Error != OK:
+		Log.Error("Failed to create file '%s' with error code '%d'." % [Absolute, Error])
+		return false
+	
+	Handle.store_string(to_json(Variant))
+	Handle.close()
+	return true
+
+func LoadVariant(FileName: String):
+	var Result = null
+	
+	if not IsLoaded():
+		return Result
+	
+	var Absolute: String = GetPath(Location).plus_file(FileName)
+	var Handle = File.new()
+	var Error = Handle.open(Absolute, File.READ)
+	if Error != OK:
+		if Error != ERR_FILE_NOT_FOUND:
+			Log.Error("Failed to open file '%s' with error code '%d'." % [Absolute, Error])
+		return Result
+	
+	Result = parse_json(Handle.get_as_text())
+	Handle.close()
 	
 	return Result
