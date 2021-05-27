@@ -27,16 +27,22 @@ extends TextureButtonMenu
 
 enum {
 	NEW,
+	OPEN,
 	CLOSE,
 	QUIT
 }
 
+# File dialog displayed to the develoer.
 var Explorer: FileDialog = null
+
+# The option that was selected.
+var Selected = NEW
 
 func _ready() -> void:
 	var _Error = null
 	if Instance:
 		Instance.add_item("New", NEW)
+		Instance.add_item("Open", OPEN)
 		Instance.add_item("Close", CLOSE)
 		Instance.add_separator()
 		Instance.add_item("Quit", QUIT)
@@ -56,8 +62,9 @@ func _ready() -> void:
 	
 
 func OnSelected(Id: int) -> void:
+	Selected = Id
 	match (Id):
-		NEW:
+		NEW, OPEN:
 			Explorer.mode = FileDialog.MODE_OPEN_DIR
 			Explorer.popup_centered_ratio()
 		CLOSE:
@@ -67,13 +74,13 @@ func OnSelected(Id: int) -> void:
 	
 
 func OnDirSelected(Dir: String) -> void:
-	if Workspace.Exists(Dir):
-		Log.Error("Workspace already exists at '%s'." % Dir)
-		return
-	
-	if not Workspace.Create(Dir):
-		Log.Error("Failed to create a new workspace at '%s'." % Dir)
-		return
+	match (Selected):
+		NEW:
+			if not Workspace.Create(Dir):
+				Log.Error("Failed to create a new workspace at '%s'." % Dir)
+		OPEN:
+			if not Workspace.Open(Dir):
+				Log.Error("Failed to open workspace at '%s'." % Dir)
 	
 
 func OnWorkspaceState(State: int) -> void:

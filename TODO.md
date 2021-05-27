@@ -9,7 +9,7 @@ This document provides a location to place all future tasks.
 	- [ ] Attempt to load previously saved workspace.
 	- [ ] Workspace settings to set name.
 	- [x] Close existing workspace.
-	- [ ] Open a workspace.
+	- [x] Open a workspace.
 		- [ ] Grab all lua files and create a snippet for each file paired with its unit test file.
 	- [ ] Save snippet graph locations to a GRAPH file. JSON format. For now, just save on exit/close.
 	- [ ] Prompt developer if they would like to overwrite existing workspace when creating a new workspace.
@@ -59,3 +59,5 @@ This document provides a location to place all future tasks.
 	* Connections should play an animation when execution has transferred between snippets.
 * Networking Support.
 	* Host should be able to accept client connections and begin working in the same workspace together.
+* Add a 'next' function in the lua global namespace. This will let the application know what the connected snippet is for loading/saving connections.
+	* This should be investigative. Might be better to keep this information in a database file inside of the .snippet folder.

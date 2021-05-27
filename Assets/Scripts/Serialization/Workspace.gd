@@ -48,10 +48,9 @@ func GetPath(InLocation: String) -> String:
 	return InLocation + "/.snippet/"
 
 func Create(InLocation: String) -> bool:
-	# The path already exists. Return that it is has already been created.
+	# The path already exists. Unable to create a new workspace at the given location.
 	if Exists(InLocation):
-		Location = InLocation
-		return true
+		return false
 	
 	var Dir = Directory.new()
 	var Absolute = GetPath(InLocation)
@@ -72,6 +71,17 @@ func Close() -> void:
 	State = STATE.NONE
 	emit_signal("OnStateChange", State)
 	
+
+func Open(InLocation: String) -> bool:
+	Close()
+	
+	if not Exists(InLocation):
+		return false
+	
+	Location = InLocation
+	State = STATE.LOADED
+	emit_signal("OnStateChange", State)
+	return true
 
 func Exists(InLocation: String) -> bool:
 	var Absolute = GetPath(InLocation)
@@ -98,3 +108,49 @@ func SaveSnippet(Name: String, Source: String, UTSource: String) -> bool:
 	Handle.store_string(UTSource)
 	Handle.close()
 	return true
+
+func GetSnippetData() -> Array:
+	var Result = Array()
+	
+	if not IsLoaded():
+		return Result
+	
+	var Dir = Directory.new()
+	var Error = Dir.open(Location)
+	if Error != OK:
+		Log.Error("Failed to open directory '%s' with error code '%d'." % [Location, Error])
+		return Result
+	
+	Error = Dir.list_dir_begin(true, true)
+	if Error != OK:
+		Log.Error("Failed to iterate contents of directory '%s' with error code '%d'." % [Location, Error])
+		return Result
+	
+	var FileName: String = Dir.get_next()
+	while not FileName.empty():
+		var Absolute: String = Location.plus_file(FileName)
+		if Dir.file_exists(Absolute) and not Absolute.ends_with("ut.lua"):
+			var Item = SnippetData.new()
+			Item.Name = FileName.get_basename()
+			
+			var Handle = File.new()
+			Error = Handle.open(Absolute, File.READ)
+			if Error == OK:
+				Item.Source = Handle.get_as_text()
+				Handle.close()
+				
+				var UTAbsolute = Absolute.replace(".lua", ".ut.lua")
+				Error = Handle.open(UTAbsolute, File.READ)
+				if Error == OK:
+					Item.UTSource = Handle.get_as_text()
+					Handle.close()
+				else:
+					Log.Info("Failed to open file '%s' with error code '%d'." % [UTAbsolute, Error])
+				
+				Result.append(Item)
+			else:
+				Log.Warn("Failed to open file '%s' with error code '%d'." % [Absolute, Error])
+			
+		FileName = Dir.get_next()
+	
+	return Result

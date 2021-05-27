@@ -158,7 +158,6 @@ func CreateMainSnippet() -> void:
 	MainSnippet.Text = "print(\"hello world!\")"
 	MainSnippet.SetTitle("main")
 	MainSnippet.RemovePin(Pin.TYPE.INPUT)
-	var _Result = MainSnippet.Save()
 	FocusPoint(Vector2(-200, -50))
 	
 
@@ -174,6 +173,15 @@ func OnWorkspaceState(State: int) -> void:
 				MainSnippet.queue_free()
 				MainSnippet = null
 		Workspace.STATE.LOADED:
+			var Data: Array = Workspace.GetSnippetData()
+			for Item in Data:
+				if Item.Name == "main":
+					CreateMainSnippet()
+					MainSnippet.Text = Item.Source
+					MainSnippet.Text_Tests = Item.UTSource
+			
+			# Create a default one if one was not loaded.
 			if not MainSnippet:
 				CreateMainSnippet()
+				var _Result = MainSnippet.Save()
 	

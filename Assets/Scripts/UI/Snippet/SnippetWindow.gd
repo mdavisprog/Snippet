@@ -94,6 +94,7 @@ func _ready() -> void:
 func Show(InSnippet: Snippet) -> void:
 	SetSnippet(InSnippet)
 	Editor.text = This.Text
+	UTEdit.text = This.Text_Tests
 	Title.text = This.GetTitle()
 	OnSnippetTextChanged()
 	
