@@ -117,6 +117,37 @@ func SaveSnippet(Name: String, Source: String, UTSource: String) -> bool:
 	Handle.close()
 	return true
 
+func DoesSnippetExist(Name: String) -> bool:
+	if not IsLoaded():
+		return false
+	
+	var Absolute: String = Location.plus_file(Name + ".lua")
+	var Handle = File.new()
+	return Handle.file_exists(Absolute)
+
+func RenameSnippet(Old: String, New: String) -> bool:
+	if not IsLoaded():
+		return false
+	
+	var OldAbsolute: String = Location.plus_file(Old + ".lua")
+	var NewAbsolute: String = Location.plus_file(New + ".lua")
+	var Dir = Directory.new()
+	
+	var Error = Dir.rename(OldAbsolute, NewAbsolute)
+	if Error != OK:
+		Log.Error("Failed to rename snippet from '%s' to '%s' with error code '%d'." % [Old, New, Error])
+		return false
+	
+	OldAbsolute = Location.plus_file(Old + ".ut.lua")
+	NewAbsolute = Location.plus_file(New + ".ut.lua")
+	
+	Error = Dir.rename(OldAbsolute, NewAbsolute)
+	if Error != OK:
+		Log.Error("Failed to rename snippet unit tests from '%s' to '%s' with error code '%d'." % [Old, New, Error])
+		return false
+	
+	return true
+
 func GetSnippetData() -> Array:
 	var Result = Array()
 	

@@ -228,9 +228,16 @@ func EditTitle() -> void:
 	
 
 func OnTitleEditChanged(Text: String) -> void:
+	var Old = This.GetTitle()
 	This.SetTitle(Text)
 	Title.text = Text
 	OnTitleEditUnfocus()
+	
+	var _Result = false
+	if Workspace.DoesSnippetExist(Old):
+		_Result = Workspace.RenameSnippet(Old, Text)
+	else:
+		_Result = This.Save()
 	
 
 func OnTitleEditUnfocus() -> void:

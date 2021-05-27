@@ -107,7 +107,7 @@ func EditSnippet(Item: Snippet, IsNew := false) -> void:
 	var _Error = SnippetWindowInstance.connect("OnRunAll", self, "OnRun")
 	
 	if IsNew:
-		SnippetWindowInstance.EditTitle()
+		SnippetWindowInstance.call_deferred("EditTitle")
 	
 
 # TODO: Look into placing this into a separate system.
