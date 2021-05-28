@@ -96,6 +96,39 @@ func Exists(InLocation: String) -> bool:
 	var Dir = Directory.new()
 	return Dir.dir_exists(Absolute)
 
+func DeleteDirectory(Root: String, DeleteRoot: bool) -> bool:
+	var Dir = Directory.new()
+	if Dir.open(Root) != OK:
+		return false
+	
+	var Error = Dir.list_dir_begin(true)
+	if Error != OK:
+		return false
+	
+	var FileName: String = Dir.get_next()
+	while not FileName.empty():
+		var Absolute: String = Root.plus_file(FileName)
+		
+		if Dir.dir_exists(Absolute):
+			var _Result = DeleteDirectory(Absolute, true)
+		
+		Error = Dir.remove(Absolute)
+		FileName = Dir.get_next()
+	
+	if DeleteRoot:
+		Error = Dir.remove(Root)
+	
+	return true
+
+func Delete(InLocation: String) -> bool:
+	if not Exists(InLocation):
+		return false
+	
+	if not DeleteDirectory(InLocation, false):
+		return false
+	
+	return true
+
 func SaveSnippet(Name: String, Source: String, UTSource: String) -> bool:
 	if not IsLoaded():
 		return false
