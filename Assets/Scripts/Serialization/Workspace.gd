@@ -24,6 +24,9 @@ extends Node
 
 # Manages the loading and saving of a workspace.
 
+# The directory containing temporary data files for empty workspaces.
+const TEMP_DIR = "Temp"
+
 # Emitted when the state of the workspace has changed.
 #
 # NewState: STATE
@@ -34,6 +37,7 @@ enum STATE {
 	NONE,
 	CLOSING,
 	LOADED,
+	TEMP,
 }
 
 # The current state.
@@ -49,7 +53,7 @@ func _notification(what: int) -> void:
 	
 
 func IsLoaded() -> bool:
-	return State == STATE.LOADED
+	return State == STATE.LOADED or State == STATE.TEMP
 
 func GetPath(InLocation: String) -> String:
 	return InLocation + "/.snippet/"
@@ -62,12 +66,27 @@ func Create(InLocation: String) -> bool:
 	var Dir = Directory.new()
 	var Absolute = GetPath(InLocation)
 	
-	if Dir.make_dir(Absolute) != OK:
+	var Error = Dir.make_dir_recursive(Absolute)
+	if Error != OK:
+		Log.Error("Failed to create workspace at '%s' with error code %d." % [Absolute, Error])
 		return false
 	
 	Location = InLocation
 	State = STATE.LOADED
 	emit_signal("OnStateChange", State)
+	return true
+
+func CreateTemp() -> bool:
+	var TempLocation = "user://".plus_file(TEMP_DIR)
+	var _Result = false
+	
+	if Exists(TempLocation):
+		_Result = Delete(TempLocation)
+	
+	if not Create(TempLocation):
+		return false
+	
+	State = STATE.TEMP
 	return true
 
 func Close() -> void:

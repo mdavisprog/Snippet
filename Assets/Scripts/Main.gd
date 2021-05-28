@@ -29,3 +29,6 @@ func _ready():
 	if not OS.is_debug_build():
 		OS.window_maximized = true
 	
+	if not Workspace.IsLoaded():
+		Workspace.call_deferred("CreateTemp")
+	

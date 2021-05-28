@@ -4,7 +4,7 @@ This document provides a location to place all future tasks.
 ## v0.2
 - [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 	- [x] Create workspace option which creates a .snippet folder.
-	- [ ] App should default to empty temporary workspace.
+	- [x] App should default to empty temporary workspace.
 	- [x] Automatic 'main' snippet created with new workspace.
 	- [ ] Attempt to load previously saved workspace.
 	- [ ] Workspace settings to set name.
