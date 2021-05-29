@@ -215,6 +215,7 @@ config/icon="res://icon.png"
 Utility="*res://Assets/Scripts/Utility.gd"
 Log="*res://Assets/Scripts/Log.gd"
 Workspace="*res://Assets/Scripts/Serialization/Workspace.gd"
+AppSettings="*res://Assets/Scripts/Serialization/AppSettings.gd"
 
 [rendering]
 

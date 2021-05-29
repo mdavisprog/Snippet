@@ -106,6 +106,7 @@ func Open(InLocation: String) -> bool:
 		return false
 	
 	Location = InLocation
+	AppSettings.Data["LastOpened"] = Location
 	State = STATE.LOADED
 	emit_signal("OnStateChange", State)
 	return true

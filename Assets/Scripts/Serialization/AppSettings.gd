@@ -22,17 +22,42 @@
 
 extends Node
 
-# The main entry point of the application.
-func _ready():
-	print("Welcome to " + ProjectSettings.get_setting("application/config/name") + ".")
+# Singleton object that allows any object to set/get settings needed between
+# application runs.
+
+# The location of the file.
+const LOCATION = "user://appsettings.cfg"
+
+# The dictionary used to store all settings. This is serialized to disk at application exit.
+var Data = {}
+
+func _init() -> void:
+	var _Result = Load()
 	
-	if not OS.is_debug_build():
-		OS.window_maximized = true
+
+func _exit_tree() -> void:
+	var _Result = Save()
 	
-	var LastOpened = AppSettings.Data["LastOpened"]
-	if LastOpened:
-		var _Result = Workspace.Open(LastOpened)
+
+func Save() -> bool:
+	var Handle = File.new()
+	var Error = Handle.open(LOCATION, File.WRITE)
+	if Error != OK:
+		Log.Error("Failed to save app settings file at location '%s' with error code %d." % [LOCATION, Error])
+		return false
 	
-	if not Workspace.IsLoaded():
-		Workspace.call_deferred("CreateTemp")
+	Handle.store_string(to_json(Data))
+	Handle.close()
+	return true
+
+func Load() -> bool:
+	var Handle = File.new()
+	var Error = Handle.open(LOCATION, File.READ)
+	if Error != OK:
+		if Error != ERR_DOES_NOT_EXIST:
+			Log.Error("Failed to load app settings file at location '%s' with error code %d." % [LOCATION, Error])
+		return false
 	
+	Data = parse_json(Handle.get_as_text())
+	Handle.close()
+	return true

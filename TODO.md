@@ -6,8 +6,7 @@ This document provides a location to place all future tasks.
 	- [x] Create workspace option which creates a .snippet folder.
 	- [x] App should default to empty temporary workspace.
 	- [x] Automatic 'main' snippet created with new workspace.
-	- [ ] Attempt to load previously saved workspace.
-	- [ ] Workspace settings to set name.
+	- [x] Attempt to load previously saved workspace.
 	- [x] Close existing workspace.
 	- [x] Open a workspace.
 		- [x] Grab all lua files and create a snippet for each file paired with its unit test file.
@@ -16,6 +15,8 @@ This document provides a location to place all future tasks.
 	- [x] Creating main snippet should create the main.lua and main.unittest.lua.
 	- [x] Serialize changes made to snippets when window is closed.
 	- [x] Rename snippets if title changes.
+	- [ ] Prompt developer if they would like to save changes made to the temporary workspace.
+	- [ ] Store workspace translation.
 - [ ] BUG: Resizing viewport will resize all FloatingWindow instances.
 - [ ] Get working project for Linux.
 	- [ ] Compile C++ library for Linux.
@@ -61,3 +62,4 @@ This document provides a location to place all future tasks.
 	* Host should be able to accept client connections and begin working in the same workspace together.
 * Add a 'next' function in the lua global namespace. This will let the application know what the connected snippet is for loading/saving connections.
 	* This should be investigative. Might be better to keep this information in a database file inside of the .snippet folder.
+* Workspace settings to set name.
