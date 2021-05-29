@@ -81,14 +81,10 @@ func OnDirSelected(Dir: String) -> void:
 		NEW:
 			if Workspace.Exists(Dir):
 				PendingDir = Dir
-				var Instance = ConfirmationDialog.new()
-				Instance.name = "ConfirmDlg"
-				Instance.dialog_text = "A workspace already exists at '%s'. Would you like to delete its contents?" % Dir
-				var _Error = Instance.connect("confirmed", self, "OnConfirmDelete")
-				_Error = Instance.get_cancel().connect("pressed", self, "OnCancelDelete")
-				var Top = Utility.GetTop(self)
-				Top.add_child(Instance)
-				Instance.popup_centered()
+				Utility.MessageBox(
+					"Overwrite Existing Workspace",
+					"A workspace already exists at '%s'. Would you like to delete its contents?" % Dir,
+					funcref(self, "OnConfirmDelete"))
 			else:
 				if not Workspace.Create(Dir):
 					Log.Error("Failed to create a new workspace at '%s'." % Dir)
@@ -105,25 +101,16 @@ func OnWorkspaceState(State: int) -> void:
 			Instance.set_item_disabled(CLOSE, false)
 	
 
-func OnConfirmDelete() -> void:
+func OnConfirmDelete(Confirm: bool) -> void:
 	if PendingDir.empty():
 		return
 	
+	if not Confirm:
+		return
+	
+	Workspace.Close()
 	var _Result = Workspace.Delete(PendingDir)
 	
 	if not Workspace.Create(PendingDir):
 		Log.Error("Failed to create a new workspace at '%s'." % PendingDir)
-	
-	QueueFreeConfirmDlg()
-	
-
-func OnCancelDelete() -> void:
-	QueueFreeConfirmDlg()
-	
-
-func QueueFreeConfirmDlg() -> void:
-	var Top: Control = Utility.GetTop(self)
-	var ConfirmDlg: ConfirmationDialog = Top.get_node("ConfirmDlg")
-	if ConfirmDlg:
-		ConfirmDlg.queue_free()
 	

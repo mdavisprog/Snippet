@@ -30,3 +30,6 @@ onready var GraphMenu: GraphPopupMenu = $GraphPopupMenu
 
 # Options for when the developer clicks on a snippet.
 onready var SnippetMenu: SnippetPopupMenu = $SnippetPopupMenu
+
+# Modal dialog displayed when conveying information to the user that requires input.
+onready var MessageBox = $MessageBox

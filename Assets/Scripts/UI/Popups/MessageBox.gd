@@ -20,53 +20,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-extends Node
+extends ConfirmationDialog
 
-# A Utility class that can be used globally. This is achieved by adding this
-# object to the project's Auto Load list.
+# Store a reference to a function that will be invoked upon a response from the
+# developer.
+var Callback: FuncRef = null
 
-# TODO: Convert to non-static functions as they are not required for singletons.
-
-# List of node paths that can be accessed globally.
-const UI: NodePath = @"/root/Main/UILayer/UI"
-
-static func GetTop(InControl: Control) -> Control:
-	if not InControl:
-		return null
-	
-	var Result: Control = InControl.get_parent_control()
-	
-	if not Result:
-		return InControl
-	
-	var Last = null
-	while Result:
-		Last = Result
-		Result = Result.get_parent_control()
-	
-	Result = Last
-	return Result
+func _ready() -> void:
+	var _Error = null
+	_Error = connect("confirmed", self, "OnConfirm")
+	_Error = get_cancel().connect("pressed", self, "OnCancel")
 	
 
-static func GetUIPath() -> NodePath:
-	return @"/root/Main/UILayer/UI"
+func Show(Title: String, Message: String, InCallback: FuncRef) -> void:
+	window_title = Title
+	dialog_text = Message
+	Callback = InCallback
+	popup_centered()
 	
 
-static func GetSnippetGraphPath() -> NodePath:
-	return @"/root/Main/SnippetGraph"
-
-static func GetConnectionManager() -> NodePath:
-	return @"/root/Main/Workspace/Connections"
+func OnConfirm() -> void:
+	if Callback: Callback.call_func(true)
 	
 
-static func GetUIFactoryPath() -> NodePath:
-	return @"/root/Main/UILayer/UI/UIFactory"
-	
-
-func MessageBox(Title: String, Message: String, Callback: FuncRef) -> void:
-	var UINode = get_node(UI)
-	if not UINode:
-		return
-	
-	UINode.PopupsNode.MessageBox.Show(Title, Message, Callback)
+func OnCancel() -> void:
+	if Callback: Callback.call_func(false)
 	
