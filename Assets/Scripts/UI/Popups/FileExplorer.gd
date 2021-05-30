@@ -20,23 +20,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-class_name Popups
-extends Control
+class_name FileExplorer
+extends FileDialog
 
-# Control to hold behavior related to popups.
-
-# Options for when the developer clicks on an empty area of the workspace.
-onready var GraphMenu: GraphPopupMenu = $GraphPopupMenu
-
-# Options for when the developer clicks on a snippet.
-onready var SnippetMenu: SnippetPopupMenu = $SnippetPopupMenu
-
-# Modal dialog displayed when conveying information to the user that requires input.
-onready var MessageBox = $MessageBox
-
-# File explorer that can be accessed globally.
-onready var FileExplorer: FileDialog = $FileExplorer
+# Callback used for single point of retrieving whether the user confirmed or cancelled
+# the dialog. A string value with the selected item. Will be empty if cancelled.
+var Callback: FuncRef = null
 
 func _ready() -> void:
-	FileExplorer.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+	var _Error = null
+	_Error = connect("dir_selected", self, "OnDirSelected")
+	_Error = get_cancel().connect("pressed", self, "OnCancelled")
+	
+
+func Show(InCallback: FuncRef) -> void:
+	Callback = InCallback
+	popup_centered_ratio()
+	
+
+func OnDirSelected(Dir: String) -> void:
+	if Callback:
+		Callback.call_func(Dir)
+	
+
+func OnCancelled() -> void:
+	if Callback:
+		Callback.call_func("")
 	

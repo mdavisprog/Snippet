@@ -70,3 +70,11 @@ func MessageBox(Title: String, Message: String, Callback: FuncRef) -> void:
 	
 	UINode.PopupsNode.MessageBox.Show(Title, Message, Callback)
 	
+
+func ShowFileExplorer(Callback: FuncRef) -> void:
+	var UINode = get_node(UI)
+	if not UINode:
+		return
+	
+	UINode.PopupsNode.FileExplorer.Show(Callback)
+	

@@ -32,9 +32,6 @@ enum {
 	QUIT
 }
 
-# File dialog displayed to the develoer.
-var Explorer: FileDialog = null
-
 # The option that was selected.
 var Selected = NEW
 
@@ -52,15 +49,6 @@ func _ready() -> void:
 		
 		Instance.set_item_disabled(CLOSE, true)
 	
-	if not Explorer:
-		Explorer = FileDialog.new()
-		Explorer.access = FileDialog.ACCESS_FILESYSTEM
-		Explorer.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
-		_Error = Explorer.connect("dir_selected", self, "OnDirSelected")
-		
-		var Top: Control = Utility.GetTop(self)
-		Top.call_deferred("add_child", Explorer)
-	
 	_Error = Workspace.connect("OnStateChange", self, "OnWorkspaceState")
 	
 
@@ -68,8 +56,7 @@ func OnSelected(Id: int) -> void:
 	Selected = Id
 	match (Id):
 		NEW, OPEN:
-			Explorer.mode = FileDialog.MODE_OPEN_DIR
-			Explorer.popup_centered_ratio()
+			Utility.ShowFileExplorer(funcref(self, "OnDirSelected"))
 		CLOSE:
 			Workspace.Close()
 		QUIT:
@@ -77,6 +64,9 @@ func OnSelected(Id: int) -> void:
 	
 
 func OnDirSelected(Dir: String) -> void:
+	if Dir.empty():
+		return
+	
 	match (Selected):
 		NEW:
 			if Workspace.Exists(Dir):

@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Assets/Scripts/UI/Popups/FileExplorer.gd" type="Script" id=1]
+
+[node name="FileExplorer" type="FileDialog"]
+margin_right = 315.0
+margin_bottom = 130.0
+window_title = "Open a Directory"
+mode = 2
+access = 2
+current_dir = "/Projects/Snippet/Project"
+current_path = "/Projects/Snippet/Project/"
+script = ExtResource( 1 )
