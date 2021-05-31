@@ -169,9 +169,7 @@ func FocusPoint(Point: Vector2) -> void:
 func OnWorkspaceState(State: int) -> void:
 	match (State):
 		Workspace.STATE.NONE:
-			if MainSnippet:
-				MainSnippet.queue_free()
-				MainSnippet = null
+			Clear()
 		Workspace.STATE.CLOSING:
 			Save()
 		Workspace.STATE.LOADED:
@@ -224,4 +222,14 @@ func Load() -> void:
 		for Element in List:
 			if Element.GetTitle() == Item.Name:
 				Element.position = Vector2(Item.Position.X, Item.Position.Y)
+	
+
+func Clear() -> void:
+	if MainSnippet:
+		MainSnippet.queue_free()
+		MainSnippet = null
+	
+	var Snippets: Array = get_tree().get_nodes_in_group("Snippet")
+	for Item in Snippets:
+		Item.queue_free()
 	

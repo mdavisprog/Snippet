@@ -15,8 +15,9 @@ This document provides a location to place all future tasks.
 	- [x] Creating main snippet should create the main.lua and main.unittest.lua.
 	- [x] Serialize changes made to snippets when window is closed.
 	- [x] Rename snippets if title changes.
-	- [ ] Prompt developer if they would like to save changes made to the temporary workspace.
+	- [x] Prompt developer if they would like to save changes made to the temporary workspace.
 	- [ ] Store workspace translation.
+	- [ ] Message box option to change text to Yes/No.
 - [ ] BUG: Resizing viewport will resize all FloatingWindow instances.
 - [ ] Get working project for Linux.
 	- [ ] Compile C++ library for Linux.

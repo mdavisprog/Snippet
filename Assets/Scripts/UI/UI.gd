@@ -55,6 +55,9 @@ func _ready() -> void:
 	if TooltipFont:
 		theme.set_font("font", "TooltipLabel", TooltipFont)
 	
+	# Handle the system quit request ourselves.
+	get_tree().set_auto_accept_quit(false)
+	
 
 func _gui_input(event: InputEvent) -> void:
 	if not Workspace.IsLoaded():
@@ -70,6 +73,26 @@ func _gui_input(event: InputEvent) -> void:
 						PopupsNode.SnippetMenu.popup_at_mouse()
 					else:
 						PopupsNode.GraphMenu.popup_at_mouse()
+	
+
+func _notification(what: int) -> void:
+	match (what):
+		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
+			if Workspace.IsTempModified():
+				Utility.MessageBox(
+					"Save Changes?",
+					"Changes have been made to the new workspace. Would you like to save this workspace?",
+					funcref(self, "OnConfirm"))
+			else:
+				Quit()
+	
+
+func OnConfirm(Confirm: bool) -> void:
+	if not Confirm:
+		Quit()
+		return
+	
+	Utility.ShowFileExplorer(funcref(self, "OnQuitSavePrompt"))
 	
 
 func OnSnippetGraphOperation(Phase: int, Operation: int) -> void:
@@ -140,4 +163,20 @@ func OnRun() -> void:
 			break
 		
 		Next = Next.GetNextSnippet()
+	
+
+func OnQuitSavePrompt(Dir: String) -> void:
+	if Dir.empty():
+		Quit()
+		return
+	
+	var Source: String = Workspace.Location
+	Workspace.Close()
+	var _Result = Workspace.Copy(Source, Dir)
+	Quit()
+	
+
+func Quit(ExitCode := 0) -> void:
+	Workspace.Close()
+	get_tree().quit(ExitCode)
 	

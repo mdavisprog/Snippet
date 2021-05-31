@@ -38,6 +38,7 @@ enum STATE {
 	CLOSING,
 	LOADED,
 	TEMP,
+	TEMP_MODIFIED
 }
 
 # The current state.
@@ -46,14 +47,11 @@ var State = STATE.NONE
 # The absolute path to the loaded workspace.
 var Location = ""
 
-func _notification(what: int) -> void:
-	match (what):
-		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
-			Close()
-	
-
 func IsLoaded() -> bool:
-	return State == STATE.LOADED or State == STATE.TEMP
+	return State == STATE.LOADED or State == STATE.TEMP or State == STATE.TEMP_MODIFIED
+
+func IsTempModified() -> bool:
+	return State == STATE.TEMP_MODIFIED
 
 func GetPath(InLocation: String) -> String:
 	return InLocation + "/.snippet/"
@@ -168,6 +166,10 @@ func SaveSnippet(Name: String, Source: String, UTSource: String) -> bool:
 	
 	Handle.store_string(UTSource)
 	Handle.close()
+	
+	if State == STATE.TEMP:
+		State = STATE.TEMP_MODIFIED
+	
 	return true
 
 func DoesSnippetExist(Name: String) -> bool:
@@ -280,3 +282,53 @@ func LoadVariant(FileName: String):
 	Handle.close()
 	
 	return Result
+
+func CopyDirectory(Source: String, Destination: String) -> bool:
+	var Dir = Directory.new()
+	var Error = Dir.open(Source)
+	if Error != OK:
+		Log.Error("CopyDirectory: Failed to open source directory '%s' with error code %d." % [Source, Error])
+		return false
+	
+	if not Dir.dir_exists(Destination):
+		Error = Dir.make_dir_recursive(Destination)
+		if Error != OK:
+			Log.Error("CopyDirectory: Failed to create destination '%s' with error code %d." % [Destination, Error])
+			return false
+	
+	Error = Dir.list_dir_begin(true)
+	if Error != OK:
+		Log.Error("CopyDirectory: Failed to begin iteration process with error code %d." % Error)
+		return false
+	
+	var FileName = Dir.get_next()
+	while not FileName.empty():
+		var SourceAbs: String = Source.plus_file(FileName)
+		var DestAbs: String = Destination.plus_file(FileName)
+		if Dir.dir_exists(SourceAbs):
+			var _Result = CopyDirectory(SourceAbs, DestAbs)
+		else:
+			Error = Dir.copy(SourceAbs, DestAbs)
+			if Error != OK:
+				Log.Error("CopyDirectory: Copy operation to '%s' failed with error code %d." % [DestAbs, Error])
+				break
+		
+		FileName = Dir.get_next()
+	
+	Dir.list_dir_end()
+	return true
+
+func Copy(Source: String, Destination: String) -> bool:
+	if not Exists(Source):
+		Log.Error("No valid workspace to copy from in source '%s'." % Source)
+		return false
+	
+	if Exists(Destination):
+		Log.Error("Failed to copy. Workspace already exists at destination '%s'." % Destination)
+		return false
+	
+	if not CopyDirectory(Source, Destination):
+		# Should already have a valid error message printed out. No need to add additional one here.
+		return false
+	
+	return true
