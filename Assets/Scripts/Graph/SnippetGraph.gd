@@ -179,7 +179,7 @@ func OnWorkspaceState(State: int) -> void:
 func Save() -> void:
 	var Snippets: Array = get_tree().get_nodes_in_group("Snippet")
 	
-	var Buffer = []
+	var Items = []
 	for Item in Snippets:
 		var Entry = {
 			"Name": Item.GetTitle(),
@@ -188,9 +188,17 @@ func Save() -> void:
 				"Y": Item.position.y
 			}
 		}
-		Buffer.append(Entry)
+		Items.append(Entry)
 	
-	var _Result = Workspace.SaveVariant("GRAPH", Buffer)
+	var Data = {
+		"Position": {
+			"X": position.x,
+			"Y": position.y
+		},
+		"Snippets": Items
+	}
+	
+	var _Result = Workspace.SaveVariant("GRAPH", Data)
 	
 
 func Load() -> void:
@@ -214,11 +222,14 @@ func Load() -> void:
 		var _Result = MainSnippet.Save()
 	
 	# Now, load in the graph data to position the snippets.
-	var Buffer = Workspace.LoadVariant("GRAPH")
-	if not Buffer:
+	var GraphData = Workspace.LoadVariant("GRAPH")
+	if not GraphData:
 		return
 	
-	for Item in Buffer:
+	position = Vector2(GraphData.Position.X, GraphData.Position.Y)
+	
+	var Items: Array = GraphData.Snippets
+	for Item in Items:
 		for Element in List:
 			if Element.GetTitle() == Item.Name:
 				Element.position = Vector2(Item.Position.X, Item.Position.Y)
