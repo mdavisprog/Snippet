@@ -20,7 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+class_name MessageBox
 extends ConfirmationDialog
+
+# Simple dialog to manage the behavior of message boxes.
+
+# The types of message boxes supported.
+enum TYPE {
+	OKCANCEL,
+	YESNO,
+}
 
 # Store a reference to a function that will be invoked upon a response from the
 # developer.
@@ -32,10 +41,22 @@ func _ready() -> void:
 	_Error = get_cancel().connect("pressed", self, "OnCancel")
 	
 
-func Show(Title: String, Message: String, InCallback: FuncRef) -> void:
+func Show(Title: String, Message: String, InCallback: FuncRef, Type := TYPE.OKCANCEL) -> void:
 	window_title = Title
 	dialog_text = Message
 	Callback = InCallback
+	
+	# Set to default state
+	get_ok().text = "OK"
+	get_ok().visible = true
+	get_cancel().text = "Cancel"
+	get_cancel().visible = true
+	
+	match (Type):
+		TYPE.YESNO:
+			get_ok().text = "Yes"
+			get_cancel().text = "No"
+	
 	popup_centered()
 	
 

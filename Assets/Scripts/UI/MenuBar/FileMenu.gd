@@ -74,7 +74,8 @@ func OnDirSelected(Dir: String) -> void:
 				Utility.MessageBox(
 					"Overwrite Existing Workspace",
 					"A workspace already exists at '%s'. Would you like to delete its contents?" % Dir,
-					funcref(self, "OnConfirmDelete"))
+					funcref(self, "OnConfirmDelete"),
+					MessageBox.TYPE.YESNO)
 			else:
 				if not Workspace.Create(Dir):
 					Log.Error("Failed to create a new workspace at '%s'." % Dir)

@@ -63,12 +63,12 @@ static func GetUIFactoryPath() -> NodePath:
 	return @"/root/Main/UILayer/UI/UIFactory"
 	
 
-func MessageBox(Title: String, Message: String, Callback: FuncRef) -> void:
+func MessageBox(Title: String, Message: String, Callback: FuncRef, Type := MessageBox.TYPE.OKCANCEL) -> void:
 	var UINode = get_node(UI)
 	if not UINode:
 		return
 	
-	UINode.PopupsNode.MessageBox.Show(Title, Message, Callback)
+	UINode.PopupsNode.MessageBox.Show(Title, Message, Callback, Type)
 	
 
 func ShowFileExplorer(Callback: FuncRef) -> void:

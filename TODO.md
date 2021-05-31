@@ -2,22 +2,7 @@
 This document provides a location to place all future tasks.
 
 ## v0.2
-- [ ] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
-	- [x] Create workspace option which creates a .snippet folder.
-	- [x] App should default to empty temporary workspace.
-	- [x] Automatic 'main' snippet created with new workspace.
-	- [x] Attempt to load previously saved workspace.
-	- [x] Close existing workspace.
-	- [x] Open a workspace.
-		- [x] Grab all lua files and create a snippet for each file paired with its unit test file.
-	- [x] Save snippet graph locations to a GRAPH file. JSON format. For now, just save on exit/close.
-	- [x] Prompt developer if they would like to overwrite existing workspace when creating a new workspace.
-	- [x] Creating main snippet should create the main.lua and main.unittest.lua.
-	- [x] Serialize changes made to snippets when window is closed.
-	- [x] Rename snippets if title changes.
-	- [x] Prompt developer if they would like to save changes made to the temporary workspace.
-	- [x] Store workspace translation.
-	- [ ] Message box option to change text to Yes/No.
+- [x] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
 - [ ] BUG: Resizing viewport will resize all FloatingWindow instances.
 - [ ] Get working project for Linux.
 	- [ ] Compile C++ library for Linux.

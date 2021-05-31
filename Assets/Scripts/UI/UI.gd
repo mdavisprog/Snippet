@@ -82,7 +82,8 @@ func _notification(what: int) -> void:
 				Utility.MessageBox(
 					"Save Changes?",
 					"Changes have been made to the new workspace. Would you like to save this workspace?",
-					funcref(self, "OnConfirm"))
+					funcref(self, "OnConfirm"),
+					MessageBox.TYPE.YESNO)
 			else:
 				Quit()
 	
