@@ -91,10 +91,6 @@ func _ready() -> void:
 	add_to_group("SnippetWindows")
 	
 
-func _exit_tree() -> void:
-	var _Result = This.Save()
-	
-
 func Show(InSnippet: Snippet) -> void:
 	SetSnippet(InSnippet)
 	Editor.text = This.Text

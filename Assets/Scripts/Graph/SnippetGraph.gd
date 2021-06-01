@@ -189,6 +189,9 @@ func Save() -> void:
 			}
 		}
 		Items.append(Entry)
+		
+		# Save any code changes to disk
+		Item.Save()
 	
 	var Data = {
 		"Position": {
