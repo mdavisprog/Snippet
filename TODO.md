@@ -3,7 +3,6 @@ This document provides a location to place all future tasks.
 
 ## v0.2
 - [x] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
-- [ ] BUG: Resizing viewport will resize all FloatingWindow instances.
 - [ ] Get working project for Linux.
 	- [ ] Compile C++ library for Linux.
 	- [ ] Setup export for Linux platform.
@@ -12,6 +11,10 @@ This document provides a location to place all future tasks.
 - [ ] Change 'File' menu bar icon.
 - [ ] Allow unit test to define values used in the snippet.
 - [ ] Runtime visualization.
+	- [x] Convert connections to curves.
+	- [ ] Show temperature of recently executed snippets.
+	- [ ] Animation similar to Unreal's Blueprints/Unity Bolt
+	- [ ] Serialize connections between snippets in GRAPH file.
 - [ ] Documentation.
 
 ## Unsorted
@@ -34,18 +37,15 @@ This document provides a location to place all future tasks.
 * Quick key to run unit tests.
 * Allow any snippet to use any programming language?
 * Update to VisualStudio 2019 compiler.
-* Snippet database file could be a cached file in a hidden folder. Filename can be relative path from root hash.
 * Investigate ways to have snippets return a name with the value so that it can be referenced by that name in the connected snippet.
 * Look at different ways to show compile errors instead of in the output window.
 	* Could maybe show in a tooltip window. Maybe the autocomplete window?
 * Full debugging support.
 	* Should be able to set breakpoints.
 	* Should be able to inspect all data in each snippet.
-* Runtime visualization.
-	* Executing snippets should be animated to show snippet was executed.
-	* Connections should play an animation when execution has transferred between snippets.
 * Networking Support.
 	* Host should be able to accept client connections and begin working in the same workspace together.
 * Add a 'next' function in the lua global namespace. This will let the application know what the connected snippet is for loading/saving connections.
 	* This should be investigative. Might be better to keep this information in a database file inside of the .snippet folder.
 * Workspace settings to set name.
+* BUG: Resizing viewport will resize all FloatingWindow instances.
