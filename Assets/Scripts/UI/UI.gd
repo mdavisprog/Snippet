@@ -45,12 +45,12 @@ func _ready() -> void:
 	var _Error = null
 	
 	if not SnippetGraphNode:
-		SnippetGraphNode = get_node_or_null(Utility.GetSnippetGraphPath())
+		SnippetGraphNode = get_node_or_null(Utility.GRAPH)
 		if SnippetGraphNode:
 			_Error = SnippetGraphNode.connect("OnOperation", self, "OnSnippetGraphOperation")
 			_Error = SnippetGraphNode.connect("OnAddSnippet", self, "OnSnippetGraphAddSnippet")
 		else:
-			push_error("No valid SnippetGraph node found at: " + Utility.GetSnippetGraphPath())
+			push_error("No valid SnippetGraph node found at: " + Utility.GRAPH)
 	
 	if TooltipFont:
 		theme.set_font("font", "TooltipLabel", TooltipFont)

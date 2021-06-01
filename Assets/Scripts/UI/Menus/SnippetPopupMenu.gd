@@ -48,7 +48,7 @@ func SetSnippet(InSnippetRef: Snippet) -> void:
 		add_item("Edit Name", EDIT_TITLE)
 		add_item("Delete", DELETE)
 		
-		var SnippetGraphNode: SnippetGraph = get_node_or_null(Utility.GetSnippetGraphPath())
+		var SnippetGraphNode: SnippetGraph = get_node_or_null(Utility.GRAPH)
 		if SnippetGraphNode.MainSnippet == SnippetRef:
 			set_item_disabled(EDIT_TITLE, true)
 			set_item_disabled(DELETE, true)
@@ -81,7 +81,7 @@ func ShowSnippetEditor(Op: int) -> void:
 				I.EditTitle()
 			return
 	
-	var UIFactoryNode: UIFactory = get_node_or_null(Utility.GetUIFactoryPath())
+	var UIFactoryNode: UIFactory = get_node_or_null(Utility.UIFACTORY)
 	if UIFactoryNode.SnippetWindowTemplate:
 		var Instance: SnippetWindow = UIFactoryNode.SnippetWindowTemplate.instance()
 		get_parent().add_child(Instance)

@@ -25,12 +25,13 @@ extends Node
 # A Utility class that can be used globally. This is achieved by adding this
 # object to the project's Auto Load list.
 
-# TODO: Convert to non-static functions as they are not required for singletons.
-
 # List of node paths that can be accessed globally.
-const UI: NodePath = @"/root/Main/UILayer/UI"
+const UI = @"/root/Main/UILayer/UI"
+const UIFACTORY = @"/root/Main/UILayer/UI/UIFactory"
+const GRAPH = @"/root/Main/SnippetGraph"
+const CONNECTIONS = @"/root/Main/SnippetGraph/Connections"
 
-static func GetTop(InControl: Control) -> Control:
+func GetTop(InControl: Control) -> Control:
 	if not InControl:
 		return null
 	
@@ -46,21 +47,6 @@ static func GetTop(InControl: Control) -> Control:
 	
 	Result = Last
 	return Result
-	
-
-static func GetUIPath() -> NodePath:
-	return @"/root/Main/UILayer/UI"
-	
-
-static func GetSnippetGraphPath() -> NodePath:
-	return @"/root/Main/SnippetGraph"
-
-static func GetConnectionManager() -> NodePath:
-	return @"/root/Main/Workspace/Connections"
-	
-
-static func GetUIFactoryPath() -> NodePath:
-	return @"/root/Main/UILayer/UI/UIFactory"
 	
 
 func MessageBox(Title: String, Message: String, Callback: FuncRef, Type := MessageBox.TYPE.OKCANCEL) -> void:

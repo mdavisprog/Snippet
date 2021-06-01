@@ -216,7 +216,7 @@ func OnTitleGuiInput(event: InputEvent) -> void:
 	
 
 func EditTitle() -> void:
-	var SnippetGraphNode: SnippetGraph = get_node_or_null(Utility.GetSnippetGraphPath())
+	var SnippetGraphNode: SnippetGraph = get_node_or_null(Utility.GRAPH)
 	if SnippetGraphNode.MainSnippet == This:
 		return
 	

@@ -151,7 +151,7 @@ func SetState(InState: int) -> void:
 	
 
 func OnPinPressed(InPin: Pin) -> void:
-	var Connections: ConnectionManager = get_node_or_null(Utility.GetConnectionManager())
+	var Connections: ConnectionManager = get_node_or_null(Utility.CONNECTIONS)
 	if not Connections:
 		push_error("Workspace does not contain a ConnectionManager node.")
 		return
@@ -230,7 +230,7 @@ func GetNextSnippet() -> Snippet:
 	return Connection.EndPin.get_parent().get_parent()
 
 func Clean() -> void:
-	var Connections: ConnectionManager = get_node_or_null(Utility.GetConnectionManager())
+	var Connections: ConnectionManager = get_node_or_null(Utility.CONNECTIONS)
 	if not Connections:
 		return
 	
