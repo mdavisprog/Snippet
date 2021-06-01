@@ -203,6 +203,17 @@ func RenameSnippet(Old: String, New: String) -> bool:
 	
 	return true
 
+func DeleteSnippet(Name: String) -> bool:
+	if not IsLoaded():
+		return false
+	
+	var Dir = Directory.new()
+	var Result = true
+	if Dir.remove(Location.plus_file(Name + ".lua")) != OK: Result = false
+	if Dir.remove(Location.plus_file(Name + ".ut.lua")) != OK: Result = false
+	
+	return Result
+
 func GetSnippetData() -> Array:
 	var Result = Array()
 	

@@ -15,6 +15,7 @@ This document provides a location to place all future tasks.
 	- [ ] Show temperature of recently executed snippets.
 	- [ ] Animation similar to Unreal's Blueprints/Unity Bolt
 	- [ ] Serialize connections between snippets in GRAPH file.
+	- [ ] BUG: Curve control points not properly aligned when modifying an output connection.
 - [ ] Documentation.
 
 ## Unsorted
