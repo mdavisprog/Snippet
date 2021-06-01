@@ -26,6 +26,11 @@ extends Control
 
 # Control that mimics the WindowDialog control but outside of the popup ecosystem.
 
+# Emitted when this instance is closed.
+#
+# Instance: FloatingWindow
+signal OnClosed(Instance)
+
 # Access to hide the close button.
 export(bool) var HideCloseButton = false setget SetHideCloseButton
 
@@ -128,6 +133,7 @@ func OnResized() -> void:
 	
 
 func OnClosePressed() -> void:
+	emit_signal("OnClosed", self)
 	queue_free()
 	
 
