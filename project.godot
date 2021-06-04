@@ -228,6 +228,7 @@ Utility="*res://Assets/Scripts/Utility.gd"
 Log="*res://Assets/Scripts/Log.gd"
 Workspace="*res://Assets/Scripts/Serialization/Workspace.gd"
 AppSettings="*res://Assets/Scripts/Serialization/AppSettings.gd"
+Runtime="*res://Assets/Scenes/Language/Runtime.tscn"
 
 [rendering]
 

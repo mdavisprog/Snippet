@@ -12,10 +12,12 @@ This document provides a location to place all future tasks.
 - [ ] Allow unit test to define values used in the snippet.
 - [ ] Runtime visualization.
 	- [x] Convert connections to curves.
-	- [ ] Show temperature of recently executed snippets.
+	- [x] Show temperature of recently executed snippets.
 	- [ ] Animation similar to Unreal's Blueprints/Unity Bolt
 	- [ ] Serialize connections between snippets in GRAPH file.
 	- [ ] BUG: Curve control points not properly aligned when modifying an output connection.
+	- [ ] Lock all snippets for edit when running.
+	- [x] Create a 'Runtime' singleton for a central location for all runtime-related behavior.
 - [ ] Documentation.
 
 ## Unsorted

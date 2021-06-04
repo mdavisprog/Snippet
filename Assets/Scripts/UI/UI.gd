@@ -38,9 +38,6 @@ onready var PopupsNode: Popups = $Popups
 # Place for scene instancing.
 onready var UIFactoryNode: UIFactory = $UIFactory
 
-# Virtual machine used to execute all connected snippets.
-onready var Code: VirtualMachine = $Code
-
 func _ready() -> void:
 	var _Error = null
 	
@@ -128,42 +125,9 @@ func EditSnippet(Item: Snippet, IsNew := false) -> void:
 	add_child(SnippetWindowInstance)
 	SnippetWindowInstance.Show(Item)
 	SnippetWindowInstance.Editor.Select("New_Snippet")
-	var _Error = SnippetWindowInstance.connect("OnRunAll", self, "OnRun")
 	
 	if IsNew:
 		SnippetWindowInstance.call_deferred("EditTitle")
-	
-
-# TODO: Look into placing this into a separate system.
-func OnRun() -> void:
-	if not Code:
-		return
-	
-	if not SnippetGraphNode:
-		return
-	
-	Log.Clear()
-	Log.Info("Running program.")
-	
-	var ExecResult = null
-	var Next: Snippet = SnippetGraphNode.MainSnippet
-	while Next:
-		var Name: String = Next.GetTitle()
-		var Source: String = Next.Text
-		
-		# Reset to a clean slate for each snippet for now.
-		# TODO: Need to pass on data returned from this snippet to the next connected snippet.
-		Code.Reset()
-		
-		if ExecResult:
-			Code.VM.PushArguments(ExecResult.Results)
-		
-		ExecResult = Code.Execute(Source)
-		if not ExecResult.Success:
-			Log.Error("Failed to execute snippet '" + Name + "'.\n" + ExecResult.GetError().Contents);
-			break
-		
-		Next = Next.GetNextSnippet()
 	
 
 func OnQuitSavePrompt(Dir: String) -> void:

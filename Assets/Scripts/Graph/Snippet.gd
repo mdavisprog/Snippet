@@ -49,6 +49,9 @@ onready var BackgroundNode: Background2D = $Background
 # Reference to the title label.
 onready var TitleNode: Label2D = $Background/Title
 
+# Plays animations for additional feedback.
+onready var Animations: AnimationPlayer = $Background/Animations
+
 # The text associated with this snippet.
 var Text = "print(\"hello world!\")"
 
@@ -75,6 +78,17 @@ func _ready() -> void:
 	
 	InputPin = NewPin(Pin.TYPE.INPUT)
 	OutputPin = NewPin()
+	
+	_Error = Animations.connect("animation_finished", self, "OnAnimationFinished")
+	_Error = Runtime.connect("OnExecuteSnippet", self, "OnRuntimeExecute")
+	
+
+func _process(_delta: float) -> void:
+	if Engine.editor_hint:
+		return
+	
+	if Animations.is_playing():
+		BackgroundNode.update()
 	
 
 func SetTitle(Title: String) -> void:
@@ -240,3 +254,18 @@ func Clean() -> void:
 
 func Save() -> bool:
 	return Workspace.SaveSnippet(GetTitle(), Text, Text_Tests)
+
+func OnAnimationFinished(_Name: String) -> void:
+	State = STATE.NORMAL
+	
+
+func OnRuntimeExecute(InSnippet) -> void:
+	if InSnippet != self:
+		return
+	
+	if Animations.is_playing():
+		Animations.stop()
+	
+	Animations.play("Temperature")
+	State = STATE.LOCKED
+	

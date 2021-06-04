@@ -35,21 +35,18 @@ export(Vector2) var Size: Vector2 setget SetSize
 # Should the background be centered.
 export(bool) var Center = true
 
-# The instanced version for this background. Prevents sharing property changes.
-var BoxInstance: StyleBox = null
-
 func _ready() -> void:
 	if not Engine.editor_hint:
 		if Box:
-			BoxInstance = Box.duplicate(true)
+			# Duplicate the box to create a unique instance for this node.
+			Box = Box.duplicate(true)
 	
 
 func _draw() -> void:
-	var BoxToDraw = BoxInstance if BoxInstance else Box
-	if not BoxToDraw:
+	if not Box:
 		return
 	
-	draw_style_box(BoxToDraw, GetBounds())
+	draw_style_box(Box, GetBounds())
 	
 
 func SetBox(Value) -> void:
@@ -75,20 +72,15 @@ func SetSize(Value) -> void:
 	
 
 func SetColor(InColor: Color) -> void:
-	var FlatBox = BoxInstance as StyleBoxFlat
+	var FlatBox = Box as StyleBoxFlat
 	if FlatBox:
 		FlatBox.bg_color = InColor
 	
 
 func SetHighlight(Highlight: bool) -> void:
-	var FlatBox = BoxInstance as StyleBoxFlat
+	var FlatBox = Box as StyleBoxFlat
 	if FlatBox:
-		var Width = 2 if Highlight else 0
 		var BorderColor = Color.yellow if Highlight else Color.transparent
-		FlatBox.border_width_left = Width
-		FlatBox.border_width_top = Width
-		FlatBox.border_width_right = Width
-		FlatBox.border_width_bottom = Width
 		FlatBox.border_color = BorderColor
 		update()
 	

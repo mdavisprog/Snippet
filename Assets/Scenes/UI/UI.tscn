@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Assets/Themes/Default.tres" type="Theme" id=1]
 [ext_resource path="res://Assets/Scenes/UI/MenuBar.tscn" type="PackedScene" id=2]
@@ -6,7 +6,6 @@
 [ext_resource path="res://Assets/Scenes/UI/Popups.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Scenes/UI/UIFactory.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Scenes/UI/Docks/BottomDock.tscn" type="PackedScene" id=6]
-[ext_resource path="res://Assets/Scenes/Language/VirtualMachine.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Assets/Fonts/Roboto/Regular/Roboto-Regular-12.tres" type="DynamicFont" id=8]
 
 [node name="UI" type="Control"]
@@ -32,5 +31,3 @@ margin_bottom = 0.0
 [node name="Popups" parent="." instance=ExtResource( 4 )]
 
 [node name="UIFactory" parent="." instance=ExtResource( 5 )]
-
-[node name="Code" parent="." instance=ExtResource( 7 )]
