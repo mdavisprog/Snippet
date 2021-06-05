@@ -18,7 +18,7 @@ This document provides a location to place all future tasks.
 	- [ ] BUG: Curve control points not properly aligned when modifying an output connection.
 	- [ ] Lock all snippets for edit when running.
 	- [x] Create a 'Runtime' singleton for a central location for all runtime-related behavior.
-	- [ ] Only save a snippet to disk if changes have been made.
+	- [x] Only save a snippet to disk if changes have been made.
 - [ ] Documentation.
 
 ## Unsorted

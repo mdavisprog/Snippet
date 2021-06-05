@@ -218,7 +218,7 @@ func Load() -> void:
 	var Data: Array = Workspace.GetSnippetData()
 	for Item in Data:
 		var NewSnippet = AddSnippet(Vector2.ZERO, false)
-		NewSnippet.Text = Item.Source
+		NewSnippet.LoadText(Item.Source)
 		NewSnippet.Text_Tests = Item.UTSource
 		NewSnippet.SetTitle(Item.Name)
 		

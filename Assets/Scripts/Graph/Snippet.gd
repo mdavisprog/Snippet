@@ -55,6 +55,9 @@ onready var Animations: AnimationPlayer = $Background/Animations
 # The text associated with this snippet.
 var Text = "print(\"hello world!\")"
 
+# A SHA-1 has of the unmodified text.
+var TextHash = ""
+
 # The script to execute for unit tests.
 var Text_Tests = ""
 
@@ -253,7 +256,17 @@ func Clean() -> void:
 	
 
 func Save() -> bool:
+	var Hash: String = Text.sha1_text()
+	if TextHash == Hash:
+		return false
+	
+	TextHash = Hash
 	return Workspace.SaveSnippet(GetTitle(), Text, Text_Tests)
+
+func LoadText(InText: String) -> void:
+	Text = InText
+	TextHash = Text.sha1_text()
+	
 
 func OnAnimationFinished(_Name: String) -> void:
 	State = STATE.NORMAL
