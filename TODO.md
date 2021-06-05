@@ -14,10 +14,11 @@ This document provides a location to place all future tasks.
 	- [x] Convert connections to curves.
 	- [x] Show temperature of recently executed snippets.
 	- [ ] Animation similar to Unreal's Blueprints/Unity Bolt
-	- [ ] Serialize connections between snippets in GRAPH file.
+	- [x] Serialize connections between snippets in GRAPH file.
 	- [ ] BUG: Curve control points not properly aligned when modifying an output connection.
 	- [ ] Lock all snippets for edit when running.
 	- [x] Create a 'Runtime' singleton for a central location for all runtime-related behavior.
+	- [ ] Only save a snippet to disk if changes have been made.
 - [ ] Documentation.
 
 ## Unsorted

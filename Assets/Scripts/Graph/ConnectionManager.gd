@@ -166,3 +166,13 @@ func Disconnect(InPin: Pin) -> void:
 	InPin.Connection.queue_free()
 	InPin.Connection = null
 	
+
+func ConnectSnippets(A, B) -> bool:
+	if not A or not B:
+		return false
+	
+	CreateActive(A.OutputPin)
+	if not ConnectTo(B.InputPin):
+		return false
+	
+	return true

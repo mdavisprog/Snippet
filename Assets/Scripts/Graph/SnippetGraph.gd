@@ -71,6 +71,9 @@ var HoveredSnippet: Snippet = null
 # The main snippet. This is where a full program execution begins.
 var MainSnippet: Snippet = null
 
+# Manages connections between pins. There is a const path located in Utility to this node.
+onready var Connections: ConnectionManager = $Connections
+
 func _ready() -> void:
 	var _Error = Workspace.connect("OnStateChange", self, "OnWorkspaceState")
 	
@@ -188,6 +191,11 @@ func Save() -> void:
 				"Y": Item.position.y
 			}
 		}
+		
+		var Next: Snippet = Item.GetNextSnippet()
+		if Next:
+			Entry["Next"] = Next.GetTitle()
+		
 		Items.append(Entry)
 		
 		# Save any code changes to disk
@@ -236,6 +244,14 @@ func Load() -> void:
 		for Element in List:
 			if Element.GetTitle() == Item.Name:
 				Element.position = Vector2(Item.Position.X, Item.Position.Y)
+				
+				# Go through the list and make a connection if one exists.
+				var NextName = Item.get("Next")
+				if NextName:
+					for Next in List:
+						if Next.GetTitle() == NextName:
+							var _Result = Connections.ConnectSnippets(Element, Next)
+							break
 	
 
 func Clear() -> void:
