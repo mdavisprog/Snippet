@@ -39,6 +39,18 @@ var End = Vector2.ZERO setget SetEnd
 # The curve object used to calculate the positions used.
 var Data = Curve2D.new()
 
+# How long to play the animation for.
+var AnimTime = 3.0
+
+# Time remaining for animation.
+var AnimTimeRem = 0.0
+
+# The spacing between circles. This value is also used for animating the positions as well.
+var Spacing = 0.2
+
+# The time between spacing for animation.
+var SpacingTime = 0.0 
+
 func _draw() -> void:
 	var Dest = End if not EndPin else to_local(EndPin.global_position)
 	Data.clear_points()
@@ -55,6 +67,23 @@ func _draw() -> void:
 			draw_line(Previous, Next, Color.whitesmoke, 5, true)
 			Previous = Next
 	
+	if AnimTimeRem > 0.0:
+		var Radius = min(15.0 * AnimTimeRem, 25.0)
+		var I = 0.0
+		while I <= (1.0 - Spacing):
+			var SubTime = I + SpacingTime
+			var Position = Data.interpolate_baked(SubTime * Data.get_baked_length(), true)
+			draw_circle(Position, Radius, Color.whitesmoke)
+			I += Spacing
+	
+
+func _process(delta: float) -> void:
+	if AnimTimeRem > 0.0:
+		AnimTimeRem -= delta
+		SpacingTime += delta * 0.5
+		if SpacingTime >= Spacing: SpacingTime = 0.0
+		update()
+	
 
 func SetEndPin(Value) -> void:
 	if EndPin != Value:
@@ -65,4 +94,8 @@ func SetEndPin(Value) -> void:
 func SetEnd(Value: Vector2) -> void:
 	End = to_local(Value)
 	update()
+	
+
+func BeginExecute() -> void:
+	AnimTimeRem = AnimTime
 	

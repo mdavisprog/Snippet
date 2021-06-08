@@ -282,3 +282,6 @@ func OnRuntimeExecute(InSnippet) -> void:
 	Animations.play("Temperature")
 	State = STATE.LOCKED
 	
+	if InputPin and InputPin.Connection:
+		InputPin.Connection.BeginExecute()
+	
