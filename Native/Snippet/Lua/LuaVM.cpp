@@ -27,6 +27,7 @@ SOFTWARE.
 #include "LuaVM.h"
 
 #include "LuaError.h"
+#include "LuaLibs.h"
 #include "LuaResult.h"
 
 namespace godot
@@ -362,6 +363,7 @@ bool LuaVM::InitState()
 	{
 		State = lua_newstate(alloc, nullptr);
 		luaL_openlibs(State);
+		LuaLibs::Thread::Open(State);
 
 		lua_getglobal(State, "_G");
 		// Set an upvalue for this lua_State to refer back to the owning VM object.

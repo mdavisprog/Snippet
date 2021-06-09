@@ -26,7 +26,7 @@ This document provides a location to place all future tasks.
 	- [ ] Disable 'Run' and 'Run Unit Test' buttons during runtime execution.
 	- [x] Create a 'Runtime' singleton for a central location for all runtime-related behavior.
 	- [x] Only save a snippet to disk if changes have been made.
-	- [ ] Add 'thread' library to LuaVM instances. Should contain a single 'sleep' function that takes in milliseconds.
+	- [x] Add 'thread' library to LuaVM instances. Should contain a single 'sleep' function that takes in milliseconds.
 - [ ] Documentation.
 
 ## Unsorted

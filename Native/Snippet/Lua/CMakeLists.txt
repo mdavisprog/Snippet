@@ -2,6 +2,7 @@ set(
 	SOURCE
 	${SOURCE}
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaError.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LuaLibs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaStackTrace.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaStackTraceElement.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaResult.cpp
