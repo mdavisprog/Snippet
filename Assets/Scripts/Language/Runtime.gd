@@ -25,23 +25,53 @@ extends Node
 # Singleton object that manages the execution of snippets. This script should
 # be attached to a scene so that exports can be set.
 
-# Emitted when the Runtime is performing an action.
-#
-# Action: ACTION
-signal OnAction(Action)
+# Emitted when the Runtime is about to start.
+signal OnStart()
+
+# Emitted when the Runtime has ended.
+signal OnEnd()
 
 # Emitted when a snippet is about to be executed.
 #
 # InSnippet: Snippet
-signal OnExecuteSnippet(InSnippet)
+signal OnSnippetStart(InSnippet)
+
+# Emitted when a snippet has finished execution.
+#
+# InSnippet: Snippet
+signal OnSnippetEnd(InSnippet)
 
 enum ACTION {
 	BEGIN,
 	END,
 }
 
+# Execute snippets on a separate thread to keep from blocking the main thread.
+var Latent = null
+
+# The currently executing snippet.
+var ActiveSnippet: Snippet = null
+
+# Store the result of the last snippet execution.
+var ActiveResult = null
+
+# Flag set to true when the threaded operation is complete.
+var IsActiveComplete = false
+
 # The instanced virtual machine with scene templates and instancing.
 onready var Code: VirtualMachine = $Code
+
+func _exit_tree() -> void:
+	if Latent:
+		Latent.wait_to_finish()
+		Latent = null
+	
+
+func _process(_delta: float) -> void:
+	if ActiveSnippet:
+		if IsActiveComplete:
+			FinishSnippet(ActiveSnippet)
+	
 
 func IsEnabled() -> bool:
 	return Code and Code.VM
@@ -51,35 +81,65 @@ func Execute() -> void:
 	if not IsEnabled():
 		return
 	
+	# If a latent object already exists, then execution is in progress.
+	if Latent:
+		return
+	
 	var SnippetGraphNode: SnippetGraph = get_node(Utility.GRAPH)
 	
 	Log.Clear()
 	Log.Info("Running program.")
 	
-	emit_signal("OnAction", ACTION.BEGIN)
+	emit_signal("OnStart")
 	
-	var ExecResult = null
-	var Next: Snippet = SnippetGraphNode.MainSnippet
-	while Next:
-		var Name: String = Next.GetTitle()
-		var Source: String = Next.Text
-		
-		# Reset to a clean slate for each snippet for now.
-		# TODO: Need to pass on data returned from this snippet to the next connected snippet.
-		Runtime.Code.Reset()
-		
-		if ExecResult:
-			Code.VM.PushArguments(ExecResult.Results)
-		
-		emit_signal("OnExecuteSnippet", Next)
-		
-		ExecResult = Code.Execute(Source)
-		if not ExecResult.Success:
-			Log.Error("Failed to execute snippet '" + Name + "'.\n" + ExecResult.GetError().Contents);
-			break
-		
-		Next = Next.GetNextSnippet()
-	
-	emit_signal("OnAction", ACTION.END)
+	ExecuteSnippet(SnippetGraphNode.MainSnippet)
 	
 
+func ExecuteSnippet(InSnippet: Snippet) -> void:
+	if not InSnippet:
+		return
+	
+	ActiveSnippet = InSnippet
+	IsActiveComplete = false
+	
+	Runtime.Code.Reset()
+	
+	if ActiveResult:
+		Code.VM.PushArguments(ActiveResult.Results)
+	
+	emit_signal("OnSnippetStart", InSnippet)
+	
+	Latent = Thread.new()
+	Latent.start(self, "ExecuteSnippet_Thread", InSnippet)
+	
+
+func ExecuteSnippet_Thread(InSnippet: Snippet) -> void:
+	if not InSnippet:
+		return
+	
+	ActiveResult = Code.Execute(InSnippet.Text)
+	IsActiveComplete = true
+	
+
+func FinishSnippet(InSnippet: Snippet) -> void:
+	if not InSnippet:
+		return
+	
+	if not ActiveResult.Success:
+		Log.Error("Failed to execute snippet '" + InSnippet.GetTitle() + "'.\n" + ActiveResult.GetError().Contents)
+	
+	emit_signal("OnSnippetEnd", InSnippet)
+	
+	if Latent:
+		Latent.wait_to_finish()
+		Latent = null
+	
+	var Next: Snippet = InSnippet.GetNextSnippet()
+	if Next:
+		ExecuteSnippet(Next)
+	else:
+		ActiveSnippet = null
+		ActiveResult = null
+		# All snippets have been executed. The program has finished.
+		emit_signal("OnEnd")
+	

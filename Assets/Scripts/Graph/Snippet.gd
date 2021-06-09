@@ -83,7 +83,8 @@ func _ready() -> void:
 	OutputPin = NewPin()
 	
 	_Error = Animations.connect("animation_finished", self, "OnAnimationFinished")
-	_Error = Runtime.connect("OnExecuteSnippet", self, "OnRuntimeExecute")
+	_Error = Runtime.connect("OnSnippetStart", self, "OnSnippetStart")
+	_Error = Runtime.connect("OnSnippetEnd", self, "OnSnippetEnd")
 	
 
 func _process(_delta: float) -> void:
@@ -272,16 +273,26 @@ func OnAnimationFinished(_Name: String) -> void:
 	State = STATE.NORMAL
 	
 
-func OnRuntimeExecute(InSnippet) -> void:
+func OnSnippetStart(InSnippet) -> void:
 	if InSnippet != self:
 		return
 	
 	if Animations.is_playing():
 		Animations.stop()
 	
-	Animations.play("Temperature")
+	# Play the first frame so that the color appears.
+	Animations.play("Temperature", -1.0, 0.0)
 	State = STATE.LOCKED
 	
 	if InputPin and InputPin.Connection:
 		InputPin.Connection.BeginExecute()
+	
+
+func OnSnippetEnd(InSnippet) -> void:
+	if InSnippet != self:
+		return
+	
+	# Finish playing out the animation.
+	Animations.play("Temperature")
+	State = STATE.NORMAL
 	

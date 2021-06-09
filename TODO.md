@@ -15,10 +15,18 @@ This document provides a location to place all future tasks.
 	- [x] Show temperature of recently executed snippets.
 	- [x] Animation similar to Unreal's Blueprints/Unity Bolt
 	- [x] Serialize connections between snippets in GRAPH file.
-	- [ ] BUG: Curve control points not properly aligned when modifying an output connection.
 	- [ ] Lock all snippets for edit when running.
+	- [ ] Prevent workspace options while running.
+	- [ ] Keep temperature animation paused while snippet is executing. Fade out when snippet execution is complete.
+	- [ ] Keep pin connection animation playing while snippet is executing. Fade out when snippet execution is complete.
+	- [x] Snippets should be run on a separate thread.
+	- [ ] LuaVM's print capture needs to be thread safe. Store and dispatch on main thread.
+	- [ ] Might need to create a custom thread object so it can be detached and halted. Useful if users want to terminate execution of a long process.
+	- [ ] Output window causes error when printing too much. Seems to be overflowing with too much data. Needs investigation.
+	- [ ] Disable 'Run' and 'Run Unit Test' buttons during runtime execution.
 	- [x] Create a 'Runtime' singleton for a central location for all runtime-related behavior.
 	- [x] Only save a snippet to disk if changes have been made.
+	- [ ] Add 'thread' library to LuaVM instances. Should contain a single 'sleep' function that takes in milliseconds.
 - [ ] Documentation.
 
 ## Unsorted
@@ -53,3 +61,4 @@ This document provides a location to place all future tasks.
 	* This should be investigative. Might be better to keep this information in a database file inside of the .snippet folder.
 * Workspace settings to set name.
 * BUG: Resizing viewport will resize all FloatingWindow instances.
+* BUG: Curve control points not properly aligned when modifying an output connection.
