@@ -75,7 +75,9 @@ func _process(_delta: float) -> void:
 
 func IsEnabled() -> bool:
 	return Code and Code.VM
-	
+
+func IsRunning() -> bool:
+	return ActiveSnippet != null
 
 func Execute() -> void:
 	if not IsEnabled():

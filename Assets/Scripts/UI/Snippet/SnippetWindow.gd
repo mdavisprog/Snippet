@@ -80,6 +80,8 @@ func _ready() -> void:
 	_Error = Title.connect("gui_input", self, "OnTitleGuiInput")
 	_Error = TitleEdit.connect("text_entered", self, "OnTitleEditChanged")
 	_Error = TitleEdit.connect("focus_exited", self, "OnTitleEditUnfocus")
+	_Error = Runtime.connect("OnStart", self, "OnRuntimeStart")
+	_Error = Runtime.connect("OnEnd", self, "OnRuntimeEnd")
 	
 	Status.text = ""
 	
@@ -135,7 +137,7 @@ func OnCompileTimer() -> void:
 	Lua.readonly = true
 	
 	SetError(CompileResult)
-	ToggleRunButtons(CompileResult.Success)
+	ToggleRunButtons(CompileResult.Success and not Runtime.IsRunning())
 	UTBase.text = This.GetTitle() + "()"
 	
 
@@ -274,4 +276,12 @@ func SetSnippet(Value: Snippet) -> void:
 
 func OnSnippetExit() -> void:
 	queue_free()
+	
+
+func OnRuntimeStart() -> void:
+	ToggleRunButtons(false)
+	
+
+func OnRuntimeEnd() -> void:
+	ToggleRunButtons(true)
 	
