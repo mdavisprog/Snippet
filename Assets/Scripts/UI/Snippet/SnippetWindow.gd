@@ -97,6 +97,8 @@ func Show(InSnippet: Snippet) -> void:
 	Title.text = This.GetTitle()
 	OnSnippetTextChanged()
 	
+	Editor.readonly = Runtime.IsRunning()
+	
 	var Bounds: Rect2 = InSnippet.BackgroundNode.GetBounds(InSnippet.global_position)
 	rect_global_position = Vector2(Bounds.end.x, Bounds.position.y)
 	rect_size = Vector2(300, 350)
@@ -280,8 +282,10 @@ func OnSnippetExit() -> void:
 
 func OnRuntimeStart() -> void:
 	ToggleRunButtons(false)
+	Editor.readonly = true
 	
 
 func OnRuntimeEnd() -> void:
 	ToggleRunButtons(true)
+	Editor.readonly = false
 	
