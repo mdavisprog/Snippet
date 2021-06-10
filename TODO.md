@@ -16,7 +16,7 @@ This document provides a location to place all future tasks.
 	- [x] Animation similar to Unreal's Blueprints/Unity Bolt
 	- [x] Serialize connections between snippets in GRAPH file.
 	- [x] Lock all snippets for edit when running.
-	- [ ] Prevent workspace options while running.
+	- [x] Prevent workspace options while running.
 	- [x] Keep temperature animation paused while snippet is executing. Fade out when snippet execution is complete.
 	- [ ] Keep pin connection animation playing while snippet is executing. Fade out when snippet execution is complete.
 	- [x] Snippets should be run on a separate thread.

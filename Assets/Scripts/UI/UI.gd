@@ -68,7 +68,7 @@ func _gui_input(event: InputEvent) -> void:
 					if SnippetGraphNode.HoveredSnippet:
 						PopupsNode.SnippetMenu.SetSnippet(SnippetGraphNode.HoveredSnippet)
 						PopupsNode.SnippetMenu.popup_at_mouse()
-					else:
+					elif not Runtime.IsRunning():
 						PopupsNode.GraphMenu.popup_at_mouse()
 	
 
