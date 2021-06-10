@@ -39,9 +39,6 @@ var End = Vector2.ZERO setget SetEnd
 # The curve object used to calculate the positions used.
 var Data = Curve2D.new()
 
-# How long to play the animation for.
-var AnimTime = 3.0
-
 # Time remaining for animation.
 var AnimTimeRem = 0.0
 
@@ -49,7 +46,10 @@ var AnimTimeRem = 0.0
 var Spacing = 0.2
 
 # The time between spacing for animation.
-var SpacingTime = 0.0 
+var SpacingTime = 0.0
+
+# Is the animation currently playing.
+var IsPlaying = false
 
 func _draw() -> void:
 	var Dest = End if not EndPin else to_local(EndPin.global_position)
@@ -67,7 +67,7 @@ func _draw() -> void:
 			draw_line(Previous, Next, Color.whitesmoke, 5, true)
 			Previous = Next
 	
-	if AnimTimeRem > 0.0:
+	if AnimTimeRem > 0.0 or IsPlaying:
 		var Radius = min(15.0 * AnimTimeRem, 25.0)
 		var I = 0.0
 		while I <= (1.0 - Spacing):
@@ -79,7 +79,7 @@ func _draw() -> void:
 
 func _process(delta: float) -> void:
 	if AnimTimeRem > 0.0:
-		AnimTimeRem -= delta
+		if not IsPlaying: AnimTimeRem -= delta
 		SpacingTime += delta * 0.5
 		if SpacingTime >= Spacing: SpacingTime = 0.0
 		update()
@@ -96,6 +96,11 @@ func SetEnd(Value: Vector2) -> void:
 	update()
 	
 
-func BeginExecute() -> void:
-	AnimTimeRem = AnimTime
+func PlayAnimation() -> void:
+	AnimTimeRem = 5.0
+	IsPlaying = true
+	
+
+func StopAnimation() -> void:
+	IsPlaying = false
 	

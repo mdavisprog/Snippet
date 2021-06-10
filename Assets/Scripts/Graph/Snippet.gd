@@ -285,7 +285,7 @@ func OnSnippetStart(InSnippet) -> void:
 	State = STATE.LOCKED
 	
 	if InputPin and InputPin.Connection:
-		InputPin.Connection.BeginExecute()
+		InputPin.Connection.PlayAnimation()
 	
 
 func OnSnippetEnd(InSnippet) -> void:
@@ -295,4 +295,7 @@ func OnSnippetEnd(InSnippet) -> void:
 	# Finish playing out the animation.
 	Animations.play("Temperature")
 	State = STATE.NORMAL
+	
+	if InputPin and InputPin.Connection:
+		InputPin.Connection.StopAnimation()
 	
