@@ -67,7 +67,10 @@ func _exit_tree() -> void:
 		Latent = null
 	
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if Code:
+		Code.VM._process(delta)
+	
 	if ActiveSnippet:
 		if IsActiveComplete:
 			FinishSnippet(ActiveSnippet)

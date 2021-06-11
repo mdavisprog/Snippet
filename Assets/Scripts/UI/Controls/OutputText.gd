@@ -37,7 +37,7 @@ func OnLog(Type: int, Contents: String) -> void:
 			push_color(Color.red)
 			PopColor = true
 	
-	print(Contents)
+	print(Contents.trim_suffix("\n"))
 	AddLine(Contents)
 	
 	if PopColor:
@@ -49,5 +49,8 @@ func OnClear() -> void:
 	
 
 func AddLine(Line: String) -> void:
-	add_text(Line + "\n")
+	if not Line.ends_with("\n"):
+		Line += "\n"
+	
+	add_text(Line)
 	

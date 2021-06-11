@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Godot.hpp"
 #include "Reference.hpp"
 #include "lua.hpp"
+#include "Mutex.hpp"
 
 namespace godot
 {
@@ -41,6 +42,8 @@ class LuaVM : public Reference
 
 private:
 	lua_State *State;
+	Ref<Mutex> Lock;
+	String Buffer;
 
 public:
 	static void _register_methods();
@@ -52,11 +55,13 @@ public:
 	~LuaVM();
 
 	void _init();
+	void _process(float Delta);
 	Ref<LuaResult> Compile(const String &Source);
 	Ref<LuaResult> Execute(const String &Source);
 	Ref<LuaResult> Call(const String &FnName, Variant Args);
 	void PushArguments(const Array &Args);
 	void Reset();
+	void AppendBuffer(const String &InBuffer);
 
 private:
 	bool InitState();

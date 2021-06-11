@@ -50,8 +50,10 @@ static int print(lua_State *L)
 	LuaVM *owner = (LuaVM*)lua_touserdata(L, i);
 	if (owner != nullptr)
 	{
-		owner->emit_signal("OnPrint", buffer);
+		owner->AppendBuffer(buffer);
 	}
+
+	lua_pop(L, args);
 
 	return 0;
 }
@@ -185,12 +187,13 @@ static void PrintStack(lua_State *State)
 
 void LuaVM::_register_methods()
 {
+	register_method("_process", &LuaVM::_process);
 	register_method("Compile", &LuaVM::Compile);
 	register_method("Execute", &LuaVM::Execute);
 	register_method("Call", &LuaVM::Call);
 	register_method("PushArguments", &LuaVM::PushArguments);
 	register_method("Reset", &LuaVM::Reset);
-	register_signal<LuaVM>("OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
+	register_signal<LuaVM>((char*)"OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
 }
 
 void *LuaVM::alloc(void *ud, void *ptr, size_t osize, size_t nsize)
@@ -242,11 +245,25 @@ LuaVM::LuaVM()
 LuaVM::~LuaVM()
 {
 	Close();
+	Lock = nullptr;
 }
 
 void LuaVM::_init()
 {
 	InitState();
+}
+
+void LuaVM::_process(float Delta)
+{
+	if (!Buffer.empty())
+	{
+		if (Lock->try_lock() == Error::OK)
+		{
+			emit_signal((char*)"OnPrint", Buffer);
+			Buffer = "";
+			Lock->unlock();
+		}
+	}
 }
 
 Ref<LuaResult> LuaVM::Compile(const String &Source)
@@ -278,6 +295,8 @@ Ref<LuaResult> LuaVM::Execute(const String &Source)
 	{
 		return Result;
 	}
+
+	Buffer = "";
 
 	// Here, we will catch any syntax errors.
 	Result->Success = luaL_loadstring(State, Source.ascii().get_data()) == LUA_OK;
@@ -357,6 +376,13 @@ void LuaVM::Reset()
 	InitState();
 }
 
+void LuaVM::AppendBuffer(const String &InBuffer)
+{
+	Lock->lock();
+	Buffer = Buffer + InBuffer + "\n";
+	Lock->unlock();
+}
+
 bool LuaVM::InitState()
 {
 	if (State == nullptr)
@@ -370,6 +396,11 @@ bool LuaVM::InitState()
 		lua_pushlightuserdata(State, this);
 		luaL_setfuncs(State, base_overrides, 1);
 		lua_pop(State, 1);
+	}
+
+	if (!Lock.is_valid())
+	{
+		Lock = Ref<Mutex>(Mutex::_new());
 	}
 
 	return State != nullptr;
