@@ -27,7 +27,7 @@ This document provides a location to place all future tasks.
 	- [x] Only save a snippet to disk if changes have been made.
 	- [x] Add 'thread' library to LuaVM instances. Should contain a single 'sleep' function that takes in milliseconds.
 	- [ ] Add stop button.
-	- [ ] Prevent modifying pin connections while runtime is active.
+	- [x] Prevent modifying pin connections while runtime is active.
 	- [ ] Prevent renaming snippet during execution. Could indicate this in the SnippetWindow by graying out the name.
 - [ ] Documentation.
 

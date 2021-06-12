@@ -104,3 +104,8 @@ func PlayAnimation() -> void:
 func StopAnimation() -> void:
 	IsPlaying = false
 	
+
+func HaltAnimation() -> void:
+	IsPlaying = false
+	AnimTimeRem = 0.0
+	

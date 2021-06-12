@@ -169,6 +169,9 @@ func SetState(InState: int) -> void:
 	
 
 func OnPinPressed(InPin: Pin) -> void:
+	if Runtime.IsRunning():
+		return
+	
 	var Connections: ConnectionManager = get_node_or_null(Utility.CONNECTIONS)
 	if not Connections:
 		push_error("Workspace does not contain a ConnectionManager node.")

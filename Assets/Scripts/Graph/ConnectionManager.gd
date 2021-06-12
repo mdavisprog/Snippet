@@ -137,6 +137,7 @@ func Modify(InPin: Pin) -> void:
 		return
 	
 	Active = InPin.Connection
+	Active.HaltAnimation()
 	
 	# Reparent before setting End position to prevent flickering.
 	if InPin.Type == Pin.TYPE.OUTPUT:
