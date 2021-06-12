@@ -29,7 +29,8 @@ This document provides a location to place all future tasks.
 	- [ ] Add stop button.
 	- [x] Prevent modifying pin connections while runtime is active.
 	- [x] Prevent renaming snippet during execution.
-	- [ ] Disable snippet context menu during runtime.
+	- [x] Disable snippet context menu during runtime.
+	- [ ] Convert unit test run to use the Runtime singleton.
 - [ ] Documentation.
 
 ## Unsorted

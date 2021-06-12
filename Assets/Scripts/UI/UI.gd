@@ -57,7 +57,7 @@ func _ready() -> void:
 	
 
 func _gui_input(event: InputEvent) -> void:
-	if not Workspace.IsLoaded():
+	if not Workspace.IsLoaded() or Runtime.IsRunning():
 		return
 	
 	var MouseButton = event as InputEventMouseButton
@@ -68,7 +68,7 @@ func _gui_input(event: InputEvent) -> void:
 					if SnippetGraphNode.HoveredSnippet:
 						PopupsNode.SnippetMenu.SetSnippet(SnippetGraphNode.HoveredSnippet)
 						PopupsNode.SnippetMenu.popup_at_mouse()
-					elif not Runtime.IsRunning():
+					else:
 						PopupsNode.GraphMenu.popup_at_mouse()
 	
 
