@@ -207,6 +207,9 @@ func ToggleRunButtons(Enabled: bool) -> void:
 	
 
 func OnTitleGuiInput(event: InputEvent) -> void:
+	if Runtime.IsRunning():
+		return
+	
 	var MouseButton = event as InputEventMouseButton
 	if MouseButton:
 		if MouseButton.doubleclick and MouseButton.button_index == BUTTON_LEFT:
@@ -229,10 +232,15 @@ func EditTitle() -> void:
 	
 
 func OnTitleEditChanged(Text: String) -> void:
+	OnTitleEditUnfocus()
+	
 	var Old = This.GetTitle()
+	if Old == Text:
+		# The name didn't change. No need to continue.
+		return
+	
 	This.SetTitle(Text)
 	Title.text = Text
-	OnTitleEditUnfocus()
 	
 	var _Result = false
 	if Workspace.DoesSnippetExist(Old):

@@ -28,7 +28,8 @@ This document provides a location to place all future tasks.
 	- [x] Add 'thread' library to LuaVM instances. Should contain a single 'sleep' function that takes in milliseconds.
 	- [ ] Add stop button.
 	- [x] Prevent modifying pin connections while runtime is active.
-	- [ ] Prevent renaming snippet during execution. Could indicate this in the SnippetWindow by graying out the name.
+	- [x] Prevent renaming snippet during execution.
+	- [ ] Disable snippet context menu during runtime.
 - [ ] Documentation.
 
 ## Unsorted
