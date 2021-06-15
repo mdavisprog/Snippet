@@ -21,12 +21,11 @@ This document provides a location to place all future tasks.
 	- [x] Keep pin connection animation playing while snippet is executing. Fade out when snippet execution is complete.
 	- [x] Snippets should be run on a separate thread.
 	- [x] LuaVM's print capture needs to be thread safe. Store and dispatch on main thread.
-	- [ ] Might need to create a custom thread object so it can be detached and halted. Useful if users want to terminate execution of a long process.
 	- [x] Disable 'Run' and 'Run Unit Test' buttons during runtime execution.
 	- [x] Create a 'Runtime' singleton for a central location for all runtime-related behavior.
 	- [x] Only save a snippet to disk if changes have been made.
 	- [x] Add 'thread' library to LuaVM instances. Should contain a single 'sleep' function that takes in milliseconds.
-	- [ ] Add stop button.
+	- [x] Add stop button.
 	- [x] Prevent modifying pin connections while runtime is active.
 	- [x] Prevent renaming snippet during execution.
 	- [x] Disable snippet context menu during runtime.

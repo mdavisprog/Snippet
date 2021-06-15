@@ -31,7 +31,8 @@ signal OnAction(Action)
 
 enum ACTION {
 	RUN,
-	RUNUT
+	RUNUT,
+	STOP
 }
 
 # The scale applied to all texture buttons based on their normal texture.
@@ -42,6 +43,9 @@ onready var Run: TextureButton = $Run
 
 # The 'Run Unit Tests' button.
 onready var RunUT: TextureButton = $RunUT
+
+# The 'Stop' button.
+onready var Stop: TextureButton = $Stop
 
 func _ready() -> void:
 	var _Error = connect("resized", self, "OnResized")
@@ -55,6 +59,7 @@ func _ready() -> void:
 	# Begin game initialization only.
 	_Error = Run.connect("pressed", self, "OnRun")
 	_Error = RunUT.connect("pressed", self, "OnRunUT")
+	_Error = Stop.connect("pressed", self, "OnStop")
 	
 
 func _enter_tree() -> void:
@@ -93,4 +98,8 @@ func OnRun() -> void:
 
 func OnRunUT() -> void:
 	emit_signal("OnAction", ACTION.RUNUT)
+	
+
+func OnStop() -> void:
+	emit_signal("OnAction", ACTION.STOP)
 	

@@ -110,6 +110,8 @@ func OnAction(Action: int) -> void:
 			Runtime.Execute()
 		SnippetToolbar.ACTION.RUNUT:
 			RunUnitTest()
+		SnippetToolbar.ACTION.STOP:
+			Runtime.Stop()
 	
 
 func UpdateStatusBar(Success: bool, Error: String) -> void:
@@ -291,9 +293,11 @@ func OnSnippetExit() -> void:
 func OnRuntimeStart() -> void:
 	ToggleRunButtons(false)
 	Editor.readonly = true
+	Toolbar.Stop.disabled = false
 	
 
 func OnRuntimeEnd() -> void:
 	ToggleRunButtons(true)
 	Editor.readonly = false
+	Toolbar.Stop.disabled = true
 	

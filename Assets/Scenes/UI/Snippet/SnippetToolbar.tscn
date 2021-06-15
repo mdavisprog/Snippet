@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://Assets/Scripts/UI/Snippet/SnippetToolbar.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Textures/Play.png" type="Texture" id=2]
 [ext_resource path="res://Assets/Textures/PlayUT.png" type="Texture" id=3]
+[ext_resource path="res://Assets/Textures/Stop.png" type="Texture" id=4]
 
 [sub_resource type="AtlasTexture" id=1]
 flags = 4
@@ -34,9 +35,24 @@ flags = 4
 atlas = ExtResource( 3 )
 region = Rect2( 0, 0, 28, 32 )
 
+[sub_resource type="AtlasTexture" id=7]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 30, 0, 30, 30 )
+
+[sub_resource type="AtlasTexture" id=8]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 60, 0, 30, 30 )
+
+[sub_resource type="AtlasTexture" id=9]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 0, 0, 30, 30 )
+
 [node name="SnippetToolbar" type="HBoxContainer"]
 anchor_right = 1.0
-margin_right = -984.0
+margin_right = -958.0
 margin_bottom = 24.0
 script = ExtResource( 1 )
 __meta__ = {
@@ -64,5 +80,17 @@ hint_tooltip = "Run unit tests for the current snippet."
 texture_normal = SubResource( 4 )
 texture_hover = SubResource( 5 )
 texture_disabled = SubResource( 6 )
+expand = true
+stretch_mode = 5
+
+[node name="Stop" type="TextureButton" parent="."]
+margin_left = 44.0
+margin_right = 66.5
+margin_bottom = 24.0
+rect_min_size = Vector2( 22.5, 22.5 )
+disabled = true
+texture_normal = SubResource( 7 )
+texture_hover = SubResource( 8 )
+texture_disabled = SubResource( 9 )
 expand = true
 stretch_mode = 5
