@@ -27,10 +27,13 @@ SOFTWARE.
 #include "LuaLibs.h"
 
 #include "Godot.hpp"
+#include "LuaVM.h"
 #include "OS.hpp"
 
 namespace LuaLibs
 {
+    godot::LuaVM *VM = nullptr;
+
     namespace Thread
     {
         int Sleep(lua_State *State)
@@ -43,7 +46,13 @@ namespace LuaLibs
                 Duration = (int64_t)lua_tointeger(State, 1);
             }
 
-            godot::OS::get_singleton()->delay_msec(Duration);
+            int Index = lua_upvalueindex(1);
+            godot::LuaVM *LocalVM = (godot::LuaVM*)lua_touserdata(State, Index);
+            if (LocalVM != nullptr)
+            {
+                LocalVM->Pause(State, Duration);
+            }
+
             return 0;
         }
 
@@ -55,7 +64,9 @@ namespace LuaLibs
 
         int OpenLib(lua_State *State)
         {
-            luaL_newlib(State, Funcs);
+            luaL_newlibtable(State, Funcs);
+            lua_pushlightuserdata(State, VM);
+            luaL_setfuncs(State, Funcs, 1);
             return 1;
         }
 

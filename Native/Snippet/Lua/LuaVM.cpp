@@ -193,6 +193,7 @@ void LuaVM::_register_methods()
 	register_method("Call", &LuaVM::Call);
 	register_method("PushArguments", &LuaVM::PushArguments);
 	register_method("Reset", &LuaVM::Reset);
+	register_method("Stop", &LuaVM::Stop);
 	register_signal<LuaVM>((char*)"OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
 }
 
@@ -297,6 +298,7 @@ Ref<LuaResult> LuaVM::Execute(const String &Source)
 	}
 
 	Buffer = "";
+	Shutdown = false;
 
 	// Here, we will catch any syntax errors.
 	Result->Success = luaL_loadstring(State, Source.ascii().get_data()) == LUA_OK;
@@ -376,11 +378,33 @@ void LuaVM::Reset()
 	InitState();
 }
 
+void LuaVM::Stop()
+{
+	{
+		std::lock_guard<std::mutex> Guard(ConditionLock);
+		Shutdown = true;
+	}
+
+	Condition.notify_one();
+
+	// Owning thread object must call wait_to_finish().
+}
+
 void LuaVM::AppendBuffer(const String &InBuffer)
 {
 	Lock->lock();
 	Buffer = Buffer + InBuffer + "\n";
 	Lock->unlock();
+}
+
+void LuaVM::Pause(lua_State *State, int64_t MSec)
+{
+	std::unique_lock<std::mutex> UL(ConditionLock);
+	bool Interrupted = Condition.wait_for(UL, std::chrono::milliseconds(MSec), [this]() {return Shutdown;});
+	if (Interrupted)
+	{
+		luaL_error(State, "Interrupted");
+	}
 }
 
 bool LuaVM::InitState()
@@ -389,13 +413,17 @@ bool LuaVM::InitState()
 	{
 		State = lua_newstate(alloc, nullptr);
 		luaL_openlibs(State);
+
+		LuaLibs::VM = this;
 		LuaLibs::Thread::Open(State);
+		LuaLibs::VM = nullptr;
 
 		lua_getglobal(State, "_G");
 		// Set an upvalue for this lua_State to refer back to the owning VM object.
 		lua_pushlightuserdata(State, this);
 		luaL_setfuncs(State, base_overrides, 1);
 		lua_pop(State, 1);
+		Shutdown = false;
 	}
 
 	if (!Lock.is_valid())

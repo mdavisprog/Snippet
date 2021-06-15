@@ -28,8 +28,15 @@ SOFTWARE.
 
 #include "lua.hpp"
 
+namespace godot
+{
+    class LuaVM;
+}
+
 namespace LuaLibs
 {
+    extern godot::LuaVM *VM;
+
     namespace Thread
     {
         void Open(lua_State *State);

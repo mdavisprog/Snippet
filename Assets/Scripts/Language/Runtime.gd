@@ -125,12 +125,16 @@ func ExecuteSnippet_Thread(InSnippet: Snippet) -> void:
 	ActiveResult = Code.Execute(InSnippet.Text)
 	IsActiveComplete = true
 	
+	# TODO: Should error messaging dispatching happend here? Useful for reporting
+	# any errors that were dispatched from native.
+	
 
-func FinishSnippet(InSnippet: Snippet) -> void:
+func FinishSnippet(InSnippet: Snippet, GoToNext := true) -> void:
 	if not InSnippet:
 		return
 	
-	if not ActiveResult.Success:
+	# There may not be a valid ActiveResult object if the execution is terminated early.
+	if ActiveResult and not ActiveResult.Success:
 		Log.Error("Failed to execute snippet '" + InSnippet.GetTitle() + "'.\n" + ActiveResult.GetError().Contents)
 	
 	emit_signal("OnSnippetEnd", InSnippet)
@@ -140,11 +144,21 @@ func FinishSnippet(InSnippet: Snippet) -> void:
 		Latent = null
 	
 	var Next: Snippet = InSnippet.GetNextSnippet()
-	if Next:
+	if Next and GoToNext:
 		ExecuteSnippet(Next)
 	else:
 		ActiveSnippet = null
 		ActiveResult = null
 		# All snippets have been executed. The program has finished.
 		emit_signal("OnEnd")
+	
+
+func Stop() -> void:
+	if not ActiveSnippet:
+		return
+	
+	# This notifies any sleeping threads that the VM is executing that it must be terminated.
+	Code.VM.Stop()
+	
+	FinishSnippet(ActiveSnippet, false)
 	
