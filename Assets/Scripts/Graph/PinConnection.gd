@@ -26,9 +26,6 @@ extends Node2D
 # Represents a curve connecting snippets together through pins. This manages the
 # rendering of the curve which requires some conversions between node spaces.
 
-# Iterations between curve points.
-const STEP = 32.0
-
 # The pin this connection is connected to. This should be the InputPin of a snippet.
 # No type is specified here due to GDScript cyclic references.
 var EndPin = null setget SetEndPin
@@ -57,15 +54,7 @@ func _draw() -> void:
 	Data.add_point(Vector2.ZERO, Vector2.ZERO, Vector2(350.0, 0.0))
 	Data.add_point(Dest, Vector2(-350.0, 0.0), Vector2.ZERO)
 	
-	# Taken from path_2d.cpp
-	for I in range(Data.get_point_count()):
-		var Previous: Vector2 = Data.get_point_position(I)
-		
-		for J in range(1, int(STEP)):
-			var T: float = J / STEP
-			var Next: Vector2 = Data.interpolate(I, T)
-			draw_line(Previous, Next, Color.whitesmoke, 5, true)
-			Previous = Next
+	draw_polyline(Data.get_baked_points(), Color.whitesmoke, 5.0, true)
 	
 	if AnimTimeRem > 0.0 or IsPlaying:
 		var Radius = min(15.0 * AnimTimeRem, 25.0)
