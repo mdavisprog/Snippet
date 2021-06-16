@@ -31,6 +31,9 @@ export(NativeScript) var VMClass: NativeScript
 # The VM instance that is created from VMClass if valid.
 var VM = null
 
+# Separate instance used for compiling.
+var Compiler = null
+
 # The result of the last compile. Should be a LuaVM reference.
 var CompileResult: Reference = null
 
@@ -43,6 +46,10 @@ func _ready() -> void:
 		if not VM:
 			VM = VMClass.new()
 			_Error = VM.connect("OnPrint", self, "OnPrint")
+		
+		if not Compiler:
+			Compiler = VMClass.new()
+			_Error = Compiler.connect("OnPrint", self, "OnPrint")
 	
 
 func Reset() -> void:
@@ -57,8 +64,9 @@ func ToLua(Code: String) -> ParserResult:
 	
 
 func Compile(Code: String) -> Reference:
-	if VM:
-		CompileResult = VM.Compile(Code)
+	if Compiler:
+		Compiler.Reset()
+		CompileResult = Compiler.Compile(Code)
 	else:
 		CompileResult.Success = false
 	

@@ -1,11 +1,10 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/Scripts/UI/Snippet/SnippetWindow.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Scenes/UI/FloatingWindow.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Assets/Scenes/UI/Snippet/SnippetToolbar.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Scenes/UI/Snippet/SnippetWindowTabs.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Scenes/UI/Controls/StatusBar.tscn" type="PackedScene" id=5]
-[ext_resource path="res://Assets/Scenes/Language/VirtualMachine.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Assets/Scenes/UI/Controls/AutoComplete.tscn" type="PackedScene" id=7]
 
 [node name="SnippetWindow" instance=ExtResource( 2 )]
@@ -49,15 +48,13 @@ margin_top = 557.0
 margin_right = 1016.0
 margin_bottom = 582.0
 
-[node name="Code" parent="." index="1" instance=ExtResource( 6 )]
-
-[node name="CompileTimer" type="Timer" parent="." index="2"]
+[node name="CompileTimer" type="Timer" parent="." index="1"]
 one_shot = true
 
-[node name="AutoCompleteTimer" type="Timer" parent="." index="3"]
+[node name="AutoCompleteTimer" type="Timer" parent="." index="2"]
 wait_time = 0.25
 one_shot = true
 
-[node name="AutoComplete" parent="." index="4" instance=ExtResource( 7 )]
+[node name="AutoComplete" parent="." index="3" instance=ExtResource( 7 )]
 margin_right = -824.0
 margin_bottom = -400.0

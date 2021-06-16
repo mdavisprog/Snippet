@@ -56,9 +56,6 @@ onready var Editors: TabContainer = $Panel/VBoxContainer/Margins/Contents/Tabs
 # Reference to the status bar.
 onready var Status: StatusBar = $Panel/VBoxContainer/Margins/Contents/StatusBar
 
-# The virtual machine used to compile and execute the snippet.
-onready var Code: VirtualMachine = $Code
-
 # Delay before compiling source to give the user time to finish typing their thoughts.
 onready var CompileTimer: Timer = $CompileTimer
 
@@ -126,16 +123,12 @@ func OnSnippetTextChanged() -> void:
 	
 
 func OnCompileTimer() -> void:
-	if not Code or not Code.VM:
-		return
-	
 	Editor.ClearLineStates()
-	Code.Reset()
 	
 	var Source: String = Editor.text
 	This.Text = Source
 	
-	var CompileResult = Code.Compile(Source)
+	var CompileResult = Runtime.Compile(This)
 	Lua.readonly = false
 	Lua.text = Source
 	Lua.readonly = true
@@ -146,8 +139,6 @@ func OnCompileTimer() -> void:
 	
 
 func RunUnitTest() -> void:
-	# Make sure the VM has a clean slate.
-	Code.Reset()
 	Log.Clear()
 	
 	var FnName: String = This.GetTitle()
@@ -156,8 +147,8 @@ func RunUnitTest() -> void:
 	# First, run the base unit test and ensure no invalid operations occur.
 	# TODO: Pass in parsed arguments results. This will require a cached ParserResult
 	# object that was generated after text has been entered.
-	var Result = Code.Execute(Editor.text)
-	SetError(Result, true)
+	Runtime.ExecuteSnippet(This, true)
+	OnRuntimeStart()
 	
 	# TODO: Custom unit test code should just do a raw execute. It is up to
 	# the developer on how this unit test behaves and should assert if there is

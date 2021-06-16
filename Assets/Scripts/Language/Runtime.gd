@@ -46,6 +46,11 @@ enum ACTION {
 	END,
 }
 
+enum EXEC_TYPE {
+	ALL,
+	UNITTEST,
+}
+
 # Execute snippets on a separate thread to keep from blocking the main thread.
 var Latent = null
 
@@ -57,6 +62,9 @@ var ActiveResult = null
 
 # Flag set to true when the threaded operation is complete.
 var IsActiveComplete = false
+
+# The type of execution the runtime is engaged in.
+var ExecType = EXEC_TYPE.ALL
 
 # The instanced virtual machine with scene templates and instancing.
 onready var Code: VirtualMachine = $Code
@@ -73,7 +81,7 @@ func _process(delta: float) -> void:
 	
 	if ActiveSnippet:
 		if IsActiveComplete:
-			FinishSnippet(ActiveSnippet)
+			FinishSnippet(ActiveSnippet, ExecType == EXEC_TYPE.ALL)
 	
 
 func IsEnabled() -> bool:
@@ -81,6 +89,9 @@ func IsEnabled() -> bool:
 
 func IsRunning() -> bool:
 	return ActiveSnippet != null
+
+func IsUnitTest() -> bool:
+	return ExecType == EXEC_TYPE.UNITTEST
 
 func Execute() -> void:
 	if not IsEnabled():
@@ -100,12 +111,19 @@ func Execute() -> void:
 	ExecuteSnippet(SnippetGraphNode.MainSnippet)
 	
 
-func ExecuteSnippet(InSnippet: Snippet) -> void:
+func ExecuteSnippet(InSnippet: Snippet, IsUnitTest := false) -> void:
+	if not IsEnabled():
+		return
+	
 	if not InSnippet:
+		return
+	
+	if Latent:
 		return
 	
 	ActiveSnippet = InSnippet
 	IsActiveComplete = false
+	ExecType = EXEC_TYPE.UNITTEST if IsUnitTest else EXEC_TYPE.ALL
 	
 	Runtime.Code.Reset()
 	
@@ -162,3 +180,9 @@ func Stop() -> void:
 	
 	FinishSnippet(ActiveSnippet, false)
 	
+
+func Compile(InSnippet: Snippet) -> Reference:
+	if not InSnippet:
+		return null
+	
+	return Code.Compile(InSnippet.Text)

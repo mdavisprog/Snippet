@@ -29,7 +29,9 @@ This document provides a location to place all future tasks.
 	- [x] Prevent modifying pin connections while runtime is active.
 	- [x] Prevent renaming snippet during execution.
 	- [x] Disable snippet context menu during runtime.
-	- [ ] Convert unit test run to use the Runtime singleton.
+	- [x] Convert unit test run to use the Runtime singleton.
+	- [ ] Test for proper error handling with new threaded environment.
+	- [ ] PinConnection uses a lot of CPU.
 - [ ] Documentation.
 
 ## Unsorted

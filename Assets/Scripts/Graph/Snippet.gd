@@ -287,7 +287,7 @@ func OnSnippetStart(InSnippet) -> void:
 	Animations.play("Temperature", -1.0, 0.0)
 	State = STATE.LOCKED
 	
-	if InputPin and InputPin.Connection:
+	if InputPin and InputPin.Connection and not Runtime.IsUnitTest():
 		InputPin.Connection.PlayAnimation()
 	
 
