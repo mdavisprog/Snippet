@@ -10,28 +10,7 @@ This document provides a location to place all future tasks.
 - [ ] Change splash screen.
 - [ ] Change 'File' menu bar icon.
 - [ ] Allow unit test to define values used in the snippet.
-- [ ] Runtime visualization.
-	- [x] Convert connections to curves.
-	- [x] Show temperature of recently executed snippets.
-	- [x] Animation similar to Unreal's Blueprints/Unity Bolt
-	- [x] Serialize connections between snippets in GRAPH file.
-	- [x] Lock all snippets for edit when running.
-	- [x] Prevent workspace options while running.
-	- [x] Keep temperature animation paused while snippet is executing. Fade out when snippet execution is complete.
-	- [x] Keep pin connection animation playing while snippet is executing. Fade out when snippet execution is complete.
-	- [x] Snippets should be run on a separate thread.
-	- [x] LuaVM's print capture needs to be thread safe. Store and dispatch on main thread.
-	- [x] Disable 'Run' and 'Run Unit Test' buttons during runtime execution.
-	- [x] Create a 'Runtime' singleton for a central location for all runtime-related behavior.
-	- [x] Only save a snippet to disk if changes have been made.
-	- [x] Add 'thread' library to LuaVM instances. Should contain a single 'sleep' function that takes in milliseconds.
-	- [x] Add stop button.
-	- [x] Prevent modifying pin connections while runtime is active.
-	- [x] Prevent renaming snippet during execution.
-	- [x] Disable snippet context menu during runtime.
-	- [x] Convert unit test run to use the Runtime singleton.
-	- [x] Improved pin connection rendering.
-	- [ ] Stop execution of runtime if there is an error.
+- [x] Runtime visualization.
 - [ ] Documentation.
 
 ## Unsorted

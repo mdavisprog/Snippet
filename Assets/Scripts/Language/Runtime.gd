@@ -154,6 +154,7 @@ func FinishSnippet(InSnippet: Snippet, GoToNext := true) -> void:
 	# There may not be a valid ActiveResult object if the execution is terminated early.
 	if ActiveResult and not ActiveResult.Success:
 		Log.Error("Failed to execute snippet '" + InSnippet.GetTitle() + "'.\n" + ActiveResult.GetError().Contents)
+		GoToNext = false
 	
 	emit_signal("OnSnippetEnd", InSnippet)
 	
