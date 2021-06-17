@@ -29,7 +29,7 @@ func _ready():
 	if not OS.is_debug_build():
 		OS.window_maximized = true
 	
-	var LastOpened = AppSettings.Data["LastOpened"]
+	var LastOpened = AppSettings.Data.get("LastOpened")
 	if LastOpened:
 		var _Result = Workspace.Open(LastOpened)
 	
