@@ -28,33 +28,23 @@ extends Node
 # The type of virtual machine to instance.
 export(NativeScript) var VMClass: NativeScript
 
-# The VM instance that is created from VMClass if valid.
-var VM = null
+# Buffer holding any output received from the language vm.
+var Buffer = ""
 
-# Separate instance used for compiling.
-var Compiler = null
+# For now, only a single VM instance can be used.
+var ActiveVM = null
 
-# The result of the last compile. Should be a LuaVM reference.
-var CompileResult: Reference = null
+# Mutex lock used to access various properties.
+var Guard = Mutex.new()
 
-# The result of the last execution. Should be a LuaVM reference.
-var ExecResult: Reference = null
-
-func _ready() -> void:
-	var _Error = null
-	if VMClass:
-		if not VM:
-			VM = VMClass.new()
-			_Error = VM.connect("OnPrint", self, "OnPrint")
-		
-		if not Compiler:
-			Compiler = VMClass.new()
-			_Error = Compiler.connect("OnPrint", self, "OnPrint")
+func DispatchBuffer() -> void:
+	if Buffer.empty():
+		return
 	
-
-func Reset() -> void:
-	if VM:
-		VM.Reset()
+	Guard.lock()
+	Log.Info(Buffer)
+	Buffer = ""
+	Guard.unlock()
 	
 
 func ToLua(Code: String) -> ParserResult:
@@ -64,22 +54,47 @@ func ToLua(Code: String) -> ParserResult:
 	
 
 func Compile(Code: String) -> Reference:
-	if Compiler:
-		Compiler.Reset()
-		CompileResult = Compiler.Compile(Code)
-	else:
-		CompileResult.Success = false
+	if not VMClass:
+		return null
 	
-	return CompileResult
+	# TODO: Should thread compilation as well. No Lua states should be created on
+	# the main thread.
+	var VM = VMClass.new()
+	var _Error = VM.connect("OnPrint", self, "OnPrint")
+	var Result = VM.Compile(Code)
+	VM.disconnect("OnPrint", self, "OnPrint")
+	return Result
 
-func Execute(Code: String) -> Reference:
-	if VM:
-		ExecResult = VM.Execute(Code)
-	else:
-		ExecResult.Success = false
+func Execute(Code: String, Args: Array) -> Reference:
+	if not VMClass:
+		return null
 	
-	return ExecResult
+	var VM = VMClass.new()
+	var _Error = VM.connect("OnPrint", self, "OnPrint")
+	
+	Guard.lock()
+	ActiveVM = VM
+	VM.PushArguments(Args)
+	Guard.unlock()
+	
+	var Result = VM.Execute(Code)
+	VM.disconnect("OnPrint", self, "OnPrint")
+	
+	Guard.lock()
+	ActiveVM = null
+	Guard.unlock()
+	
+	return Result
 
 func OnPrint(Contents: String) -> void:
-	Log.Info(Contents)
+	Guard.lock()
+	Buffer += Contents + "\n"
+	Guard.unlock()
+	
+
+func Stop() -> void:
+	if not ActiveVM:
+		return
+	
+	ActiveVM.Stop()
 	

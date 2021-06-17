@@ -54,6 +54,9 @@ enum EXEC_TYPE {
 # Execute snippets on a separate thread to keep from blocking the main thread.
 var Latent = null
 
+# Dictionary used to pass information when executing in a separate thread.
+var Arguments = {}
+
 # The currently executing snippet.
 var ActiveSnippet: Snippet = null
 
@@ -75,17 +78,16 @@ func _exit_tree() -> void:
 		Latent = null
 	
 
-func _process(delta: float) -> void:
-	if Code:
-		Code.VM._process(delta)
-	
+func _process(_delta: float) -> void:
 	if ActiveSnippet:
 		if IsActiveComplete:
 			FinishSnippet(ActiveSnippet, ExecType == EXEC_TYPE.ALL)
 	
+	Code.DispatchBuffer()
+	
 
 func IsEnabled() -> bool:
-	return Code and Code.VM
+	return Code != null
 
 func IsRunning() -> bool:
 	return ActiveSnippet != null
@@ -125,22 +127,26 @@ func ExecuteSnippet(InSnippet: Snippet, IsUnitTest := false) -> void:
 	IsActiveComplete = false
 	ExecType = EXEC_TYPE.UNITTEST if IsUnitTest else EXEC_TYPE.ALL
 	
-	Runtime.Code.Reset()
-	
+	var Args = []
 	if ActiveResult:
-		Code.VM.PushArguments(ActiveResult.Results)
+		Args = ActiveResult.Results
 	
 	emit_signal("OnSnippetStart", InSnippet)
 	
+	Arguments = {
+		"Source": InSnippet.Text,
+		"Arguments": Args
+	}
+	
 	Latent = Thread.new()
-	Latent.start(self, "ExecuteSnippet_Thread", InSnippet)
+	Latent.start(self, "ExecuteSnippet_Thread", Arguments)
 	
 
-func ExecuteSnippet_Thread(InSnippet: Snippet) -> void:
-	if not InSnippet:
-		return
+func ExecuteSnippet_Thread(InArguments: Dictionary) -> void:
+	var Source: String = InArguments["Source"]
+	var Args: Array = InArguments["Arguments"]
 	
-	ActiveResult = Code.Execute(InSnippet.Text)
+	ActiveResult = Code.Execute(Source, Args)
 	IsActiveComplete = true
 	
 	# TODO: Should error messaging dispatching happend here? Useful for reporting
@@ -177,7 +183,7 @@ func Stop() -> void:
 		return
 	
 	# This notifies any sleeping threads that the VM is executing that it must be terminated.
-	Code.VM.Stop()
+	Code.Stop()
 	
 	FinishSnippet(ActiveSnippet, false)
 	

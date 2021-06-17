@@ -50,7 +50,7 @@ static int print(lua_State *L)
 	LuaVM *owner = (LuaVM*)lua_touserdata(L, i);
 	if (owner != nullptr)
 	{
-		owner->AppendBuffer(buffer);
+		owner->emit_signal("OnPrint", buffer);
 	}
 
 	lua_pop(L, args);
@@ -187,13 +187,12 @@ static void PrintStack(lua_State *State)
 
 void LuaVM::_register_methods()
 {
-	register_method("_process", &LuaVM::_process);
-	register_method("Compile", &LuaVM::Compile);
-	register_method("Execute", &LuaVM::Execute);
-	register_method("Call", &LuaVM::Call);
-	register_method("PushArguments", &LuaVM::PushArguments);
-	register_method("Reset", &LuaVM::Reset);
-	register_method("Stop", &LuaVM::Stop);
+	register_method((char*)"Compile", &LuaVM::Compile);
+	register_method((char*)"Execute", &LuaVM::Execute);
+	register_method((char*)"Call", &LuaVM::Call);
+	register_method((char*)"PushArguments", &LuaVM::PushArguments);
+	register_method((char*)"Reset", &LuaVM::Reset);
+	register_method((char*)"Stop", &LuaVM::Stop);
 	register_signal<LuaVM>((char*)"OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
 }
 
@@ -246,7 +245,6 @@ LuaVM::LuaVM()
 LuaVM::~LuaVM()
 {
 	Close();
-	Lock = nullptr;
 }
 
 void LuaVM::_init()
@@ -254,20 +252,7 @@ void LuaVM::_init()
 	InitState();
 }
 
-void LuaVM::_process(float Delta)
-{
-	if (!Buffer.empty())
-	{
-		if (Lock->try_lock() == Error::OK)
-		{
-			emit_signal((char*)"OnPrint", Buffer);
-			Buffer = "";
-			Lock->unlock();
-		}
-	}
-}
-
-Ref<LuaResult> LuaVM::Compile(const String &Source)
+Ref<LuaResult> LuaVM::Compile(String Source)
 {
 	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
 
@@ -288,7 +273,7 @@ Ref<LuaResult> LuaVM::Compile(const String &Source)
 	return Result;
 }
 
-Ref<LuaResult> LuaVM::Execute(const String &Source)
+Ref<LuaResult> LuaVM::Execute(String Source)
 {
 	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
 
@@ -297,7 +282,6 @@ Ref<LuaResult> LuaVM::Execute(const String &Source)
 		return Result;
 	}
 
-	Buffer = "";
 	Shutdown = false;
 
 	// Here, we will catch any syntax errors.
@@ -323,7 +307,7 @@ Ref<LuaResult> LuaVM::Execute(const String &Source)
 	return Result;
 }
 
-Ref<LuaResult> LuaVM::Call(const String &FnName, Variant Args)
+Ref<LuaResult> LuaVM::Call(String FnName, Variant Args)
 {
 	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
 
@@ -355,7 +339,7 @@ Ref<LuaResult> LuaVM::Call(const String &FnName, Variant Args)
 	return Result;
 }
 
-void LuaVM::PushArguments(const Array &Args)
+void LuaVM::PushArguments(Array Args)
 {
 	if (State == nullptr)
 	{
@@ -390,13 +374,6 @@ void LuaVM::Stop()
 	// Owning thread object must call wait_to_finish().
 }
 
-void LuaVM::AppendBuffer(const String &InBuffer)
-{
-	Lock->lock();
-	Buffer = Buffer + InBuffer + "\n";
-	Lock->unlock();
-}
-
 void LuaVM::Pause(lua_State *State, int64_t MSec)
 {
 	std::unique_lock<std::mutex> UL(ConditionLock);
@@ -424,11 +401,6 @@ bool LuaVM::InitState()
 		luaL_setfuncs(State, base_overrides, 1);
 		lua_pop(State, 1);
 		Shutdown = false;
-	}
-
-	if (!Lock.is_valid())
-	{
-		Lock = Ref<Mutex>(Mutex::_new());
 	}
 
 	return State != nullptr;

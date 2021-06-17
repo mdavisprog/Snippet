@@ -45,8 +45,6 @@ class LuaVM : public Reference
 
 private:
 	lua_State *State;
-	Ref<Mutex> Lock;
-	String Buffer;
 
 	std::mutex ConditionLock;
 	std::condition_variable Condition;
@@ -62,16 +60,14 @@ public:
 	~LuaVM();
 
 	void _init();
-	void _process(float Delta);
-	Ref<LuaResult> Compile(const String &Source);
-	Ref<LuaResult> Execute(const String &Source);
-	Ref<LuaResult> Call(const String &FnName, Variant Args);
-	void PushArguments(const Array &Args);
+	Ref<LuaResult> Compile(String Source);
+	Ref<LuaResult> Execute(String Source);
+	Ref<LuaResult> Call(String FnName, Variant Args);
+	void PushArguments(Array Args);
 	void Reset();
 	void Stop();
 
 	// Native only
-	void AppendBuffer(const String &InBuffer);
 	void Pause(lua_State *State, int64_t MSec);
 
 private:
