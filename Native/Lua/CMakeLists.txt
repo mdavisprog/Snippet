@@ -65,3 +65,10 @@ set(SOURCE
 )
 
 add_library(Lua ${SOURCE} ${HEADERS})
+
+if(UNIX)
+	target_compile_options(
+		Lua
+		PUBLIC "-fPIC"
+	)
+endif()

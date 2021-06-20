@@ -11,6 +11,8 @@ OSX.64="res://Libraries/Snippet/Mac/x64/libSnippet.dylib"
 OSX.32="res://Libraries/Snippet/Mac/x64/libSnippet.dylib"
 Windows.64="res://Libraries/Snippet/Windows/x64/Snippet.dll"
 Windows.32="res://Libraries/Snippet/Windows/x64/Snippet.dll"
+X11.64="res://Libraries/Snippet/Linux/x64/libSnippet.so"
+X11.32="res://Libraries/Snippet/Linux/x64/libSnippet.so"
 
 [dependencies]
 
@@ -18,3 +20,5 @@ OSX.64=[  ]
 OSX.32=[  ]
 Windows.64=[  ]
 Windows.32=[  ]
+X11.64=[  ]
+X11.32=[  ]

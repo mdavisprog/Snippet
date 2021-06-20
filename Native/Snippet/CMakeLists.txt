@@ -14,6 +14,11 @@ add_library(
 	${SOURCE}
 )
 
+target_compile_options(
+	${TARGET}
+	PUBLIC "-fPIC"
+)
+
 target_link_libraries(
 	${TARGET}
 	Lua

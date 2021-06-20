@@ -110,7 +110,7 @@ static Variant ToVariant(lua_State *State, int Index)
 		{
 			if (lua_isinteger(State, Index))
 			{
-				Result = lua_tointeger(State, Index);
+				Result = (int)lua_tointeger(State, Index);
 			}
 			else
 			{

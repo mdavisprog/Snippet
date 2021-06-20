@@ -12,7 +12,7 @@ if(APPLE)
 elseif(WIN32)
 	set(PLATFORM Windows)
 else()
-	set(PLATFORM Unknown)
+	set(PLATFORM Linux)
 endif()
 
 # Check for 64-bit compiler
@@ -34,6 +34,8 @@ if(WIN32)
 	set(GODOT_LIB ${GODOT_CPP}/bin/libgodot-cpp.windows.release.64.lib)
 elseif(APPLE)
 	set(GODOT_LIB ${GODOT_CPP}/bin/libgodot-cpp.osx.release.64.a)
+else()
+	set(GODOT_LIB ${GODOT_CPP}/bin/libgodot-cpp.linux.release.64.a)
 endif()
 
 if(NOT GODOT_LIB)
