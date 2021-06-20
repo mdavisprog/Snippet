@@ -9,9 +9,9 @@ This document provides a location to place all future tasks.
 - [ ] Change icon.
 - [ ] Change splash screen.
 - [ ] Change 'File' menu bar icon.
-- [ ] Allow unit test to define values used in the snippet.
 - [x] Runtime visualization.
-- [ ] Documentation.
+- [x] Change highlight color of context menus.
+- [x] Documentation.
 
 ## Unsorted
 * Left click and drag to make a selection box on the UI layer. After completion, should check to see if any snippets are enclosed in the region's world space.
@@ -19,23 +19,15 @@ This document provides a location to place all future tasks.
 * Workspace input should be blocked by snippet windows.
 * Dragging off of a connection pin should bring up a context menu. Developer should be able to quickly add a snippet this way.
 * Callback support. Developers should be able to call a function called 'callout' which takes a snippet name and some arguments. These callouts will create additional output pins which allows other developers to create a snippet which is called when the 'callout' is called.
-* Create a title region on a node for the label.
-* Draw bezeir curves between pin connections. These should be drawn in another layer.
-* Convert curves to draw textures at a fixed interval.
 * Function focus a snippet. Camera should animate towards position.
-* Prevent altering Main snippet name and arguments.
-	* Could just allow it but throw compile error if 'main' function is not found.
-* May need to handle Lua keywords? Better error messages for keywords.
 * Only open a small portion of the standard lua libraries.
-* Trim available functions in the global namespace.
+* Trim available functions in the global Lua namespace.
 * Add Success color state for line and status bar.
 * Compile time errors should only highlight left margin.
 * Quick key to run unit tests.
 * Allow any snippet to use any programming language?
 * Update to VisualStudio 2019 compiler.
 * Investigate ways to have snippets return a name with the value so that it can be referenced by that name in the connected snippet.
-* Look at different ways to show compile errors instead of in the output window.
-	* Could maybe show in a tooltip window. Maybe the autocomplete window?
 * Full debugging support.
 	* Should be able to set breakpoints.
 	* Should be able to inspect all data in each snippet.
@@ -46,3 +38,4 @@ This document provides a location to place all future tasks.
 * Workspace settings to set name.
 * BUG: Resizing viewport will resize all FloatingWindow instances.
 * BUG: Curve control points not properly aligned when modifying an output connection.
+* Allow unit test to define values used in the snippet.
