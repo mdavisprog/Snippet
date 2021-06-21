@@ -3,12 +3,10 @@ This document provides a location to place all future tasks.
 
 ## v0.2
 - [x] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
-- [ ] Get working project for Linux.
-	- [ ] Compile C++ library for Linux.
-	- [ ] Setup export for Linux platform.
+- [x] Get working project for Linux.
 - [ ] Change icon.
 - [ ] Change splash screen.
-- [ ] Change 'File' menu bar icon.
+- [x] Change 'File' menu bar icon.
 - [x] Runtime visualization.
 - [x] Change highlight color of context menus.
 - [x] Documentation.

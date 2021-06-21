@@ -41,39 +41,12 @@ func _ready() -> void:
 		Top.call_deferred("add_child", Instance)
 		
 		_Error = Instance.connect("id_pressed", self, "OnSelected")
-		_Error = Instance.connect("popup_hide", self, "PopupClosed")
-	
-	_Error = connect("mouse_entered", self, "MouseEntered")
-	_Error = connect("mouse_exited", self, "MouseExited")
-	
-	Darken()
 	
 
 func _pressed():
 	if Instance:
 		Instance.popup()
 		Instance.set_global_position(get_global_mouse_position())
-	
-
-func PopupClosed() -> void:
-	Darken()
-	
-
-func MouseEntered() -> void:
-	Brighten()
-	
-
-func MouseExited() -> void:
-	if not Instance or not Instance.visible:
-		Darken()
-	
-
-func Brighten() -> void:
-	self_modulate = Color.white
-	
-
-func Darken() -> void:
-	self_modulate = Color.white.darkened(0.2)
 	
 
 #
