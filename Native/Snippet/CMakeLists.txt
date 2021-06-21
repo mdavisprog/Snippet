@@ -14,10 +14,12 @@ add_library(
 	${SOURCE}
 )
 
-target_compile_options(
-	${TARGET}
-	PUBLIC "-fPIC"
-)
+if(UNIX)
+	target_compile_options(
+		${TARGET}
+		PUBLIC "-fPIC"
+	)
+endif()
 
 target_link_libraries(
 	${TARGET}
