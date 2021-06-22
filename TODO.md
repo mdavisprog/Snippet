@@ -1,16 +1,6 @@
 # Overview
 This document provides a location to place all future tasks.
 
-## v0.2
-- [x] Ability to save snippets. Each snippet should have 2 files. One is SNIPPET_NAME.lua and the other will be SNIPPET_NAME_tests.lua
-- [x] Get working project for Linux.
-- [ ] Change icon.
-- [ ] Change splash screen.
-- [x] Change 'File' menu bar icon.
-- [x] Runtime visualization.
-- [x] Change highlight color of context menus.
-- [x] Documentation.
-
 ## Unsorted
 * Left click and drag to make a selection box on the UI layer. After completion, should check to see if any snippets are enclosed in the region's world space.
 * Make moving windows transparent. Similar to Kubuntu windows.
@@ -37,3 +27,4 @@ This document provides a location to place all future tasks.
 * BUG: Resizing viewport will resize all FloatingWindow instances.
 * BUG: Curve control points not properly aligned when modifying an output connection.
 * Allow unit test to define values used in the snippet.
+* Maybe have function inheritance?

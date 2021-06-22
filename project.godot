@@ -220,7 +220,10 @@ _global_script_class_icons={
 
 config/name="Snippet"
 run/main_scene="res://Assets/Main.tscn"
-config/icon="res://icon.png"
+boot_splash/image="res://Assets/Resources/Icons/icon_1024.png"
+config/icon="res://Assets/Resources/Icons/icon.png"
+config/macos_native_icon="res://Assets/Resources/Icons/Icons.icns"
+config/windows_native_icon="res://Assets/Resources/Icons/icon.ico"
 
 [autoload]
 
