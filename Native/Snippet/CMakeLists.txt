@@ -3,7 +3,6 @@ set(TARGET Snippet)
 set(
 	SOURCE
 	Main.cpp
-	SnippetStub.cpp
 )
 
 add_subdirectory(Lua)
