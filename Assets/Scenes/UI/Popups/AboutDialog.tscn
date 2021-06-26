@@ -1,0 +1,147 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Assets/Themes/Default.tres" type="Theme" id=1]
+[ext_resource path="res://Assets/Resources/Icons/icon_64.png" type="Texture" id=2]
+[ext_resource path="res://icon.png" type="Texture" id=3]
+[ext_resource path="res://Assets/Scripts/UI/Popups/AboutDialog.gd" type="Script" id=4]
+
+[node name="AboutDialog" type="PopupDialog"]
+anchor_right = 0.5
+anchor_bottom = 0.5
+theme = ExtResource( 1 )
+popup_exclusive = true
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Layout" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Layout"]
+margin_right = 512.0
+margin_bottom = 269.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Credits" type="VBoxContainer" parent="Layout/ScrollContainer"]
+margin_right = 512.0
+margin_bottom = 429.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Snippet" type="VBoxContainer" parent="Layout/ScrollContainer/Credits"]
+margin_right = 500.0
+margin_bottom = 117.0
+
+[node name="Icon" type="HBoxContainer" parent="Layout/ScrollContainer/Credits/Snippet"]
+margin_right = 500.0
+margin_bottom = 64.0
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Layout/ScrollContainer/Credits/Snippet/Icon"]
+margin_left = 218.0
+margin_right = 282.0
+margin_bottom = 64.0
+texture = ExtResource( 2 )
+
+[node name="Label" type="Label" parent="Layout/ScrollContainer/Credits/Snippet"]
+margin_top = 68.0
+margin_right = 500.0
+margin_bottom = 117.0
+text = "Snippet
+Copyright (c) 2021 Mitchell Davis"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Layout/ScrollContainer/Credits"]
+margin_top = 121.0
+margin_right = 500.0
+margin_bottom = 125.0
+
+[node name="Godot" type="VBoxContainer" parent="Layout/ScrollContainer/Credits"]
+margin_top = 129.0
+margin_right = 500.0
+margin_bottom = 268.0
+
+[node name="Icon" type="HBoxContainer" parent="Layout/ScrollContainer/Credits/Godot"]
+margin_right = 500.0
+margin_bottom = 64.0
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Layout/ScrollContainer/Credits/Godot/Icon"]
+margin_left = 218.0
+margin_right = 282.0
+margin_bottom = 64.0
+texture = ExtResource( 3 )
+
+[node name="Label" type="Label" parent="Layout/ScrollContainer/Credits/Godot"]
+margin_top = 68.0
+margin_right = 500.0
+margin_bottom = 139.0
+text = "Godot
+Copyright (c) 2007-2021 Juan Linietsky, Ariel Manzur.
+Copyright (c) 2014-2021 Godot Engine contributors."
+align = 1
+
+[node name="HSeparator2" type="HSeparator" parent="Layout/ScrollContainer/Credits"]
+margin_top = 272.0
+margin_right = 500.0
+margin_bottom = 276.0
+
+[node name="Lua" type="Label" parent="Layout/ScrollContainer/Credits"]
+margin_top = 280.0
+margin_right = 500.0
+margin_bottom = 329.0
+text = "Lua
+Copyright © 1994–2021 Lua.org, PUC-Rio."
+align = 1
+
+[node name="HSeparator3" type="HSeparator" parent="Layout/ScrollContainer/Credits"]
+margin_top = 333.0
+margin_right = 500.0
+margin_bottom = 337.0
+
+[node name="Kenney" type="Label" parent="Layout/ScrollContainer/Credits"]
+margin_top = 341.0
+margin_right = 500.0
+margin_bottom = 368.0
+text = "Game icon pack by Kenney Vleugels (www.kenney.nl)"
+align = 1
+
+[node name="HSeparator4" type="HSeparator" parent="Layout/ScrollContainer/Credits"]
+margin_top = 372.0
+margin_right = 500.0
+margin_bottom = 376.0
+
+[node name="Google" type="Label" parent="Layout/ScrollContainer/Credits"]
+margin_top = 380.0
+margin_right = 500.0
+margin_bottom = 429.0
+text = "Google Material Design Icons
+https://fonts.google.com/icons"
+align = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Layout"]
+margin_top = 273.0
+margin_right = 512.0
+margin_bottom = 300.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OK" type="Button" parent="Layout/Buttons"]
+margin_left = 239.0
+margin_right = 272.0
+margin_bottom = 27.0
+text = "OK"

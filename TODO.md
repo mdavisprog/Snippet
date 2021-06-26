@@ -1,6 +1,12 @@
 # Overview
 This document provides a location to place all future tasks.
 
+# v0.3
+- [x] About page.
+- [ ] Debugger.
+- [ ] Launch in separate process.
+- [ ] Socket communication for debugging.
+
 ## Unsorted
 * Left click and drag to make a selection box on the UI layer. After completion, should check to see if any snippets are enclosed in the region's world space.
 * Make moving windows transparent. Similar to Kubuntu windows.
