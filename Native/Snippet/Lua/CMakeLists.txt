@@ -7,5 +7,6 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaStackTraceElement.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaResult.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaVM.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LuaVMDebugger.cpp
 	PARENT_SCOPE
 )

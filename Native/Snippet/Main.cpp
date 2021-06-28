@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Lua/LuaStackTraceElement.h"
 #include "Lua/LuaResult.h"
 #include "Lua/LuaVM.h"
+#include "Lua/LuaVMDebugger.h"
 
 extern "C" void GDN_EXPORT snippet_gdnative_init(godot_gdnative_init_options *Options)
 {
@@ -49,4 +50,5 @@ extern "C" void GDN_EXPORT snippet_nativescript_init(void *Handle)
 	godot::register_class<godot::LuaStackTraceElement>();
 	godot::register_class<godot::LuaResult>();
 	godot::register_class<godot::LuaVM>();
+	godot::register_class<godot::LuaVMDebugger>();
 }

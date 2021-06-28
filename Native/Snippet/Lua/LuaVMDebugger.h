@@ -27,59 +27,31 @@ SOFTWARE.
 #pragma once
 
 #include "Godot.hpp"
-#include "Reference.hpp"
 #include "lua.hpp"
-#include "Mutex.hpp"
-
-#include <mutex>
-#include <condition_variable>
+#include "Reference.hpp"
+#include <vector>
 
 namespace godot
 {
 
-class LuaResult;
-class LuaVMDebugger;
-
-class LuaVM : public Reference
+class LuaVMDebugger : public Reference
 {
-	GODOT_CLASS(LuaVM, Reference)
+	GODOT_CLASS(LuaVMDebugger, Reference)
 
 private:
-	lua_State *State;
-
-	std::mutex ConditionLock;
-	std::condition_variable Condition;
-	bool Shutdown;
-
-	Ref<LuaVMDebugger> Debugger;
+	static void hook(lua_State *State, lua_Debug *Ar);
 
 public:
 	static void _register_methods();
-	static void *alloc(void *ud, void *ptr, size_t osize, size_t nsize);
-	static int handle_error(lua_State *L);
-	static int lua_pcall_handler(lua_State *L, int nargs, int nresults);
-	static LuaVM *GetVM(lua_State *State);
 
-	LuaVM();
-	~LuaVM();
+	LuaVMDebugger();
+	~LuaVMDebugger();
 
 	void _init();
-	Ref<LuaResult> Compile(String Source);
-	Ref<LuaResult> Execute(String Source);
-	Ref<LuaResult> Call(String FnName, Variant Args);
-	void PushArguments(Array Args);
-	void Reset();
-	void Stop();
-	void AttachDebugger();
-	Ref<LuaVMDebugger> GetDebugger() const;
 
-	// Native only
-	void Pause(lua_State *State, int64_t MSec);
-
-private:
-	bool InitState();
-	void Close();
-	Array GetReturnValues(lua_State *State) const;
+	// Native
+	void Hook(lua_State *State);
+	void Unhook(lua_State *State);
 };
 
 }

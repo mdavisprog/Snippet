@@ -29,6 +29,7 @@ SOFTWARE.
 #include "LuaError.h"
 #include "LuaLibs.h"
 #include "LuaResult.h"
+#include "LuaVMDebugger.h"
 
 #define VM_KEY "__vm"
 
@@ -194,6 +195,8 @@ void LuaVM::_register_methods()
 	register_method((char*)"PushArguments", &LuaVM::PushArguments);
 	register_method((char*)"Reset", &LuaVM::Reset);
 	register_method((char*)"Stop", &LuaVM::Stop);
+	register_method((char*)"AttachDebugger", &LuaVM::AttachDebugger);
+	register_method((char*)"GetDebugger", &LuaVM::GetDebugger);
 	register_signal<LuaVM>((char*)"OnPrint", "Contents", GODOT_VARIANT_TYPE_STRING);
 }
 
@@ -391,6 +394,27 @@ void LuaVM::Stop()
 	// Owning thread object must call wait_to_finish().
 }
 
+void LuaVM::AttachDebugger()
+{
+	if (State == nullptr)
+	{
+		return;
+	}
+
+	if (Debugger.is_valid())
+	{
+		return;
+	}
+
+	Debugger = Ref<LuaVMDebugger>(LuaVMDebugger::_new());
+	Debugger->Hook(State);
+}
+
+Ref<LuaVMDebugger> LuaVM::GetDebugger() const
+{
+	return Debugger;
+}
+
 void LuaVM::Pause(lua_State *State, int64_t MSec)
 {
 	std::unique_lock<std::mutex> UL(ConditionLock);
@@ -430,6 +454,8 @@ void LuaVM::Close()
 		lua_close(State);
 		State = nullptr;
 	}
+
+	Debugger = nullptr;
 }
 
 Array LuaVM::GetReturnValues(lua_State *State) const
