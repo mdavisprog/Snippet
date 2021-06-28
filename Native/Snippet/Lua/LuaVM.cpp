@@ -30,6 +30,8 @@ SOFTWARE.
 #include "LuaLibs.h"
 #include "LuaResult.h"
 
+#define VM_KEY "__vm"
+
 namespace godot
 {
 
@@ -46,8 +48,7 @@ static int print(lua_State *L)
 	}
 
 	// Retrieve the LuaVM upvalue set when the lua_State was initialized.
-	int i = lua_upvalueindex(1);
-	LuaVM *owner = (LuaVM*)lua_touserdata(L, i);
+	LuaVM *owner = LuaVM::GetVM(L);
 	if (owner != nullptr)
 	{
 		owner->emit_signal("OnPrint", buffer);
@@ -237,6 +238,22 @@ int LuaVM::lua_pcall_handler(lua_State *L, int nargs, int nresults)
 	return ret;
 }
 
+LuaVM *LuaVM::GetVM(lua_State *State)
+{
+	if (State == nullptr)
+	{
+		return nullptr;
+	}
+
+	LuaVM *Result = nullptr;
+	lua_getglobal(State, "_G");
+	lua_getfield(State, -1, VM_KEY);
+	Result = (LuaVM*)lua_touserdata(State, -1);
+	lua_pop(State, 2);
+
+	return Result;
+}
+
 LuaVM::LuaVM()
 	: State(nullptr)
 {
@@ -396,9 +413,9 @@ bool LuaVM::InitState()
 		LuaLibs::VM = nullptr;
 
 		lua_getglobal(State, "_G");
-		// Set an upvalue for this lua_State to refer back to the owning VM object.
 		lua_pushlightuserdata(State, this);
-		luaL_setfuncs(State, base_overrides, 1);
+		lua_setfield(State, -2, VM_KEY);
+		luaL_setfuncs(State, base_overrides, 0);
 		lua_pop(State, 1);
 		Shutdown = false;
 	}

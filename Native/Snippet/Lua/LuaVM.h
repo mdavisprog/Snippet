@@ -55,6 +55,7 @@ public:
 	static void *alloc(void *ud, void *ptr, size_t osize, size_t nsize);
 	static int handle_error(lua_State *L);
 	static int lua_pcall_handler(lua_State *L, int nargs, int nresults);
+	static LuaVM *GetVM(lua_State *State);
 
 	LuaVM();
 	~LuaVM();

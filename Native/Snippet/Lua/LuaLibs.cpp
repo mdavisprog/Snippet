@@ -46,8 +46,7 @@ namespace LuaLibs
                 Duration = (int64_t)lua_tointeger(State, 1);
             }
 
-            int Index = lua_upvalueindex(1);
-            godot::LuaVM *LocalVM = (godot::LuaVM*)lua_touserdata(State, Index);
+            godot::LuaVM *LocalVM = godot::LuaVM::GetVM(State);
             if (LocalVM != nullptr)
             {
                 LocalVM->Pause(State, Duration);
