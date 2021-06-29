@@ -135,6 +135,7 @@ func ExecuteSnippet(InSnippet: Snippet, IsUnitTest := false) -> void:
 	
 	Arguments = {
 		"Source": InSnippet.Text,
+		"Name": InSnippet.GetTitle(),
 		"Arguments": Args
 	}
 	
@@ -144,9 +145,10 @@ func ExecuteSnippet(InSnippet: Snippet, IsUnitTest := false) -> void:
 
 func ExecuteSnippet_Thread(InArguments: Dictionary) -> void:
 	var Source: String = InArguments["Source"]
+	var Name: String = InArguments["Name"]
 	var Args: Array = InArguments["Arguments"]
 	
-	ActiveResult = Code.Execute(Source, Args)
+	ActiveResult = Code.Execute(Source, Name, Args)
 	IsActiveComplete = true
 	
 	# TODO: Should error messaging dispatching happend here? Useful for reporting

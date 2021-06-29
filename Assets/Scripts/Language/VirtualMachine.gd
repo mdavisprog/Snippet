@@ -65,11 +65,12 @@ func Compile(Code: String) -> Reference:
 	VM.disconnect("OnPrint", self, "OnPrint")
 	return Result
 
-func Execute(Code: String, Args: Array) -> Reference:
+func Execute(Code: String, Name: String, Args: Array) -> Reference:
 	if not VMClass:
 		return null
 	
 	var VM = VMClass.new()
+	VM.AttachDebugger()
 	var _Error = VM.connect("OnPrint", self, "OnPrint")
 	
 	Guard.lock()
@@ -77,7 +78,7 @@ func Execute(Code: String, Args: Array) -> Reference:
 	VM.PushArguments(Args)
 	Guard.unlock()
 	
-	var Result = VM.Execute(Code)
+	var Result = VM.Execute(Code, Name)
 	VM.disconnect("OnPrint", self, "OnPrint")
 	
 	Guard.lock()

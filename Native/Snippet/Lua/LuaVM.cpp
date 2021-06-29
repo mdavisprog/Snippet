@@ -27,6 +27,7 @@ SOFTWARE.
 #include "LuaVM.h"
 
 #include "LuaError.h"
+#include "LuaHelpers.h"
 #include "LuaLibs.h"
 #include "LuaResult.h"
 #include "LuaVMDebugger.h"
@@ -65,127 +66,6 @@ static const luaL_Reg base_overrides[] =
 	{"print", print},
 	{nullptr, nullptr}
 };
-
-static void PushVariant(lua_State *State, const Variant &Arg)
-{
-	switch (Arg.get_type())
-	{
-	case Variant::BOOL: lua_pushboolean(State, (bool)Arg == true ? 1 : 0); break;
-	case Variant::INT: lua_pushinteger(State, (int)Arg); break;
-	case Variant::REAL: lua_pushnumber(State, (float)Arg); break;
-	case Variant::STRING:
-		{
-			String Data = Arg;
-			lua_pushstring(State, Data.ascii().get_data());
-		} break;
-	case Variant::ARRAY:
-		{
-			Array Data = Arg;
-			lua_newtable(State);
-			for (int I = 0; I < Data.size(); I++)
-			{
-				lua_pushinteger(State, I + 1);
-				PushVariant(State, Data[I]);
-				lua_settable(State, -3);
-			}
-		} break;
-	default:
-		{
-			Godot::print("Unhandled Variant: {0}", Arg.get_type());
-			lua_pushnil(State);
-		} break;
-	}
-}
-
-static Variant ToVariant(lua_State *State, int Index)
-{
-	Variant Result;
-
-	switch (lua_type(State, Index))
-	{
-	case LUA_TBOOLEAN:
-		{
-			Result = lua_toboolean(State, Index) == 1 ? true : false;
-		} break;
-
-	case LUA_TNUMBER:
-		{
-			if (lua_isinteger(State, Index))
-			{
-				Result = (int)lua_tointeger(State, Index);
-			}
-			else
-			{
-				Result = lua_tonumber(State, Index);
-			}
-		} break;
-
-	case LUA_TSTRING:
-		{
-			Result = lua_tostring(State, Index);
-		} break;
-
-	case LUA_TTABLE:
-		{
-			Array Table;
-
-			lua_pushnil(State);
-			while (lua_next(State, -2) != 0)
-			{
-				// Grab the value which should be at the top of the stack.
-				Table.append(ToVariant(State, -1));
-
-				// Pop the value. The key should be the only thing left on the stack for the next iteration.
-				lua_pop(State, 1);
-			}
-
-			Result = Table;
-		} break;
-
-	case LUA_TFUNCTION:
-		{
-			Result = "Function";
-		} break;
-
-	default:
-		{
-			Godot::print("Unhandled Lua type: {0}", lua_type(State, Index));
-		} break;
-	}
-
-	return Result;
-}
-
-static void PrintStack(lua_State *State)
-{
-	if (State == nullptr)
-	{
-		Godot::print("Invalid state.");
-		return;
-	}
-
-	int Size = lua_gettop(State);
-	Godot::print("Stack size: {0}", Size);
-	for (int I = Size; I > 0; --I)
-	{
-		Variant Item = ToVariant(State, I);
-
-		if (Item.get_type() == Variant::ARRAY)
-		{
-			// Printing arrays has been a challenge with GDNative across MSVC and clang-apple.
-			// Attempting to use format specifiers directly into the Array variant would only index an
-			// element instead of just indexing the whole array, even through it isn't the first item in the list.
-			// Due to errors with conversions between Variant and other types on other platforms, a PoolStringArray
-			// is used as an intermediary to dump the contents of the array. Could probably update
-			// the constructor to allow for this. Will need to investigate further.
-			Array Args = Item;
-			PoolStringArray Pool(Args);
-			Item = Pool;
-		}
-
-		Godot::print("   {0}: {1}", I, Item);
-	}
-}
 
 void LuaVM::_register_methods()
 {
@@ -293,7 +173,7 @@ Ref<LuaResult> LuaVM::Compile(String Source)
 	return Result;
 }
 
-Ref<LuaResult> LuaVM::Execute(String Source)
+Ref<LuaResult> LuaVM::Execute(String Source, String Name)
 {
 	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
 
@@ -305,7 +185,8 @@ Ref<LuaResult> LuaVM::Execute(String Source)
 	Shutdown = false;
 
 	// Here, we will catch any syntax errors.
-	Result->Success = luaL_loadstring(State, Source.ascii().get_data()) == LUA_OK;
+	const String Symbol = String("@{0}:{1}").format(Array::make(Name, Source));
+	Result->Success = luaL_loadbuffer(State, Source.ascii().get_data(), Source.ascii().length(), Symbol.ascii().get_data()) == LUA_OK;
 	if (!Result->Success)
 	{
 		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::SYNTAX);
@@ -343,7 +224,7 @@ Ref<LuaResult> LuaVM::Call(String FnName, Variant Args)
 		return Result;
 	}
 
-	PushVariant(State, Args);
+	LuaHelpers::PushVariant(State, Args);
 
 	Result->Success = lua_pcall_handler(State, 1, LUA_MULTRET) == LUA_OK;
 	if (Result->Success)
@@ -369,7 +250,7 @@ void LuaVM::PushArguments(Array Args)
 	lua_getglobal(State, "_G");
 	for (int I = 0; I < Args.size(); I++)
 	{
-		PushVariant(State, Args[I]);
+		LuaHelpers::PushVariant(State, Args[I]);
 		String Field = String("arg{0}").format(Array::make(I));
 		lua_setfield(State, -2, Field.ascii().get_data());
 	}
@@ -454,8 +335,6 @@ void LuaVM::Close()
 		lua_close(State);
 		State = nullptr;
 	}
-
-	Debugger = nullptr;
 }
 
 Array LuaVM::GetReturnValues(lua_State *State) const
@@ -466,7 +345,7 @@ Array LuaVM::GetReturnValues(lua_State *State) const
 
 	for (int I = 1; I <= Count; I++)
 	{
-		Result.append(ToVariant(State, I));
+		Result.append(LuaHelpers::ToVariant(State, I));
 	}
 
 	lua_pop(State, Count);
