@@ -26,45 +26,103 @@ SOFTWARE.
 
 #include "LuaVMDebugger.h"
 #include "LuaVM.h"
+#include "RegEx.hpp"
+#include "RegExMatch.hpp"
 
 namespace godot
 {
 
-const char *EventName(int Event)
+static PoolIntArray GetLineNumbers(lua_State *State, lua_Debug *Ar)
 {
-	switch (Event)
+	PoolIntArray Result;
+
+	if (State == nullptr)
 	{
-		case LUA_HOOKCALL: return "Call";
-		case LUA_HOOKTAILCALL: return "TailCall";
-		case LUA_HOOKCOUNT: return "Count";
-		case LUA_HOOKLINE: return "Line";
-		case LUA_HOOKRET: return "Return";
-		default: break;
+		return Result;
 	}
 
-	return "";
-}
-
-static void Print(lua_Debug *Ar)
-{
-	if (Ar == nullptr)
+	if (lua_getinfo(State, "L", Ar) == 0)
 	{
-		return;
+		return Result;
 	}
 
-	Godot::print("{0}", EventName(Ar->event));
-	Godot::print("   name: {0}", Ar->name);
-	Godot::print("   namewhat: {0}", Ar->namewhat);
-	Godot::print("   what: {0}", Ar->what);
-	Godot::print("   line: {0} {1} {2}", Ar->currentline, Ar->linedefined, Ar->lastlinedefined);
-	Godot::print("   nups: {0} nparams: {1}", Ar->nups, Ar->nparams);
+	// Check if the top element is a table.
+	if (lua_istable(State, -1))
+	{
+		// This is a table where the line numbers are the indices of the source. The values don't have any meaning.
+		lua_pushnil(State);
+		while (lua_next(State, -2) != 0)
+		{
+			Variant Key;
+
+			// Cannot use lua_isstring here as the function will return true for values that can be converted to a string.
+			if (lua_type(State, -2) == LUA_TSTRING)
+			{
+				Key = lua_tostring(State, -2);
+			}
+			else if (lua_type(State, -2) == LUA_TNUMBER)
+			{
+				Key = (int)lua_tointeger(State, -2);
+			}
+
+			Result.append(Key);
+
+			// Pop the value and leave the key for the next iteration.
+			lua_pop(State, 1);
+		}
+
+		// Pop the table off of the stack.
+		lua_pop(State, 1);
+	}
+
+	return Result;
 }
 
-void LuaVMDebugger::hook(lua_State *State, lua_Debug *Ar)
+void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 {
+	// Fills in the fields for Ar.
 	if (lua_getinfo(State, "nSltu", Ar) == 0)
 	{
 		return;
+	}
+
+	// The 'source' field should be in the format '@[name]:[source]', so will look for the first ':' character and split.
+	String Name;
+	String Source = Ar->source;
+	PoolStringArray Lines;
+
+	String Token = "@";
+	if (Source.begins_with(Token))
+	{
+		// Extract just the source.
+		const int Index = Source.find(":");
+		if (Index != -1)
+		{
+			Name = Source.substr(1, Index - 1);
+			Source = Source.right(Index + 1);
+		}
+
+		// Split into lines.
+		Ref<RegEx> Expr = Ref<RegEx>(RegEx::_new());
+
+		// The below expression will include the newline character as we want to capture empty lines as well.
+		// These newline characters will be removed when adding to the array.
+		Expr->compile("(.*)\n");
+
+		Array Matches = Expr->search_all(Source);
+		int End = 0;
+		for (int I = 0; I < Matches.size(); I++)
+		{
+			Ref<RegExMatch> Match = Matches[I];
+			Lines.append(Match->get_string().trim_suffix("\n"));
+			End = Match->get_end();
+		}
+
+		// Grab the last remaining line at the end of the buffer.
+		if (End < Source.length())
+		{
+			Lines.append(Source.substr(End, Source.length() - End));
+		}
 	}
 }
 
@@ -91,7 +149,7 @@ void LuaVMDebugger::Hook(lua_State *State)
 		return;
 	}
 
-	lua_sethook(State, hook, LUA_MASKCALL | LUA_MASKLINE | LUA_MASKRET, 0);
+	lua_sethook(State, OnHook, LUA_MASKCALL | LUA_MASKLINE | LUA_MASKRET, 0);
 }
 
 void LuaVMDebugger::Unhook(lua_State *State)
@@ -101,7 +159,7 @@ void LuaVMDebugger::Unhook(lua_State *State)
 		return;
 	}
 
-	lua_sethook(State, hook, 0, 0);
+	lua_sethook(State, nullptr, 0, 0);
 }
 
 }

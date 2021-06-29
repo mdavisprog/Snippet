@@ -39,7 +39,7 @@ class LuaVMDebugger : public Reference
 	GODOT_CLASS(LuaVMDebugger, Reference)
 
 private:
-	static void hook(lua_State *State, lua_Debug *Ar);
+	static void OnHook(lua_State *State, lua_Debug *Ar);
 
 public:
 	static void _register_methods();
