@@ -166,7 +166,7 @@ func GetCursorPos() -> Vector2:
 	
 	# This is close enough. Might have issues with tabs/spaces/other non standard characters.
 	var Size: Vector2 = ThemeFont.get_string_size(Text)
-	Result.x = Size.x + GetLineNumberOffset() + 16.0
+	Result.x = Size.x + GetLineNumberOffset() + GetBreakpointOffset() + 16.0
 	
 	return Result
 
@@ -197,3 +197,10 @@ func OnTextChanged() -> void:
 		insert_text_at_cursor("\t")
 		AppendTab = false
 	
+
+func GetBreakpointOffset() -> float:
+	if not breakpoint_gutter:
+		return 0.0
+	
+	# Taken from text_edit.cpp::_notification
+	return GetLineHeight() * 55 / 100
