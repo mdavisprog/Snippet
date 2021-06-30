@@ -136,7 +136,8 @@ func ExecuteSnippet(InSnippet: Snippet, IsUnitTest := false) -> void:
 	Arguments = {
 		"Source": InSnippet.Text,
 		"Name": InSnippet.GetTitle(),
-		"Arguments": Args
+		"Arguments": Args,
+		"Breakpoints": InSnippet.Breakpoints
 	}
 	
 	Latent = Thread.new()
@@ -147,8 +148,9 @@ func ExecuteSnippet_Thread(InArguments: Dictionary) -> void:
 	var Source: String = InArguments["Source"]
 	var Name: String = InArguments["Name"]
 	var Args: Array = InArguments["Arguments"]
+	var Breakpoints: Array = InArguments["Breakpoints"]
 	
-	ActiveResult = Code.Execute(Source, Name, Args)
+	ActiveResult = Code.Execute(Source, Name, Args, Breakpoints)
 	IsActiveComplete = true
 	
 	# TODO: Should error messaging dispatching happend here? Useful for reporting
@@ -195,3 +197,11 @@ func Compile(InSnippet: Snippet) -> Reference:
 		return null
 	
 	return Code.Compile(InSnippet.Text)
+
+func OnBreak(Line: int) -> void:
+	emit_signal("OnBreak", Line)
+	
+
+func UpdateBreakpoints(Breakpoints: Array) -> void:
+	Code.UpdateBreakpoints(Breakpoints)
+	

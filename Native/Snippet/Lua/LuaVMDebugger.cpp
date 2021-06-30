@@ -25,6 +25,8 @@ SOFTWARE.
 */
 
 #include "LuaVMDebugger.h"
+
+#include "LuaHelpers.h"
 #include "LuaVM.h"
 #include "RegEx.hpp"
 #include "RegExMatch.hpp"
@@ -91,6 +93,23 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 	String Source = Ar->source;
 	PoolStringArray Lines;
 
+	if (Ar->currentline > 0)
+	{
+		LuaVM *VM = LuaVM::GetVM(State);
+		if (VM != nullptr)
+		{
+			Array Breakpoints = VM->GetDebugger()->GetBreakpoints();
+			// Lines are indexed at 0.
+			int Index = Ar->currentline - 1;
+			
+			// TODO: Check for 'Line' event type.
+			if (Breakpoints.has(Index))
+			{
+				// TODO: Emit signal and halt execution. Maybe through a yield?
+			}
+		}
+	}
+
 	String Token = "@";
 	if (Source.begins_with(Token))
 	{
@@ -128,6 +147,7 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 
 void LuaVMDebugger::_register_methods()
 {
+	register_method((char*)"SetBreakpoints", &LuaVMDebugger::SetBreakpoints);
 }
 
 LuaVMDebugger::LuaVMDebugger()
@@ -140,6 +160,16 @@ LuaVMDebugger::~LuaVMDebugger()
 
 void LuaVMDebugger::_init()
 {
+}
+
+void LuaVMDebugger::SetBreakpoints(Array InBreakpoints)
+{
+	Breakpoints = InBreakpoints;
+}
+
+Array LuaVMDebugger::GetBreakpoints() const
+{
+	return Breakpoints;
 }
 
 void LuaVMDebugger::Hook(lua_State *State)

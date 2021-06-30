@@ -65,12 +65,13 @@ func Compile(Code: String) -> Reference:
 	VM.disconnect("OnPrint", self, "OnPrint")
 	return Result
 
-func Execute(Code: String, Name: String, Args: Array) -> Reference:
+func Execute(Code: String, Name: String, Args: Array, Breakpoints: Array) -> Reference:
 	if not VMClass:
 		return null
 	
 	var VM = VMClass.new()
 	VM.AttachDebugger()
+	VM.GetDebugger().SetBreakpoints(Breakpoints)
 	var _Error = VM.connect("OnPrint", self, "OnPrint")
 	
 	Guard.lock()
@@ -98,4 +99,25 @@ func Stop() -> void:
 		return
 	
 	ActiveVM.Stop()
+	
+
+func Resume() -> void:
+	if not ActiveVM:
+		return
+	
+	if State != STATE.PAUSED:
+		return
+	
+	Guard.lock()
+	ActiveVM.Resume()
+	State = STATE.RUNNING
+	Guard.unlock()
+	
+
+func UpdateBreakpoints(Breakpoints: Array) -> void:
+	if not ActiveVM:
+		return
+	
+	# May not need to guard this operation as breakpoints are read-only on execution thread.
+	ActiveVM.GetDebugger().SetBreakpoints(Breakpoints)
 	

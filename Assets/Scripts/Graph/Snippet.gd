@@ -61,6 +61,9 @@ var TextHash = ""
 # The script to execute for unit tests.
 var Text_Tests = ""
 
+# List of breakpoints to apply when running
+var Breakpoints = []
+
 # The state of the snippet. The state dictates what actions can be taken
 # with this snippet.
 var State = STATE.NORMAL

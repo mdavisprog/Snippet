@@ -71,6 +71,7 @@ onready var TitleEdit: LineEdit = $Panel/VBoxContainer/TitleContainer/TitleEdit
 func _ready() -> void:
 	var _Error = Toolbar.connect("OnAction", self, "OnAction")
 	_Error = Editor.connect("text_changed", self, "OnSnippetTextChanged")
+	_Error = Editor.connect("breakpoint_toggled", self, "OnBreakpointToggled")
 	_Error = CompileTimer.connect("timeout", self, "OnCompileTimer")
 	_Error = AutoCompleteTimer.connect("timeout", self, "OnAutoComplete")
 	_Error = AutoCompleteWindow.connect("OnConfirm", self, "OnAutoCompleteConfirm")
@@ -99,6 +100,10 @@ func Show(InSnippet: Snippet) -> void:
 	var Bounds: Rect2 = InSnippet.BackgroundNode.GetBounds(InSnippet.global_position)
 	rect_global_position = Vector2(Bounds.end.x, Bounds.position.y)
 	rect_size = Vector2(300, 350)
+	
+	Editor.remove_breakpoints()
+	for Line in This.Breakpoints:
+		Editor.set_line_as_breakpoint(Line, true)
 	
 
 func OnAction(Action: int) -> void:
@@ -291,4 +296,9 @@ func OnRuntimeEnd() -> void:
 	ToggleRunButtons(true)
 	Editor.readonly = false
 	Toolbar.Stop.disabled = true
+	
+
+func OnBreakpointToggled(_Row: int) -> void:
+	This.Breakpoints = Editor.get_breakpoints()
+	Runtime.UpdateBreakpoints(This.Breakpoints)
 	

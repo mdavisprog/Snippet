@@ -179,8 +179,11 @@ func OnWorkspaceState(State: int) -> void:
 			Load()
 	
 
+# TODO: Move Graph/Snippet/Breakpoints serialization to a separate container and centralize all
+# steps of the serialization process.
 func Save() -> void:
 	var Snippets: Array = get_tree().get_nodes_in_group("Snippet")
+	var Breakpoints = {}
 	
 	var Items = []
 	for Item in Snippets:
@@ -191,6 +194,10 @@ func Save() -> void:
 				"Y": Item.position.y
 			}
 		}
+		
+		# Add breakpoint entry.
+		if Item.Breakpoints.size() > 0:
+			Breakpoints[Item.GetTitle()] = Item.Breakpoints
 		
 		var Next: Snippet = Item.GetNextSnippet()
 		if Next:
@@ -210,6 +217,7 @@ func Save() -> void:
 	}
 	
 	var _Result = Workspace.SaveVariant("GRAPH", Data)
+	_Result = Workspace.SaveVariant("PDB", Breakpoints)
 	
 
 func Load() -> void:
@@ -237,12 +245,18 @@ func Load() -> void:
 	if not GraphData:
 		return
 	
+	var Breakpoints = Workspace.LoadVariant("PDB")
+	if not Breakpoints: Breakpoints = []
+	
 	position = Vector2(GraphData.Position.X, GraphData.Position.Y)
 	
 	var Items: Array = GraphData.Snippets
 	for Item in Items:
 		for Element in List:
 			if Element.GetTitle() == Item.Name:
+				# JSON parses all numeric values as floats. Convert to integers here.
+				var ItemBreakpoints: PoolIntArray = Breakpoints[Element.GetTitle()] if Breakpoints.has(Element.GetTitle()) else []
+				Element.Breakpoints = ItemBreakpoints
 				Element.position = Vector2(Item.Position.X, Item.Position.Y)
 				
 				# Go through the list and make a connection if one exists.

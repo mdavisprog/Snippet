@@ -39,6 +39,8 @@ class LuaVMDebugger : public Reference
 	GODOT_CLASS(LuaVMDebugger, Reference)
 
 private:
+	Array Breakpoints;
+
 	static void OnHook(lua_State *State, lua_Debug *Ar);
 
 public:
@@ -48,8 +50,10 @@ public:
 	~LuaVMDebugger();
 
 	void _init();
+	void SetBreakpoints(Array InBreakpoints);
 
 	// Native
+	Array GetBreakpoints() const;
 	void Hook(lua_State *State);
 	void Unhook(lua_State *State);
 };
