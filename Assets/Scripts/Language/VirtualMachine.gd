@@ -25,6 +25,18 @@ extends Node
 
 # Object to compile and execute code.
 
+# Emitted when the virtual machine execution has hit a breakpoint.
+#
+# Line: int
+signal OnBreak(Line)
+
+enum STATE {
+	IDLE,
+	RUNNING,
+	BREAK,
+	PAUSED
+}
+
 # The type of virtual machine to instance.
 export(NativeScript) var VMClass: NativeScript
 
@@ -37,14 +49,22 @@ var ActiveVM = null
 # Mutex lock used to access various properties.
 var Guard = Mutex.new()
 
-func DispatchBuffer() -> void:
-	if Buffer.empty():
-		return
+# The current state for this virtual machine. May be modified by multiple threads.
+var State = STATE.IDLE
+
+# The line number the virtual machine is breaking on.
+var LineBreak = 0
+
+func _process(_delta: float) -> void:
+	if not Buffer.empty():
+		Log.Info(Buffer)
+		Guard.lock()
+		Buffer = ""
+		Guard.unlock()
 	
-	Guard.lock()
-	Log.Info(Buffer)
-	Buffer = ""
-	Guard.unlock()
+	if State == STATE.BREAK:
+		emit_signal("OnBreak", LineBreak)
+		State = STATE.PAUSED
 	
 
 func ToLua(Code: String) -> ParserResult:
@@ -73,14 +93,15 @@ func Execute(Code: String, Name: String, Args: Array, Breakpoints: Array) -> Ref
 	VM.AttachDebugger()
 	VM.GetDebugger().SetBreakpoints(Breakpoints)
 	var _Error = VM.connect("OnPrint", self, "OnPrint")
+	_Error = VM.GetDebugger().connect("OnBreak", self, "OnBreak")
 	
 	Guard.lock()
+	State = STATE.RUNNING
 	ActiveVM = VM
 	VM.PushArguments(Args)
 	Guard.unlock()
 	
 	var Result = VM.Execute(Code, Name)
-	VM.disconnect("OnPrint", self, "OnPrint")
 	
 	Guard.lock()
 	ActiveVM = null
@@ -91,6 +112,13 @@ func Execute(Code: String, Name: String, Args: Array, Breakpoints: Array) -> Ref
 func OnPrint(Contents: String) -> void:
 	Guard.lock()
 	Buffer += Contents + "\n"
+	Guard.unlock()
+	
+
+func OnBreak(Line: int) -> void:
+	Guard.lock()
+	LineBreak = Line
+	State = STATE.BREAK
 	Guard.unlock()
 	
 

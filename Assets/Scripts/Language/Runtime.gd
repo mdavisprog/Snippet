@@ -28,6 +28,11 @@ extends Node
 # Emitted when the Runtime is about to start.
 signal OnStart()
 
+# Emitted when the program has hit a breakpoint.
+#
+# Line: int - The line number of the active snippet.
+signal OnBreak(Line)
+
 # Emitted when the Runtime has ended.
 signal OnEnd()
 
@@ -40,11 +45,6 @@ signal OnSnippetStart(InSnippet)
 #
 # InSnippet: Snippet
 signal OnSnippetEnd(InSnippet)
-
-enum ACTION {
-	BEGIN,
-	END,
-}
 
 enum EXEC_TYPE {
 	ALL,
@@ -72,6 +72,10 @@ var ExecType = EXEC_TYPE.ALL
 # The instanced virtual machine with scene templates and instancing.
 onready var Code: VirtualMachine = $Code
 
+func _ready() -> void:
+	var _Error = Code.connect("OnBreak", self, "OnBreak")
+	
+
 func _exit_tree() -> void:
 	if Latent:
 		Latent.wait_to_finish()
@@ -82,8 +86,6 @@ func _process(_delta: float) -> void:
 	if ActiveSnippet:
 		if IsActiveComplete:
 			FinishSnippet(ActiveSnippet, ExecType == EXEC_TYPE.ALL)
-	
-	Code.DispatchBuffer()
 	
 
 func IsEnabled() -> bool:
@@ -190,6 +192,10 @@ func Stop() -> void:
 	Code.Stop()
 	
 	FinishSnippet(ActiveSnippet, false)
+	
+
+func Resume() -> void:
+	Code.Resume()
 	
 
 func Compile(InSnippet: Snippet) -> Reference:

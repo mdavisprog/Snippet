@@ -38,6 +38,9 @@ enum ACTION {
 # The scale applied to all texture buttons based on their normal texture.
 export var Scale = 0.5 setget SetScale
 
+# The default tooltip text for running the unit test. This will be restored after debugging is complete.
+var RunUTTooltip = ""
+
 # The 'Run' button.
 onready var Run: TextureButton = $Run
 
@@ -60,6 +63,8 @@ func _ready() -> void:
 	_Error = Run.connect("pressed", self, "OnRun")
 	_Error = RunUT.connect("pressed", self, "OnRunUT")
 	_Error = Stop.connect("pressed", self, "OnStop")
+	
+	RunUTTooltip = RunUT.hint_tooltip
 	
 
 func _enter_tree() -> void:
@@ -102,4 +107,9 @@ func OnRunUT() -> void:
 
 func OnStop() -> void:
 	emit_signal("OnAction", ACTION.STOP)
+	
+
+func Resume(Enabled: bool) -> void:
+	RunUT.disabled = not Enabled
+	RunUT.hint_tooltip = "Resume" if Enabled else RunUTTooltip
 	

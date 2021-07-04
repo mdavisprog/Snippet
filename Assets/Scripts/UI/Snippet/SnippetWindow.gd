@@ -79,6 +79,7 @@ func _ready() -> void:
 	_Error = TitleEdit.connect("text_entered", self, "OnTitleEditChanged")
 	_Error = TitleEdit.connect("focus_exited", self, "OnTitleEditUnfocus")
 	_Error = Runtime.connect("OnStart", self, "OnRuntimeStart")
+	_Error = Runtime.connect("OnBreak", self, "OnRuntimeBreak")
 	_Error = Runtime.connect("OnEnd", self, "OnRuntimeEnd")
 	
 	Status.text = ""
@@ -111,9 +112,15 @@ func OnAction(Action: int) -> void:
 		SnippetToolbar.ACTION.RUN:
 			Runtime.Execute()
 		SnippetToolbar.ACTION.RUNUT:
-			RunUnitTest()
+			if Runtime.IsRunning():
+				Runtime.Resume()
+				Toolbar.Resume(false)
+				Editor.ClearLineStates()
+			else:
+				RunUnitTest()
 		SnippetToolbar.ACTION.STOP:
 			Runtime.Stop()
+			Editor.ClearLineStates()
 	
 
 func UpdateStatusBar(Success: bool, Error: String) -> void:
@@ -290,6 +297,11 @@ func OnRuntimeStart() -> void:
 	ToggleRunButtons(false)
 	Editor.readonly = true
 	Toolbar.Stop.disabled = false
+	
+
+func OnRuntimeBreak(Line: int) -> void:
+	Toolbar.Resume(true)
+	Editor.SetLineState(Line + 1, BaseTextEdit.LINE_STATE.ERROR)
 	
 
 func OnRuntimeEnd() -> void:

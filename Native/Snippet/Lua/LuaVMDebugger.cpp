@@ -80,35 +80,18 @@ static PoolIntArray GetLineNumbers(lua_State *State, lua_Debug *Ar)
 	return Result;
 }
 
-void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
+static PoolStringArray GetLines(lua_Debug *Ar)
 {
-	// Fills in the fields for Ar.
-	if (lua_getinfo(State, "nSltu", Ar) == 0)
+	PoolStringArray Result;
+
+	if (Ar == nullptr)
 	{
-		return;
+		return Result;
 	}
 
 	// The 'source' field should be in the format '@[name]:[source]', so will look for the first ':' character and split.
 	String Name;
 	String Source = Ar->source;
-	PoolStringArray Lines;
-
-	if (Ar->currentline > 0)
-	{
-		LuaVM *VM = LuaVM::GetVM(State);
-		if (VM != nullptr)
-		{
-			Array Breakpoints = VM->GetDebugger()->GetBreakpoints();
-			// Lines are indexed at 0.
-			int Index = Ar->currentline - 1;
-			
-			// TODO: Check for 'Line' event type.
-			if (Breakpoints.has(Index))
-			{
-				// TODO: Emit signal and halt execution. Maybe through a yield?
-			}
-		}
-	}
 
 	String Token = "@";
 	if (Source.begins_with(Token))
@@ -133,14 +116,43 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 		for (int I = 0; I < Matches.size(); I++)
 		{
 			Ref<RegExMatch> Match = Matches[I];
-			Lines.append(Match->get_string().trim_suffix("\n"));
+			Result.append(Match->get_string().trim_suffix("\n"));
 			End = Match->get_end();
 		}
 
 		// Grab the last remaining line at the end of the buffer.
 		if (End < Source.length())
 		{
-			Lines.append(Source.substr(End, Source.length() - End));
+			Result.append(Source.substr(End, Source.length() - End));
+		}
+	}
+
+	return Result;
+}
+
+void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
+{
+	// Fills in the fields for Ar.
+	if (lua_getinfo(State, "nSltu", Ar) == 0)
+	{
+		return;
+	}
+
+	if (Ar->currentline > 0 && Ar->event == LUA_HOOKLINE)
+	{
+		LuaVM *VM = LuaVM::GetVM(State);
+		if (VM != nullptr)
+		{
+			Array Breakpoints = VM->GetDebugger()->GetBreakpoints();
+			// Lines are indexed at 0.
+			int Index = Ar->currentline - 1;
+			
+			if (Breakpoints.has(Index))
+			{
+				VM->GetDebugger()->emit_signal("OnBreak", Index);
+				lua_yield(State, 0);
+				return;
+			}
 		}
 	}
 }
@@ -148,6 +160,7 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 void LuaVMDebugger::_register_methods()
 {
 	register_method((char*)"SetBreakpoints", &LuaVMDebugger::SetBreakpoints);
+	register_signal<LuaVMDebugger>((char*)"OnBreak", "Line", GODOT_VARIANT_TYPE_INT);
 }
 
 LuaVMDebugger::LuaVMDebugger()

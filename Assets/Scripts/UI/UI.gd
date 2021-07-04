@@ -143,5 +143,6 @@ func OnQuitSavePrompt(Dir: String) -> void:
 
 func Quit(ExitCode := 0) -> void:
 	Workspace.Close()
+	Runtime.Stop()
 	get_tree().quit(ExitCode)
 	
