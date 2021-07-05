@@ -31,6 +31,7 @@ SOFTWARE.
 #include "LuaLibs.h"
 #include "LuaResult.h"
 #include "LuaVMDebugger.h"
+#include "OS.hpp"
 
 #define VM_KEY "__vm"
 
@@ -74,6 +75,7 @@ void LuaVM::_register_methods()
 	register_method((char*)"Call", &LuaVM::Call);
 	register_method((char*)"PushArguments", &LuaVM::PushArguments);
 	register_method((char*)"Reset", &LuaVM::Reset);
+	register_method((char*)"Resume", &LuaVM::Resume);
 	register_method((char*)"Stop", &LuaVM::Stop);
 	register_method((char*)"AttachDebugger", &LuaVM::AttachDebugger);
 	register_method((char*)"GetDebugger", &LuaVM::GetDebugger);
@@ -182,11 +184,17 @@ Ref<LuaResult> LuaVM::Execute(String Source, String Name)
 		return Result;
 	}
 
+	// The coroutine is currently executing.
+	if (Coroutine != nullptr)
+	{
+		return Result;
+	}
+
 	Shutdown = false;
+	ShouldResume = false;
 
 	// Here, we will catch any syntax errors.
-	const String Symbol = String("@{0}:{1}").format(Array::make(Name, Source));
-	Result->Success = luaL_loadbuffer(State, Source.ascii().get_data(), Source.ascii().length(), Symbol.ascii().get_data()) == LUA_OK;
+	Result->Success = luaL_loadbuffer(State, Source.ascii().get_data(), Source.ascii().length(), Name.ascii().get_data()) == LUA_OK;
 	if (!Result->Success)
 	{
 		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::SYNTAX);
@@ -194,16 +202,49 @@ Ref<LuaResult> LuaVM::Execute(String Source, String Name)
 		return Result;
 	}
 
-	Result->Success = lua_pcall_handler(State, 0, LUA_MULTRET) == LUA_OK;
+	// Create a coroutine so that it can be yielded and resumed.
+	Coroutine = lua_newthread(State);
+
+	// Copy the buffer and push on to the top of the stack.
+	lua_pushvalue(State, -2);
+
+	// Copy the top value and pop it off of the main stack to the coroutine.
+	lua_xmove(State, Coroutine, 1);
+
+	int Ret = LUA_ERRRUN;
+	do
+	{
+		Ret = lua_resume(Coroutine, nullptr, 0);
+		
+		while (Ret == LUA_YIELD && !ShouldResume)
+		{
+			OS::get_singleton()->delay_msec(100);
+
+			if (Shutdown)
+			{
+				Ret = LUA_ERRRUN;
+				lua_pushliteral(Coroutine, "Shutdown");
+				break;
+			}
+		}
+
+		ShouldResume = false;
+
+	} while (Ret == LUA_YIELD);
+
+	Result->Success = Ret == LUA_OK;
 	if (Result->Success)
 	{
-		Result->Results = GetReturnValues(State);
+		Result->Results = GetReturnValues(Coroutine);
 	}
 	else
 	{
-		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::RUNTIME);
+		Result->Error->Parse(lua_tostring(Coroutine, -1), LuaError::TYPE::RUNTIME);
 		lua_pop(State, 1);
 	}
+
+	// Pop the coroutine and the loaded function object.
+	lua_pop(State, 2);
 
 	return Result;
 }
@@ -261,6 +302,11 @@ void LuaVM::Reset()
 {
 	Close();
 	InitState();
+}
+
+void LuaVM::Resume()
+{
+	ShouldResume = true;
 }
 
 void LuaVM::Stop()
@@ -323,6 +369,9 @@ bool LuaVM::InitState()
 		luaL_setfuncs(State, base_overrides, 0);
 		lua_pop(State, 1);
 		Shutdown = false;
+		ShouldResume = false;
+
+		Coroutine = nullptr;
 	}
 
 	return State != nullptr;

@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Godot.hpp"
 #include "Reference.hpp"
 #include "lua.hpp"
-#include "Mutex.hpp"
 
 #include <mutex>
 #include <condition_variable>
@@ -46,12 +45,14 @@ class LuaVM : public Reference
 
 private:
 	lua_State *State;
+	lua_State *Coroutine;
 
 	std::mutex ConditionLock;
 	std::condition_variable Condition;
 	bool Shutdown;
 
 	Ref<LuaVMDebugger> Debugger;
+	bool ShouldResume;
 
 public:
 	static void _register_methods();
@@ -69,6 +70,7 @@ public:
 	Ref<LuaResult> Call(String FnName, Variant Args);
 	void PushArguments(Array Args);
 	void Reset();
+	void Resume();
 	void Stop();
 	void AttachDebugger();
 	Ref<LuaVMDebugger> GetDebugger() const;
