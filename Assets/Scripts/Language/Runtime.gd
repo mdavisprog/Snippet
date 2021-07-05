@@ -211,3 +211,6 @@ func OnBreak(Line: int) -> void:
 func UpdateBreakpoints(Breakpoints: Array) -> void:
 	Code.UpdateBreakpoints(Breakpoints)
 	
+
+func GetVariables() -> Dictionary:
+	return Code.GetVariables()

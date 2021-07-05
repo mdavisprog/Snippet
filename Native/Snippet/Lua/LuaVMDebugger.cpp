@@ -90,6 +90,7 @@ static PoolStringArray GetLines(lua_Debug *Ar)
 	}
 
 	// The 'source' field should be in the format '@[name]:[source]', so will look for the first ':' character and split.
+	// TODO: Find alternative to capturing the source of a function. Might be related to the 'what' field being 'main'.
 	String Name;
 	String Source = Ar->source;
 
@@ -147,8 +148,83 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 			// Lines are indexed at 0.
 			int Index = Ar->currentline - 1;
 			
+			// If we hit a breakpoint, grab all needed data.
 			if (Breakpoints.has(Index))
 			{
+				// Grab all valid local variables.
+				VM->GetDebugger()->ClearVariables();
+				const char *Name = nullptr;
+				int I = 1;
+				do
+				{
+					// Pushes the value on to the stack if a local is found at the given index.
+					Name = lua_getlocal(State, Ar, I++);
+					if (Name != nullptr)
+					{
+						String Temp = Name;
+						String Token = "(";
+						if (!Temp.begins_with(Token))
+						{
+							VM->GetDebugger()->SetVariable(Temp, LuaHelpers::ToVariant(State, -1));
+						}
+
+						// Pop the value from the stack.
+						lua_pop(State, 1);
+					}
+
+				} while (Name != nullptr);
+
+				// Grab all declared global variables.
+				lua_getglobal(State, "_G");
+				lua_pushnil(State);
+				while (lua_next(State, -2) != 0)
+				{
+					// Retrieve the key and make sure to not change the type in-place.
+					String Key;
+					int Type = lua_type(State, -2);
+					if (Type == LUA_TNUMBER)
+					{
+						Key = (float)lua_tonumber(State, -2);
+					}
+					else
+					{
+						Key = lua_tostring(State, -2);
+					}
+
+					// For now, we are only interested in basic types.
+					Variant Value;
+					switch (lua_type(State, -1))
+					{
+						case LUA_TBOOLEAN: { Value = lua_toboolean(State, -1) == 1; }
+						case LUA_TSTRING: { Value = lua_tostring(State, -1); }
+						case LUA_TNUMBER:
+						{
+							if (lua_isinteger(State, -1))
+							{
+								Value = (int)lua_tointeger(State, -1);
+							}
+							else
+							{
+								Value = lua_tonumber(State, -1);
+							}
+						} break;
+						default: break;
+					}
+
+					if (Value.get_type() != Variant::Type::NIL)
+					{
+						if (Key != "_VERSION")
+						{
+							VM->GetDebugger()->SetVariable(Key, Value);
+						}
+					}
+
+					lua_pop(State, 1);
+				}
+
+				// Pop the global table.
+				lua_pop(State, 1);
+
 				VM->GetDebugger()->emit_signal("OnBreak", Index);
 				lua_yield(State, 0);
 				return;
@@ -160,6 +236,7 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 void LuaVMDebugger::_register_methods()
 {
 	register_method((char*)"SetBreakpoints", &LuaVMDebugger::SetBreakpoints);
+	register_method((char*)"GetVariables", &LuaVMDebugger::GetVariables);
 	register_signal<LuaVMDebugger>((char*)"OnBreak", "Line", GODOT_VARIANT_TYPE_INT);
 }
 
@@ -180,9 +257,24 @@ void LuaVMDebugger::SetBreakpoints(Array InBreakpoints)
 	Breakpoints = InBreakpoints;
 }
 
+Dictionary LuaVMDebugger::GetVariables() const
+{
+	return Variables;
+}
+
 Array LuaVMDebugger::GetBreakpoints() const
 {
 	return Breakpoints;
+}
+
+void LuaVMDebugger::SetVariable(String Name, Variant Value)
+{
+	Variables[Name] = Value;
+}
+
+void LuaVMDebugger::ClearVariables()
+{
+	Variables.clear();
 }
 
 void LuaVMDebugger::Hook(lua_State *State)

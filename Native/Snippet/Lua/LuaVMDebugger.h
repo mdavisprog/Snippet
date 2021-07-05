@@ -40,6 +40,7 @@ class LuaVMDebugger : public Reference
 
 private:
 	Array Breakpoints;
+	Dictionary Variables;
 
 	static void OnHook(lua_State *State, lua_Debug *Ar);
 
@@ -51,9 +52,12 @@ public:
 
 	void _init();
 	void SetBreakpoints(Array InBreakpoints);
+	Dictionary GetVariables() const;
 
 	// Native
 	Array GetBreakpoints() const;
+	void SetVariable(String Name, Variant Value);
+	void ClearVariables();
 	void Hook(lua_State *State);
 	void Unhook(lua_State *State);
 };

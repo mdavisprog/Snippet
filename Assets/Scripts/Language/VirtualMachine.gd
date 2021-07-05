@@ -149,3 +149,9 @@ func UpdateBreakpoints(Breakpoints: Array) -> void:
 	# May not need to guard this operation as breakpoints are read-only on execution thread.
 	ActiveVM.GetDebugger().SetBreakpoints(Breakpoints)
 	
+
+func GetVariables() -> Dictionary:
+	if not ActiveVM:
+		return {}
+	
+	return ActiveVM.GetDebugger().GetVariables()
