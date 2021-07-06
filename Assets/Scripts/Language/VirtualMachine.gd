@@ -155,3 +155,6 @@ func GetVariables() -> Dictionary:
 		return {}
 	
 	return ActiveVM.GetDebugger().GetVariables()
+
+func IsPaused() -> bool:
+	return State == STATE.PAUSED

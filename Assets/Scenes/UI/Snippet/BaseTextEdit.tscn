@@ -21,3 +21,7 @@ script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="HoverWordTimer" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true

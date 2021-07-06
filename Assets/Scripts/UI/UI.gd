@@ -32,6 +32,9 @@ var SnippetGraphNode: SnippetGraph = null
 # HACK: Keep track developer workspace operations. Prevent opening context menu.
 var PerformedOp = false
 
+# Layer to add all SnippetWindow instances to.
+onready var SnippetsLayer = $SnippetsLayer
+
 # Should contain access to all popup windows.
 onready var PopupsNode: Popups = $Popups
 
@@ -122,7 +125,7 @@ func EditSnippet(Item: Snippet, IsNew := false) -> void:
 			return
 	
 	var SnippetWindowInstance: SnippetWindow = UIFactoryNode.SnippetWindowTemplate.instance()
-	add_child(SnippetWindowInstance)
+	SnippetsLayer.add_child(SnippetWindowInstance)
 	SnippetWindowInstance.Show(Item)
 	SnippetWindowInstance.Editor.Select("New_Snippet")
 	

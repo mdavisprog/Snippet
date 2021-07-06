@@ -72,6 +72,7 @@ func _ready() -> void:
 	var _Error = Toolbar.connect("OnAction", self, "OnAction")
 	_Error = Editor.connect("text_changed", self, "OnSnippetTextChanged")
 	_Error = Editor.connect("breakpoint_toggled", self, "OnBreakpointToggled")
+	_Error = Editor.connect("OnHoverWord", self, "OnHoverWord")
 	_Error = CompileTimer.connect("timeout", self, "OnCompileTimer")
 	_Error = AutoCompleteTimer.connect("timeout", self, "OnAutoComplete")
 	_Error = AutoCompleteWindow.connect("OnConfirm", self, "OnAutoCompleteConfirm")
@@ -83,6 +84,7 @@ func _ready() -> void:
 	_Error = Runtime.connect("OnEnd", self, "OnRuntimeEnd")
 	
 	Status.text = ""
+	Editor.HoverWordTimer.paused = true
 	
 	ToggleRunButtons(false)
 	
@@ -94,9 +96,13 @@ func Show(InSnippet: Snippet) -> void:
 	Editor.text = This.Text
 	UTEdit.text = This.Text_Tests
 	Title.text = This.GetTitle()
-	OnSnippetTextChanged()
 	
-	Editor.readonly = Runtime.IsRunning()
+	if not Runtime.IsRunning():
+		OnSnippetTextChanged()
+	else:
+		OnRuntimeStart()
+		if Runtime.IsPaused():
+			OnRuntimeBreak(Runtime.GetLineBreak())
 	
 	var Bounds: Rect2 = InSnippet.BackgroundNode.GetBounds(InSnippet.global_position)
 	rect_global_position = Vector2(Bounds.end.x, Bounds.position.y)
@@ -116,6 +122,7 @@ func OnAction(Action: int) -> void:
 				Runtime.Resume()
 				Toolbar.Resume(false)
 				Editor.ClearLineStates()
+				Editor.HoverWordTimer.paused = true
 			else:
 				RunUnitTest()
 		SnippetToolbar.ACTION.STOP:
@@ -300,8 +307,12 @@ func OnRuntimeStart() -> void:
 	
 
 func OnRuntimeBreak(Line: int) -> void:
+	Toolbar.Stop.disabled = false
 	Toolbar.Resume(true)
-	Editor.SetLineState(Line + 1, BaseTextEdit.LINE_STATE.ERROR)
+	if Runtime.IsActiveSnippet(This):
+		Editor.SetLineState(Line + 1, BaseTextEdit.LINE_STATE.ERROR)
+		Editor.HoverWordTimer.stop()
+		Editor.HoverWordTimer.paused = false
 	
 
 func OnRuntimeEnd() -> void:
@@ -313,4 +324,17 @@ func OnRuntimeEnd() -> void:
 func OnBreakpointToggled(_Row: int) -> void:
 	This.Breakpoints = Editor.get_breakpoints()
 	Runtime.UpdateBreakpoints(This.Breakpoints)
+	
+
+func OnHoverWord(Word: String) -> void:
+	var Variables: Dictionary = Runtime.GetVariables()
+	if not Variables.has(Word):
+		return
+	
+	var PopupsNode = get_node(Utility.POPUPS)
+	var Offset: Vector2 = PopupsNode.VarInspector.rect_size
+	PopupsNode.VarInspector.visible = true
+	PopupsNode.VarInspector.rect_global_position = get_global_mouse_position() + Vector2(0.0, -Offset.y)
+	PopupsNode.VarInspector.Data.text = Word + ":" + str(Variables[Word])
+	PopupsNode.VarInspector.update()
 	

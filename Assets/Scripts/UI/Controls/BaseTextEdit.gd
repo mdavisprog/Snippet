@@ -23,6 +23,11 @@
 class_name BaseTextEdit
 extends TextEdit
 
+# Emitted when the mouse cursor is hovering over word after the time specified in 'WordHoverTime'.
+#
+# Word: String
+signal OnHoverWord(Word)
+
 # List of states a line can be in.
 enum LINE_STATE {WARNING, ERROR}
 
@@ -46,8 +51,12 @@ var Lines = {}
 # by IndentKeywords.
 var AppendTab = false
 
+# The timer object used to determine when to emit the signal.
+onready var HoverWordTimer: Timer = $HoverWordTimer
+
 func _ready() -> void:
 	var _Error = connect("text_changed", self, "OnTextChanged")
+	_Error = HoverWordTimer.connect("timeout", self, "OnHoverWordTimerComplete")
 	
 	clear_colors()
 	for Item in SyntaxColors:
@@ -65,6 +74,14 @@ func _gui_input(event: InputEvent) -> void:
 					if Line.find(I) != -1:
 						AppendTab = true
 						break
+	
+	var Motion = event as InputEventMouseMotion
+	if Motion:
+		var Word: String = GetWordAtMouse()
+		if not Word.empty():
+			HoverWordTimer.start()
+		else:
+			HoverWordTimer.stop()
 	
 
 func _draw() -> void:
@@ -166,7 +183,7 @@ func GetCursorPos() -> Vector2:
 	
 	# This is close enough. Might have issues with tabs/spaces/other non standard characters.
 	var Size: Vector2 = ThemeFont.get_string_size(Text)
-	Result.x = Size.x + GetLineNumberOffset() + GetBreakpointOffset() + 16.0
+	Result.x = Size.x + GetLeftMargin()
 	
 	return Result
 
@@ -204,3 +221,57 @@ func GetBreakpointOffset() -> float:
 	
 	# Taken from text_edit.cpp::_notification
 	return GetLineHeight() * 55 / 100
+
+func GetLeftMargin() -> float:
+	return GetBreakpointOffset() + GetLineNumberOffset() + margin_left + get_stylebox("normal").get_offset().x
+
+func GetWordAtMouse() -> String:
+	var Mouse: Vector2 = get_local_mouse_position()
+	var LeftMargin: float = GetLeftMargin()
+	
+	if Mouse.x <= LeftMargin:
+		return ""
+	
+	var Y: float = Mouse.y - scroll_vertical
+	var LineNo: int = int(floor(Y / GetLineHeight()))
+	var Line: String = get_line(LineNo)
+	var ThemeFont: Font = get_font("font")
+	
+	
+	var Total = 0.0
+	var Word = ""
+	for I in range(0, Line.length()):
+		# TODO: Check if character is a valid identifier.
+		var IsSpace = Line[I] == " " or Line[I] == "\t"
+		
+		# Retrieve the character code and retrieve the size
+		var Ch = Line.ord_at(I)
+		var Size: Vector2 = ThemeFont.get_char_size(Ch)
+		Total += Size.x
+		
+		# Now check how far along the line the mouse cursor position is.
+		var X = LeftMargin + Total
+		if Mouse.x <= X:
+			# Make sure the mouse cursor is not over a space character.
+			if not IsSpace:
+				var End: int = Line.find(" ", I)
+				if End != -1:
+					Word += Line.substr(I, End - I)
+				else:
+					Word += Line.right(I)
+				
+				return Word
+			break
+		
+		if IsSpace:
+			Word = ""
+		else:
+			Word += Line[I]
+	
+	return ""
+
+func OnHoverWordTimerComplete() -> void:
+	var Word: String = GetWordAtMouse()
+	if not Word.empty():
+		emit_signal("OnHoverWord", Word)
+	

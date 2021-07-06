@@ -94,6 +94,12 @@ func IsEnabled() -> bool:
 func IsRunning() -> bool:
 	return ActiveSnippet != null
 
+func IsPaused() -> bool:
+	return Code.IsPaused()
+
+func IsActiveSnippet(InSnippet: Snippet) -> bool:
+	return ActiveSnippet == InSnippet
+
 func IsUnitTest() -> bool:
 	return ExecType == EXEC_TYPE.UNITTEST
 
@@ -214,3 +220,6 @@ func UpdateBreakpoints(Breakpoints: Array) -> void:
 
 func GetVariables() -> Dictionary:
 	return Code.GetVariables()
+
+func GetLineBreak() -> int:
+	return Code.LineBreak

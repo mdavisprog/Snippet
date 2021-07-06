@@ -28,6 +28,11 @@ margin_top = -167.0
 margin_right = 0.0
 margin_bottom = 0.0
 
+[node name="SnippetsLayer" type="Control" parent="."]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Popups" parent="." instance=ExtResource( 4 )]
 
 [node name="UIFactory" parent="." instance=ExtResource( 5 )]

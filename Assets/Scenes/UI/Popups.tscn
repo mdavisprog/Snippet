@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/Scripts/UI/Menus/GraphPopupMenu.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Scripts/UI/Popups.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Scripts/UI/Menus/SnippetPopupMenu.gd" type="Script" id=3]
 [ext_resource path="res://Assets/Scenes/UI/Popups/MessageBox.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Scenes/UI/Popups/FileExplorer.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Scenes/UI/Popups/VariableInspector.tscn" type="PackedScene" id=6]
 
 [node name="Popups" type="Control"]
 script = ExtResource( 2 )
@@ -25,3 +26,6 @@ script = ExtResource( 3 )
 [node name="MessageBox" parent="." instance=ExtResource( 4 )]
 
 [node name="FileExplorer" parent="." instance=ExtResource( 5 )]
+
+[node name="VarInspector" parent="." instance=ExtResource( 6 )]
+visible = false

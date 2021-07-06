@@ -37,6 +37,19 @@ onready var MessageBox = $MessageBox
 # File explorer that can be accessed globally.
 onready var FileExplorer: FileDialog = $FileExplorer
 
+# Variable inspector that will only be displayed after a breakpoint is hit and the
+# mouse is hovering over a valid variable.
+onready var VarInspector: VariableInspector = $VarInspector
+
 func _ready() -> void:
 	FileExplorer.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+	
+
+func _input(event: InputEvent) -> void:
+	var Motion = event as InputEventMouseMotion
+	if Motion:
+		if VarInspector.visible:
+			var Distance: Vector2 = VarInspector.rect_global_position - Motion.global_position
+			if Distance.length() > 20.0:
+				VarInspector.visible = false
 	

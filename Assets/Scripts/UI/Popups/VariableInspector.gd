@@ -20,48 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-extends Node
+class_name VariableInspector
+extends CenterContainer
 
-# A Utility class that can be used globally. This is achieved by adding this
-# object to the project's Auto Load list.
+# A popup for snippet windows to display data about a variable.
 
-# List of node paths that can be accessed globally.
-const UI = @"/root/Main/UILayer/UI"
-const UIFACTORY = @"/root/Main/UILayer/UI/UIFactory"
-const POPUPS = @"/root/Main/UILayer/UI/Popups"
-const GRAPH = @"/root/Main/SnippetGraph"
-const CONNECTIONS = @"/root/Main/SnippetGraph/Connections"
-
-func GetTop(InControl: Control) -> Control:
-	if not InControl:
-		return null
-	
-	var Result: Control = InControl.get_parent_control()
-	
-	if not Result:
-		return InControl
-	
-	var Last = null
-	while Result:
-		Last = Result
-		Result = Result.get_parent_control()
-	
-	Result = Last
-	return Result
-	
-
-func MessageBox(Title: String, Message: String, Callback: FuncRef, Type := MessageBox.TYPE.OKCANCEL) -> void:
-	var UINode = get_node(UI)
-	if not UINode:
-		return
-	
-	UINode.PopupsNode.MessageBox.Show(Title, Message, Callback, Type)
-	
-
-func ShowFileExplorer(Callback: FuncRef) -> void:
-	var UINode = get_node(UI)
-	if not UINode:
-		return
-	
-	UINode.PopupsNode.FileExplorer.Show(Callback)
-	
+# The label used to render the variable data.
+onready var Data: Label = $Data
