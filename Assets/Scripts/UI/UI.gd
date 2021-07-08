@@ -78,14 +78,7 @@ func _gui_input(event: InputEvent) -> void:
 func _notification(what: int) -> void:
 	match (what):
 		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
-			if Workspace.IsTempModified():
-				Utility.MessageBox(
-					"Save Changes?",
-					"Changes have been made to the new workspace. Would you like to save this workspace?",
-					funcref(self, "OnConfirm"),
-					MessageBox.TYPE.YESNO)
-			else:
-				Quit()
+			TryQuit()
 	
 
 func OnConfirm(Confirm: bool) -> void:
@@ -142,6 +135,17 @@ func OnQuitSavePrompt(Dir: String) -> void:
 	Workspace.Close()
 	var _Result = Workspace.Copy(Source, Dir)
 	Quit()
+	
+
+func TryQuit() -> void:
+	if Workspace.IsTempModified():
+		Utility.MessageBox(
+			"Save Changes?",
+			"Changes have been made to the new workspace. Would you like to save this workspace?",
+			funcref(self, "OnConfirm"),
+			MessageBox.TYPE.YESNO)
+	else:
+		Quit()
 	
 
 func Quit(ExitCode := 0) -> void:

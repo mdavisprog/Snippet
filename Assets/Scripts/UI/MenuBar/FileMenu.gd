@@ -60,7 +60,8 @@ func OnSelected(Id: int) -> void:
 		CLOSE:
 			Workspace.Close()
 		QUIT:
-			get_tree().quit(0)
+			var UINode: UI = get_node(Utility.UI)
+			UINode.TryQuit()
 	
 
 func OnDirSelected(Dir: String) -> void:
