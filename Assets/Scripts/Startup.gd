@@ -22,47 +22,17 @@
 
 extends Node
 
-# A Utility class that can be used globally. This is achieved by adding this
-# object to the project's Auto Load list.
+# This is a bare bones startup scene. This is used to determine if all of the
+# UI components should be loaded or if we are running a headless process.
 
-# List of node paths that can be accessed globally.
-const Root = "/root/Startup/Main/"
-const UI = Root + "UILayer/UI"
-const UIFACTORY = Root + "UILayer/UI/UIFactory"
-const POPUPS = Root + "UILayer/UI/Popups"
-const GRAPH = Root + "SnippetGraph"
-const CONNECTIONS = Root + "SnippetGraph/Connections"
+# The main scene to instance to run the application.
+export(PackedScene) var MainScene
 
-func GetTop(InControl: Control) -> Control:
-	if not InControl:
-		return null
+func _ready() -> void:
+	if not MainScene:
+		Log.Error("No MainScene specified! Exiting application.")
+		get_tree().quit()
 	
-	var Result: Control = InControl.get_parent_control()
-	
-	if not Result:
-		return InControl
-	
-	var Last = null
-	while Result:
-		Last = Result
-		Result = Result.get_parent_control()
-	
-	Result = Last
-	return Result
-	
-
-func MessageBox(Title: String, Message: String, Callback: FuncRef, Type := MessageBox.TYPE.OKCANCEL) -> void:
-	var UINode = get_node(UI)
-	if not UINode:
-		return
-	
-	UINode.PopupsNode.MessageBox.Show(Title, Message, Callback, Type)
-	
-
-func ShowFileExplorer(Callback: FuncRef) -> void:
-	var UINode = get_node(UI)
-	if not UINode:
-		return
-	
-	UINode.PopupsNode.FileExplorer.Show(Callback)
+	var Instance = MainScene.instance()
+	add_child(Instance)
 	
