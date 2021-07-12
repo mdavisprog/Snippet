@@ -111,7 +111,12 @@ func ConnectTo(InPin: Pin) -> bool:
 	if not CanConnect(Parent, InPin):
 		return false
 	
+	var From: Pin = Parent
+	var To: Pin = InPin
+	
 	if InPin.Type == Pin.TYPE.OUTPUT:
+		From = InPin
+		To = Parent
 		Parent.remove_child(Active)
 		InPin.add_child(Active)
 		InPin.Connection = Active
@@ -120,6 +125,8 @@ func ConnectTo(InPin: Pin) -> bool:
 	InPin.Connection = Active
 	Active.EndPin = InPin
 	Active = null
+	
+	From.GetSnippet().Data.Next = To.GetSnippet().Data
 	
 	return true
 
@@ -139,10 +146,14 @@ func Modify(InPin: Pin) -> void:
 	Active = InPin.Connection
 	Active.HaltAnimation()
 	
+	var Out: Pin = Active.get_parent()
 	# Reparent before setting End position to prevent flickering.
 	if InPin.Type == Pin.TYPE.OUTPUT:
+		Out = InPin
 		InPin.remove_child(Active)
 		Active.EndPin.add_child(Active)
+	
+	Out.GetSnippet().Data.Next = null
 	
 	Active.EndPin = null
 	Active.End = Active.get_global_mouse_position()
@@ -156,13 +167,17 @@ func Disconnect(InPin: Pin) -> void:
 	if not InPin.Connection:
 		return
 	
+	var Out: Pin = InPin
 	if InPin.Type == Pin.TYPE.OUTPUT:
 		if InPin.Connection.EndPin:
 			InPin.Connection.EndPin.Connection = null
 	else:
 		var Other = InPin.Connection.get_parent() as Pin
 		if Other:
+			Out = Other
 			Other.Connection = null
+	
+	Out.GetSnippet().Data.Next = null
 	
 	InPin.Connection.queue_free()
 	InPin.Connection = null

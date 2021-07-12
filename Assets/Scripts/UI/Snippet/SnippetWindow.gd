@@ -93,9 +93,9 @@ func _ready() -> void:
 
 func Show(InSnippet: Snippet) -> void:
 	SetSnippet(InSnippet)
-	Editor.text = This.Text
-	UTEdit.text = This.Text_Tests
-	Title.text = This.GetTitle()
+	Editor.text = This.Data.Source
+	UTEdit.text = This.Data.UTSource
+	Title.text = This.Data.Name
 	
 	if not Runtime.IsRunning():
 		OnSnippetTextChanged()
@@ -109,7 +109,7 @@ func Show(InSnippet: Snippet) -> void:
 	rect_size = Vector2(300, 350)
 	
 	Editor.remove_breakpoints()
-	for Line in This.Breakpoints:
+	for Line in This.Data.Breakpoints:
 		Editor.set_line_as_breakpoint(Line, true)
 	
 
@@ -145,9 +145,9 @@ func OnCompileTimer() -> void:
 	Editor.ClearLineStates()
 	
 	var Source: String = Editor.text
-	This.Text = Source
+	This.Data.Source = Source
 	
-	var CompileResult = Runtime.Compile(This)
+	var CompileResult = Runtime.Compile(This.Data)
 	Lua.readonly = false
 	Lua.text = Source
 	Lua.readonly = true
@@ -166,7 +166,7 @@ func RunUnitTest() -> void:
 	# First, run the base unit test and ensure no invalid operations occur.
 	# TODO: Pass in parsed arguments results. This will require a cached ParserResult
 	# object that was generated after text has been entered.
-	Runtime.ExecuteSnippet(This, true)
+	Runtime.ExecuteSnippet(This.Data, true)
 	OnRuntimeStart()
 	
 	# TODO: Custom unit test code should just do a raw execute. It is up to
@@ -231,6 +231,10 @@ func OnTitleGuiInput(event: InputEvent) -> void:
 			call_deferred("CancelOp")
 	
 
+func SetTitle(InTitle: String) -> void:
+	Title.text = InTitle
+	
+
 func EditTitle() -> void:
 	var SnippetGraphNode: SnippetGraph = get_node_or_null(Utility.GRAPH)
 	if SnippetGraphNode.MainSnippet == This:
@@ -244,21 +248,23 @@ func EditTitle() -> void:
 	
 
 func OnTitleEditChanged(Text: String) -> void:
-	OnTitleEditUnfocus()
-	
-	var Old = This.GetTitle()
-	if Old == Text:
-		# The name didn't change. No need to continue.
+	var Old = This.Data.Name
+	if Workspace.DoesSnippetExist(Text):
+		if Old != Text:
+			UpdateStatusBar(false, "Snippet '%s' already exists." % Text)
+		else:
+			# The name didn't change. No need to continue.
+			OnTitleEditUnfocus()
 		return
 	
+	OnTitleEditUnfocus()
+	
+	This.Data.Name = Text
 	This.SetTitle(Text)
 	Title.text = Text
 	
-	var _Result = false
-	if Workspace.DoesSnippetExist(Old):
-		_Result = Workspace.RenameSnippet(Old, Text)
-	else:
-		_Result = This.Save()
+	if not Workspace.RenameSnippet(Old, Text):
+		var _Result = This.Save()
 	
 
 func OnTitleEditUnfocus() -> void:
@@ -309,7 +315,7 @@ func OnRuntimeStart() -> void:
 func OnRuntimeBreak(Line: int) -> void:
 	Toolbar.Stop.disabled = false
 	Toolbar.Resume(true)
-	if Runtime.IsActiveSnippet(This):
+	if Runtime.IsActiveSnippet(This.Data):
 		Editor.SetLineState(Line + 1, BaseTextEdit.LINE_STATE.ERROR)
 		Editor.HoverWordTimer.stop()
 		Editor.HoverWordTimer.paused = false
@@ -322,8 +328,8 @@ func OnRuntimeEnd() -> void:
 	
 
 func OnBreakpointToggled(_Row: int) -> void:
-	This.Breakpoints = Editor.get_breakpoints()
-	Runtime.UpdateBreakpoints(This.Breakpoints)
+	This.Data.Breakpoints = Editor.get_breakpoints()
+	Runtime.UpdateBreakpoints(This.Data.Breakpoints)
 	
 
 func OnHoverWord(Word: String) -> void:
@@ -337,4 +343,11 @@ func OnHoverWord(Word: String) -> void:
 	PopupsNode.VarInspector.rect_global_position = get_global_mouse_position() + Vector2(0.0, -Offset.y)
 	PopupsNode.VarInspector.Data.text = Word + ":" + str(Variables[Word])
 	PopupsNode.VarInspector.update()
+	
+
+func OnClosePressed() -> void:
+	if This.Data.Name.empty():
+		This.Destroy()
+	
+	.OnClosePressed()
 	

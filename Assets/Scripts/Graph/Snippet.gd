@@ -52,17 +52,11 @@ onready var TitleNode: Label2D = $Background/Title
 # Plays animations for additional feedback.
 onready var Animations: AnimationPlayer = $Background/Animations
 
-# The text associated with this snippet.
-var Text = "print(\"hello world!\")"
+# The snippet data associated with this visual node.
+var Data: SnippetData = null
 
 # A SHA-1 has of the unmodified text.
 var TextHash = ""
-
-# The script to execute for unit tests.
-var Text_Tests = ""
-
-# List of breakpoints to apply when running
-var Breakpoints = []
 
 # The state of the snippet. The state dictates what actions can be taken
 # with this snippet.
@@ -253,7 +247,7 @@ func GetNextSnippet() -> Snippet:
 	# The pin's parent is the background node. The parent of that node is the snippet.
 	return Connection.EndPin.get_parent().get_parent()
 
-func Clean() -> void:
+func Destroy() -> void:
 	var Connections: ConnectionManager = get_node_or_null(Utility.CONNECTIONS)
 	if not Connections:
 		return
@@ -261,26 +255,30 @@ func Clean() -> void:
 	Connections.Disconnect(InputPin)
 	Connections.Disconnect(OutputPin)
 	
+	if not Data:
+		return
+	
+	var _Result = Workspace.DeleteSnippet(Data.Name)
+	queue_free()
+	
 
 func Save() -> bool:
-	var Hash: String = Text.sha1_text()
+	if not Data:
+		return false
+	
+	var Hash: String = Data.Source.sha1_text()
 	if TextHash == Hash:
 		return false
 	
 	TextHash = Hash
-	return Workspace.SaveSnippet(GetTitle(), Text, Text_Tests)
-
-func LoadText(InText: String) -> void:
-	Text = InText
-	TextHash = Text.sha1_text()
-	
+	return Workspace.SaveSnippet(Data)
 
 func OnAnimationFinished(_Name: String) -> void:
 	State = STATE.NORMAL
 	
 
-func OnSnippetStart(InSnippet) -> void:
-	if InSnippet != self:
+func OnSnippetStart(InSnippet: SnippetData) -> void:
+	if InSnippet != Data:
 		return
 	
 	if Animations.is_playing():
@@ -294,8 +292,8 @@ func OnSnippetStart(InSnippet) -> void:
 		InputPin.Connection.PlayAnimation()
 	
 
-func OnSnippetEnd(InSnippet) -> void:
-	if InSnippet != self:
+func OnSnippetEnd(InSnippet: SnippetData) -> void:
+	if InSnippet != Data:
 		return
 	
 	# Finish playing out the animation.
@@ -304,4 +302,14 @@ func OnSnippetEnd(InSnippet) -> void:
 	
 	if InputPin and InputPin.Connection:
 		InputPin.Connection.StopAnimation()
+	
+
+func SetData(InData: SnippetData) -> void:
+	Data = InData
+	if Data:
+		TextHash = Data.Source.sha1_text()
+		SetTitle(Data.Name)
+	else:
+		TextHash = ""
+		SetTitle("Empty")
 	

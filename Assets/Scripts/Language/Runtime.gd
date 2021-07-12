@@ -38,12 +38,12 @@ signal OnEnd()
 
 # Emitted when a snippet is about to be executed.
 #
-# InSnippet: Snippet
+# InSnippet: SnippetData
 signal OnSnippetStart(InSnippet)
 
 # Emitted when a snippet has finished execution.
 #
-# InSnippet: Snippet
+# InSnippet: SnippetData
 signal OnSnippetEnd(InSnippet)
 
 enum EXEC_TYPE {
@@ -58,7 +58,7 @@ var Latent = null
 var Arguments = {}
 
 # The currently executing snippet.
-var ActiveSnippet: Snippet = null
+var ActiveSnippet: SnippetData = null
 
 # Store the result of the last snippet execution.
 var ActiveResult = null
@@ -97,7 +97,7 @@ func IsRunning() -> bool:
 func IsPaused() -> bool:
 	return Code.IsPaused()
 
-func IsActiveSnippet(InSnippet: Snippet) -> bool:
+func IsActiveSnippet(InSnippet: SnippetData) -> bool:
 	return ActiveSnippet == InSnippet
 
 func IsUnitTest() -> bool:
@@ -118,10 +118,10 @@ func Execute() -> void:
 	
 	emit_signal("OnStart")
 	
-	ExecuteSnippet(SnippetGraphNode.MainSnippet)
+	ExecuteSnippet(SnippetGraphNode.MainSnippet.Data)
 	
 
-func ExecuteSnippet(InSnippet: Snippet, IsUnitTest := false) -> void:
+func ExecuteSnippet(InSnippet: SnippetData, IsUnitTest := false) -> void:
 	if not IsEnabled():
 		return
 	
@@ -142,8 +142,8 @@ func ExecuteSnippet(InSnippet: Snippet, IsUnitTest := false) -> void:
 	emit_signal("OnSnippetStart", InSnippet)
 	
 	Arguments = {
-		"Source": InSnippet.Text,
-		"Name": InSnippet.GetTitle(),
+		"Source": InSnippet.Source,
+		"Name": InSnippet.Name,
 		"Arguments": Args,
 		"Breakpoints": InSnippet.Breakpoints
 	}
@@ -165,7 +165,7 @@ func ExecuteSnippet_Thread(InArguments: Dictionary) -> void:
 	# any errors that were dispatched from native.
 	
 
-func FinishSnippet(InSnippet: Snippet, GoToNext := true) -> void:
+func FinishSnippet(InSnippet: SnippetData, GoToNext := true) -> void:
 	if not InSnippet:
 		return
 	
@@ -180,7 +180,8 @@ func FinishSnippet(InSnippet: Snippet, GoToNext := true) -> void:
 		Latent.wait_to_finish()
 		Latent = null
 	
-	var Next: Snippet = InSnippet.GetNextSnippet()
+	# TODO: Update when 'Next' snippet is stored in SnippetData object.
+	var Next: SnippetData = ActiveSnippet.Next
 	if Next and GoToNext:
 		ExecuteSnippet(Next)
 	else:
@@ -204,11 +205,11 @@ func Resume() -> void:
 	Code.Resume()
 	
 
-func Compile(InSnippet: Snippet) -> Reference:
+func Compile(InSnippet: SnippetData) -> Reference:
 	if not InSnippet:
 		return null
 	
-	return Code.Compile(InSnippet.Text)
+	return Code.Compile(InSnippet.Source)
 
 func OnBreak(Line: int) -> void:
 	emit_signal("OnBreak", Line)

@@ -57,8 +57,8 @@ var LineBreak = 0
 
 func _process(_delta: float) -> void:
 	if not Buffer.empty():
-		Log.Info(Buffer)
 		Guard.lock()
+		Log.Info(Buffer)
 		Buffer = ""
 		Guard.unlock()
 	

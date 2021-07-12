@@ -63,9 +63,7 @@ func OnPressed(Id: int) -> void:
 		EDIT_TITLE:
 			ShowSnippetEditor(Id)
 		DELETE:
-			var _Result = Workspace.DeleteSnippet(SnippetRef.GetTitle())
-			SnippetRef.Clean()
-			SnippetRef.queue_free()
+			SnippetRef.Destroy()
 	
 
 func OnHide() -> void:

@@ -112,3 +112,7 @@ func Update() -> void:
 	if Connection:
 		Connection.update()
 	
+
+func GetSnippet():
+	# Pin -> Background -> Snippet
+	return get_parent().get_parent()

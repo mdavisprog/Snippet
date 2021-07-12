@@ -109,6 +109,11 @@ func EditSnippet(Item: Snippet, IsNew := false) -> void:
 	if not Item:
 		return
 	
+	if IsNew:
+		# Do not call 'SetData' to keep the text hash from being updated.
+		Item.Data = Workspace.CreateSnippet("")
+		Item.SetTitle("")
+	
 	if not UIFactoryNode or not UIFactoryNode.SnippetWindowTemplate:
 		return
 	
@@ -123,6 +128,7 @@ func EditSnippet(Item: Snippet, IsNew := false) -> void:
 	SnippetWindowInstance.Editor.Select("New_Snippet")
 	
 	if IsNew:
+		SnippetWindowInstance.SetTitle("new_snippet")
 		SnippetWindowInstance.call_deferred("EditTitle")
 	
 
@@ -133,7 +139,10 @@ func OnQuitSavePrompt(Dir: String) -> void:
 	
 	var Source: String = Workspace.Location
 	Workspace.Close()
-	var _Result = Workspace.Copy(Source, Dir)
+	# For now, just delete the destination and copy the contents from the temp directory.
+	var _Result = Workspace.Delete(Dir)
+	_Result = Workspace.Copy(Source, Dir)
+	AppSettings.Data["LastOpened"] = Dir
 	Quit()
 	
 

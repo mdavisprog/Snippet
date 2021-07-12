@@ -47,6 +47,9 @@ var State = STATE.NONE
 # The absolute path to the loaded workspace.
 var Location = ""
 
+# The active list of snippets in the workspace.
+var Snippets = []
+
 func IsLoaded() -> bool:
 	return State == STATE.LOADED or State == STATE.TEMP or State == STATE.TEMP_MODIFIED
 
@@ -57,6 +60,8 @@ func GetPath(InLocation: String) -> String:
 	return InLocation + "/.snippet/"
 
 func Create(InLocation: String) -> bool:
+	Close()
+	
 	# The path already exists. Unable to create a new workspace at the given location.
 	if Exists(InLocation):
 		return false
@@ -70,6 +75,7 @@ func Create(InLocation: String) -> bool:
 		return false
 	
 	Location = InLocation
+	AppSettings.Data["LastOpened"] = Location
 	State = STATE.LOADED
 	emit_signal("OnStateChange", State)
 	return true
@@ -85,14 +91,17 @@ func CreateTemp() -> bool:
 		return false
 	
 	State = STATE.TEMP
+	AppSettings.Data["LastOpened"] = ""
 	return true
 
 func Close() -> void:
 	if not IsLoaded():
 		return
 	
+	SaveSnippets()
 	emit_signal("OnStateChange", STATE.CLOSING)
 	Location = ""
+	Snippets.clear()
 	State = STATE.NONE
 	emit_signal("OnStateChange", State)
 	
@@ -106,6 +115,7 @@ func Open(InLocation: String) -> bool:
 	Location = InLocation
 	AppSettings.Data["LastOpened"] = Location
 	State = STATE.LOADED
+	LoadSnippets()
 	emit_signal("OnStateChange", State)
 	return true
 
@@ -147,24 +157,37 @@ func Delete(InLocation: String) -> bool:
 	
 	return true
 
-func SaveSnippet(Name: String, Source: String, UTSource: String) -> bool:
+func CreateSnippet(Name: String) -> SnippetData:
+	for Item in Snippets:
+		if Item.Name == Name:
+			return Item
+	
+	var Result = SnippetData.new()
+	Result.Name = Name
+	Snippets.append(Result)
+	return Result
+
+func SaveSnippet(Data: SnippetData) -> bool:
 	if not IsLoaded():
 		return false
 	
-	var Absolute: String = Location + "/" + Name + ".lua"
+	if Data.Name.empty():
+		return false
+	
+	var Absolute: String = Location + "/" + Data.Name + ".lua"
 	
 	var Handle = File.new()
 	if Handle.open(Absolute, File.WRITE_READ) != OK:
 		return false
 	
-	Handle.store_string(Source)
+	Handle.store_string(Data.Source)
 	Handle.close()
 	
 	Absolute = Absolute.trim_suffix(".lua") + ".ut.lua"
 	if Handle.open(Absolute, File.WRITE_READ) != OK:
 		return false
 	
-	Handle.store_string(UTSource)
+	Handle.store_string(Data.UTSource)
 	Handle.close()
 	
 	if State == STATE.TEMP:
@@ -176,9 +199,11 @@ func DoesSnippetExist(Name: String) -> bool:
 	if not IsLoaded():
 		return false
 	
-	var Absolute: String = Location.plus_file(Name + ".lua")
-	var Handle = File.new()
-	return Handle.file_exists(Absolute)
+	for Item in Snippets:
+		if Item.Name == Name:
+			return true
+	
+	return false
 
 func RenameSnippet(Old: String, New: String) -> bool:
 	if not IsLoaded():
@@ -187,6 +212,10 @@ func RenameSnippet(Old: String, New: String) -> bool:
 	var OldAbsolute: String = Location.plus_file(Old + ".lua")
 	var NewAbsolute: String = Location.plus_file(New + ".lua")
 	var Dir = Directory.new()
+	
+	# If the file doesn't exist, no need to attempt a rename.
+	if not Dir.file_exists(OldAbsolute):
+		return false
 	
 	var Error = Dir.rename(OldAbsolute, NewAbsolute)
 	if Error != OK:
@@ -207,10 +236,19 @@ func DeleteSnippet(Name: String) -> bool:
 	if not IsLoaded():
 		return false
 	
+	for I in range(0, Snippets.size()):
+		var Item: SnippetData = Snippets[I]
+		if Item.Name == Name:
+			Snippets.remove(I)
+			break
+	
 	var Dir = Directory.new()
 	var Result = true
-	if Dir.remove(Location.plus_file(Name + ".lua")) != OK: Result = false
-	if Dir.remove(Location.plus_file(Name + ".ut.lua")) != OK: Result = false
+	var FileName: String = Location.plus_file(Name + ".lua")
+	if not Dir.file_exists(FileName) or Dir.remove(FileName) != OK: Result = false
+	
+	FileName = Location.plus_file(Name + ".ut.lua")
+	if not Dir.file_exists(FileName) or Dir.remove(FileName) != OK: Result = false
 	
 	return Result
 
@@ -343,3 +381,45 @@ func Copy(Source: String, Destination: String) -> bool:
 		return false
 	
 	return true
+
+func SaveSnippets() -> void:
+	var _Result = false
+	var PDB = {}
+	for Item in Snippets:
+		_Result = SaveSnippet(Item)
+		
+		var Entry = {
+			"Next": Item.Next.Name if Item.Next else "",
+			"Breakpoints": Item.Breakpoints
+		}
+		
+		PDB[Item.Name] = Entry
+	
+	_Result = SaveVariant("PDB", PDB)
+	
+
+func LoadSnippets() -> void:
+	Snippets = GetSnippetData()
+	
+	var PDB = LoadVariant("PDB")
+	if not PDB:
+		return
+	
+	for Item in Snippets:
+		if PDB.has(Item.Name):
+			Item.Breakpoints = PDB[Item.Name].Breakpoints as PoolIntArray
+			
+			for Next in Snippets:
+				if Next.Name == PDB[Item.Name].Next:
+					Item.Next = Next
+					break
+	
+
+func Startup() -> void:
+	var LastOpened = AppSettings.Data.get("LastOpened")
+	if LastOpened:
+		var _Result = Open(LastOpened)
+	
+	if not IsLoaded():
+		call_deferred("CreateTemp")
+	

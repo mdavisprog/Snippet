@@ -30,7 +30,13 @@ extends Reference
 var Name = ""
 
 # The source buffer for this snippet. This is the main source code.
-var Source = ""
+var Source = "print(\"hello world!\")"
 
 # The buffer holding the unit tests for this snippet.
 var UTSource = ""
+
+# List of breakpoints associated with this snippet.
+var Breakpoints = []
+
+# The next Snippet to execute.
+var Next = null

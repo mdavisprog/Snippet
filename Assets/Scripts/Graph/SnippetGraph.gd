@@ -155,10 +155,8 @@ func CreateMainSnippet() -> void:
 	if MainSnippet:
 		return
 	
-	# For now, offset a little so it is displayed when the app starts.
-	# In the future, the camera should focus on the world origin.
 	MainSnippet = AddSnippet(Vector2.ZERO, false)
-	MainSnippet.Text = "print(\"hello world!\")"
+	MainSnippet.Data = Workspace.CreateSnippet("main")
 	MainSnippet.SetTitle("main")
 	MainSnippet.RemovePin(Pin.TYPE.INPUT)
 	FocusPoint(Vector2(-200, -50))
@@ -183,30 +181,17 @@ func OnWorkspaceState(State: int) -> void:
 # steps of the serialization process.
 func Save() -> void:
 	var Snippets: Array = get_tree().get_nodes_in_group("Snippet")
-	var Breakpoints = {}
 	
-	var Items = []
+	var Items = {}
 	for Item in Snippets:
 		var Entry = {
-			"Name": Item.GetTitle(),
 			"Position": {
 				"X": Item.position.x,
 				"Y": Item.position.y
 			}
 		}
 		
-		# Add breakpoint entry.
-		if Item.Breakpoints.size() > 0:
-			Breakpoints[Item.GetTitle()] = Item.Breakpoints
-		
-		var Next: Snippet = Item.GetNextSnippet()
-		if Next:
-			Entry["Next"] = Next.GetTitle()
-		
-		Items.append(Entry)
-		
-		# Save any code changes to disk
-		Item.Save()
+		Items[Item.Data.Name] = Entry
 	
 	var Data = {
 		"Position": {
@@ -217,22 +202,29 @@ func Save() -> void:
 	}
 	
 	var _Result = Workspace.SaveVariant("GRAPH", Data)
-	_Result = Workspace.SaveVariant("PDB", Breakpoints)
 	
 
 func Load() -> void:
+	var GraphData = Workspace.LoadVariant("GRAPH")
+	if not GraphData: GraphData = {}
+	
+	if not GraphData.has("Snippets"):
+		GraphData.Snippets = {}
+	
 	var List = []
 	# First, add snippets based on available files.
-	var Data: Array = Workspace.GetSnippetData()
+	var Data: Array = Workspace.Snippets
 	for Item in Data:
 		var NewSnippet = AddSnippet(Vector2.ZERO, false)
-		NewSnippet.LoadText(Item.Source)
-		NewSnippet.Text_Tests = Item.UTSource
-		NewSnippet.SetTitle(Item.Name)
+		NewSnippet.SetData(Item)
 		
 		if Item.Name == "main":
 			MainSnippet = NewSnippet
 			MainSnippet.RemovePin(Pin.TYPE.INPUT)
+		
+		if GraphData.Snippets.has(Item.Name):
+			var Position = GraphData.Snippets[Item.Name].Position
+			NewSnippet.position = Vector2(Position.X, Position.Y)
 		
 		List.append(NewSnippet)
 	
@@ -240,32 +232,16 @@ func Load() -> void:
 		CreateMainSnippet()
 		var _Result = MainSnippet.Save()
 	
-	# Now, load in the graph data to position the snippets.
-	var GraphData = Workspace.LoadVariant("GRAPH")
-	if not GraphData:
-		return
+	if GraphData.has("Position"):
+		position = Vector2(GraphData.Position.X, GraphData.Position.Y)
 	
-	var Breakpoints = Workspace.LoadVariant("PDB")
-	if not Breakpoints: Breakpoints = []
-	
-	position = Vector2(GraphData.Position.X, GraphData.Position.Y)
-	
-	var Items: Array = GraphData.Snippets
-	for Item in Items:
-		for Element in List:
-			if Element.GetTitle() == Item.Name:
-				# JSON parses all numeric values as floats. Convert to integers here.
-				var ItemBreakpoints: PoolIntArray = Breakpoints[Element.GetTitle()] if Breakpoints.has(Element.GetTitle()) else []
-				Element.Breakpoints = ItemBreakpoints
-				Element.position = Vector2(Item.Position.X, Item.Position.Y)
-				
-				# Go through the list and make a connection if one exists.
-				var NextName = Item.get("Next")
-				if NextName:
-					for Next in List:
-						if Next.GetTitle() == NextName:
-							var _Result = Connections.ConnectSnippets(Element, Next)
-							break
+	# Now make the connections
+	for Item in List:
+		if Item.Data.Next:
+			for Next in List:
+				if Item.Data.Next == Next.Data:
+					var _Result = Connections.ConnectSnippets(Item, Next)
+					break
 	
 
 func Clear() -> void:
