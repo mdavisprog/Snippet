@@ -25,9 +25,6 @@ extends LineEdit
 
 # Can display some status text and provides functions to easily alter the visuals.
 
-# The default read-only style.
-var DefaultStyle: StyleBox = null
-
 # The style to apply for an error. Duplicated at startup so that any changes are unique to the
 # instanced style.
 var ErrorStyle: StyleBox = null
@@ -35,7 +32,6 @@ var ErrorStyle: StyleBox = null
 func _ready() -> void:
 	var Style: StyleBox = get_stylebox("read_only")
 	if Style:
-		DefaultStyle = Style
 		ErrorStyle = Style.duplicate()
 		
 		if ErrorStyle is StyleBoxFlat:
@@ -43,11 +39,8 @@ func _ready() -> void:
 	
 
 func SetError(Enable: bool) -> void:
-	if not DefaultStyle:
-		return
-	
 	if Enable:
 		add_stylebox_override("read_only", ErrorStyle)
 	else:
-		add_stylebox_override("read_only", DefaultStyle)
+		add_stylebox_override("read_only", null)
 	
