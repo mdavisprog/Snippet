@@ -259,6 +259,10 @@ func OnTitleEditChanged(Text: String) -> void:
 	
 	OnTitleEditUnfocus()
 	
+	# If no name has been set yet, then clear the status bar in case there was an error.
+	if This.Data.Name.empty():
+		UpdateStatusBar(true, "")
+	
 	This.Data.Name = Text
 	This.SetTitle(Text)
 	Title.text = Text

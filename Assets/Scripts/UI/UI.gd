@@ -129,6 +129,7 @@ func EditSnippet(Item: Snippet, IsNew := false) -> void:
 	
 	if IsNew:
 		SnippetWindowInstance.SetTitle("new_snippet")
+		SnippetWindowInstance.CompileTimer.stop()
 		SnippetWindowInstance.call_deferred("EditTitle")
 	
 
