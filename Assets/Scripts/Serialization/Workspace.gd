@@ -205,6 +205,13 @@ func DoesSnippetExist(Name: String) -> bool:
 	
 	return false
 
+func GetSnippet(Name: String) -> SnippetData:
+	for Item in Snippets:
+		if Item.Name == Name:
+			return Item
+	
+	return null
+
 func RenameSnippet(Old: String, New: String) -> bool:
 	if not IsLoaded():
 		return false

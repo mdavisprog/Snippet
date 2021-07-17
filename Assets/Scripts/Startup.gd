@@ -25,6 +25,11 @@ extends Node
 # This is a bare bones startup scene. This is used to determine if all of the
 # UI components should be loaded or if we are running a headless process.
 
+# The processing time to pass to the Runtime.
+const FrameTime = 1.0 / 60.0
+
+var LogFile = File.new()
+
 # The main scene to instance to run the application.
 export(PackedScene) var MainScene
 
@@ -33,6 +38,68 @@ func _ready() -> void:
 		Log.Error("No MainScene specified! Exiting application.")
 		get_tree().quit()
 	
-	var Instance = MainScene.instance()
-	add_child(Instance)
+	var Location = ""
+	var SnippetName = ""
+	var Args: PoolStringArray = OS.get_cmdline_args()
+	for Arg in Args:
+		if Arg.begins_with("--snippet-run="):
+			Location = GetValue(Arg)
+		elif Arg.begins_with("--snippet-name="):
+			SnippetName = GetValue(Arg)
+		elif Arg == "--snippet-log":
+			CreateLogFile()
+	
+	if not Location.empty():
+		var ExitCode: int = Run(Location, SnippetName)
+		get_tree().quit(ExitCode)
+	else:
+		# The main UI application starts here.
+		var Instance = MainScene.instance()
+		add_child(Instance)
+	
+
+func Run(Location: String, SnippetName: String) -> int:
+	var _Error = Log.connect("OnLog", self, "OnLog")
+	
+	if not Workspace.Open(Location):
+		Log.Info("Unable to run snippet at '%s'." % Location)
+		return -1
+	
+	Log.Info("Running snippets at '%s'." % Location)
+	
+	var IsUnitTest = not SnippetName.empty()
+	if SnippetName.empty():
+		SnippetName = "main"
+	
+	var Data: SnippetData = Workspace.GetSnippet(SnippetName)
+	if Data:
+		Runtime.ExecuteSnippet(Data, IsUnitTest)
+		
+		while Runtime.IsRunning():
+			Runtime._process(FrameTime)
+	else:
+		Log.Error("Failed to find snippet '%s'." % SnippetName)
+	
+	Workspace.Close()
+	
+	if LogFile.is_open():
+		LogFile.close()
+	
+	return 0
+
+func GetValue(Arg: String) -> String:
+	var Pair: PoolStringArray = Arg.split("=", true, 2)
+	return Pair[1]
+
+func OnLog(_Type: int, Contents: String) -> void:
+	print(Contents)
+	
+	if LogFile.is_open():
+		LogFile.store_line(Contents)
+	
+
+func CreateLogFile() -> void:
+	var LogPath: String = ProjectSettings.get_setting("logging/file_logging/log_path")
+	var FileName: String = LogPath.get_base_dir().plus_file("debug_session.txt")
+	LogFile.open(FileName, File.WRITE)
 	
