@@ -40,17 +40,20 @@ func _ready() -> void:
 	
 	var Location = ""
 	var SnippetName = ""
+	var UseDebugger = false
 	var Args: PoolStringArray = OS.get_cmdline_args()
 	for Arg in Args:
 		if Arg.begins_with("--snippet-run="):
 			Location = GetValue(Arg)
 		elif Arg.begins_with("--snippet-name="):
 			SnippetName = GetValue(Arg)
+		elif Arg == "--snippet-debug":
+			UseDebugger = true
 		elif Arg == "--snippet-log":
 			CreateLogFile()
 	
 	if not Location.empty():
-		var ExitCode: int = Run(Location, SnippetName)
+		var ExitCode: int = Run(Location, SnippetName, UseDebugger)
 		get_tree().quit(ExitCode)
 	else:
 		# The main UI application starts here.
@@ -58,12 +61,22 @@ func _ready() -> void:
 		add_child(Instance)
 	
 
-func Run(Location: String, SnippetName: String) -> int:
+func Run(Location: String, SnippetName: String, UseDebugger := false) -> int:
 	var _Error = Log.connect("OnLog", self, "OnLog")
 	
 	if not Workspace.Open(Location):
 		Log.Info("Unable to run snippet at '%s'." % Location)
 		return -1
+	
+	if UseDebugger:
+		if not Debugger.Listen():
+			Workspace.Close()
+			return -2
+		
+		if not Debugger.WaitForClient():
+			Log.Info("No clients connected for debugging session.")
+			Workspace.Close()
+			return -3
 	
 	Log.Info("Running snippets at '%s'." % Location)
 	
@@ -96,6 +109,8 @@ func OnLog(_Type: int, Contents: String) -> void:
 	
 	if LogFile.is_open():
 		LogFile.store_line(Contents)
+	
+	Debugger.Dispatch(Contents)
 	
 
 func CreateLogFile() -> void:
