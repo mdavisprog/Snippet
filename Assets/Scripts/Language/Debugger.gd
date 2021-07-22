@@ -32,6 +32,12 @@ enum STATE {
 	FAILED_TO_CONNECT,
 }
 
+enum MESSAGE {
+	LOG,
+	SNIPPET_START,
+	SNIPPET_END,
+}
+
 # Emitted when the state of the debugger changes.
 #
 # State: STATE
@@ -121,6 +127,11 @@ func Launch(Name := "") -> bool:
 	
 	return true
 
+func RegisterServer() -> void:
+	var _Error = Runtime.connect("OnSnippetStart", self, "OnSnippetStart_Server")
+	_Error = Runtime.connect("OnSnippetEnd", self, "OnSnippetEnd_Server")
+	
+
 func Listen() -> bool:
 	if Server.is_listening():
 		return true
@@ -151,13 +162,18 @@ func WaitForClient() -> bool:
 	
 	return true
 
-func Dispatch(Contents: String) -> void:
+func Dispatch(Type: int, Contents: String) -> void:
 	if not Server.is_listening():
 		return
 	
+	var Payload: String = to_json({
+		"Type": Type,
+		"Contents": Contents
+	})
+	
 	# For now, only support dispatching to debugging host to clients.
 	for Client in Clients:
-		Client.put_string(Contents)
+		Client.put_string(Payload)
 	
 
 func OnClientConnected() -> void:
@@ -173,5 +189,32 @@ func OnClientConnectionError() -> void:
 	
 
 func OnClientDataReceived(Data: String) -> void:
-	Log.Info(Data)
+	var Payload = parse_json(Data)
+	
+	if typeof(Payload) != TYPE_DICTIONARY:
+		return
+	
+	var Type: int = Payload["Type"]
+	var Contents: String = Payload["Contents"]
+	
+	match (Type):
+		MESSAGE.LOG:
+			Log.Info(Contents)
+		MESSAGE.SNIPPET_START, MESSAGE.SNIPPET_END:
+			var InSnippet: SnippetData = Workspace.GetSnippet(Contents)
+			if InSnippet:
+				if Type == MESSAGE.SNIPPET_START:
+					Runtime.emit_signal("OnSnippetStart", InSnippet)
+				else:
+					Runtime.emit_signal("OnSnippetEnd", InSnippet)
+			else:
+				Log.Warn("Failed to find snippet '%s'." % Contents)
+	
+
+func OnSnippetStart_Server(InSnippet: SnippetData) -> void:
+	Dispatch(MESSAGE.SNIPPET_START, InSnippet.Name)
+	
+
+func OnSnippetEnd_Server(InSnippet: SnippetData) -> void:
+	Dispatch(MESSAGE.SNIPPET_END, InSnippet.Name)
 	

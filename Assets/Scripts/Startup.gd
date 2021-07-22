@@ -69,6 +69,8 @@ func Run(Location: String, SnippetName: String, UseDebugger := false) -> int:
 		return -1
 	
 	if UseDebugger:
+		Debugger.RegisterServer()
+		
 		if not Debugger.Listen():
 			Workspace.Close()
 			return -2
@@ -110,7 +112,7 @@ func OnLog(_Type: int, Contents: String) -> void:
 	if LogFile.is_open():
 		LogFile.store_line(Contents)
 	
-	Debugger.Dispatch(Contents)
+	Debugger.Dispatch(Debugger.MESSAGE.LOG, Contents)
 	
 
 func CreateLogFile() -> void:
