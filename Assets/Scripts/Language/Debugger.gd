@@ -36,6 +36,7 @@ enum MESSAGE {
 	LOG,
 	SNIPPET_START,
 	SNIPPET_END,
+	BREAK
 }
 
 # Emitted when the state of the debugger changes.
@@ -130,6 +131,7 @@ func Launch(Name := "") -> bool:
 func RegisterServer() -> void:
 	var _Error = Runtime.connect("OnSnippetStart", self, "OnSnippetStart_Server")
 	_Error = Runtime.connect("OnSnippetEnd", self, "OnSnippetEnd_Server")
+	_Error = Runtime.connect("OnBreak", self, "OnBreak_Server")
 	
 
 func Listen() -> bool:
@@ -209,6 +211,8 @@ func OnClientDataReceived(Data: String) -> void:
 					Runtime.ClientSnippetEnd(InSnippet)
 			else:
 				Log.Warn("Failed to find snippet '%s'." % Contents)
+		MESSAGE.BREAK:
+			Runtime.emit_signal("OnBreak", int(Contents))
 	
 
 func OnSnippetStart_Server(InSnippet: SnippetData) -> void:
@@ -217,4 +221,8 @@ func OnSnippetStart_Server(InSnippet: SnippetData) -> void:
 
 func OnSnippetEnd_Server(InSnippet: SnippetData) -> void:
 	Dispatch(MESSAGE.SNIPPET_END, InSnippet.Name)
+	
+
+func OnBreak_Server(Line: int) -> void:
+	Dispatch(MESSAGE.BREAK, str(Line))
 	
