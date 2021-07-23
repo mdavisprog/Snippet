@@ -56,32 +56,33 @@ func _ready() -> void:
 			SkipBreakpoints = true
 	
 	if not Location.empty():
-		var ExitCode: int = Run(Location, SnippetName, UseDebugger, SkipBreakpoints)
-		get_tree().quit(ExitCode)
+		if not Run(Location, SnippetName, UseDebugger, SkipBreakpoints):
+			Shutdown()
 	else:
 		# The main UI application starts here.
 		var Instance = MainScene.instance()
 		add_child(Instance)
 	
 
-func Run(Location: String, SnippetName: String, UseDebugger := false, SkipBreakpoints := false) -> int:
+func Run(Location: String, SnippetName: String, UseDebugger := false, SkipBreakpoints := false) -> bool:
 	var _Error = Log.connect("OnLog", self, "OnLog")
+	_Error = Runtime.connect("OnEnd", self, "OnRuntimeEnd")
 	
 	if not Workspace.Open(Location):
 		Log.Info("Unable to run snippet at '%s'." % Location)
-		return -1
+		return false
 	
 	if UseDebugger:
 		Debugger.RegisterServer()
 		
 		if not Debugger.Listen():
 			Workspace.Close()
-			return -2
+			return false
 		
 		if not Debugger.WaitForClient():
 			Log.Info("No clients connected for debugging session.")
 			Workspace.Close()
-			return -3
+			return false
 	
 	Log.Info("Running snippets at '%s'." % Location)
 	
@@ -92,18 +93,11 @@ func Run(Location: String, SnippetName: String, UseDebugger := false, SkipBreakp
 	var Data: SnippetData = Workspace.GetSnippet(SnippetName)
 	if Data:
 		Runtime.ExecuteSnippet(Data, IsUnitTest, SkipBreakpoints)
-		
-		while Runtime.IsRunning():
-			Runtime._process(FrameTime)
 	else:
 		Log.Error("Failed to find snippet '%s'." % SnippetName)
+		return false
 	
-	Workspace.Close()
-	
-	if LogFile.is_open():
-		LogFile.close()
-	
-	return 0
+	return true
 
 func GetValue(Arg: String) -> String:
 	var Pair: PoolStringArray = Arg.split("=", true, 2)
@@ -122,4 +116,17 @@ func CreateLogFile() -> void:
 	var LogPath: String = ProjectSettings.get_setting("logging/file_logging/log_path")
 	var FileName: String = LogPath.get_base_dir().plus_file("debug_session.txt")
 	LogFile.open(FileName, File.WRITE)
+	
+
+func OnRuntimeEnd() -> void:
+	Shutdown()
+	
+
+func Shutdown() -> void:
+	Workspace.Close()
+	
+	if LogFile.is_open():
+		LogFile.close()
+	
+	get_tree().quit(0)
 	
