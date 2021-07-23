@@ -224,3 +224,25 @@ func GetVariables() -> Dictionary:
 
 func GetLineBreak() -> int:
 	return Code.LineBreak
+
+func ClientSnippetStart(InSnippet: SnippetData) -> void:
+	if not InSnippet:
+		return
+	
+	if ActiveSnippet == InSnippet:
+		return
+	
+	ActiveSnippet = InSnippet
+	emit_signal("OnSnippetStart", ActiveSnippet)
+	
+
+func ClientSnippetEnd(InSnippet: SnippetData) -> void:
+	if not InSnippet:
+		return
+	
+	if ActiveSnippet != InSnippet:
+		return
+	
+	emit_signal("OnSnippetEnd", ActiveSnippet)
+	ActiveSnippet = null
+	

@@ -204,9 +204,9 @@ func OnClientDataReceived(Data: String) -> void:
 			var InSnippet: SnippetData = Workspace.GetSnippet(Contents)
 			if InSnippet:
 				if Type == MESSAGE.SNIPPET_START:
-					Runtime.emit_signal("OnSnippetStart", InSnippet)
+					Runtime.ClientSnippetStart(InSnippet)
 				else:
-					Runtime.emit_signal("OnSnippetEnd", InSnippet)
+					Runtime.ClientSnippetEnd(InSnippet)
 			else:
 				Log.Warn("Failed to find snippet '%s'." % Contents)
 	
