@@ -112,7 +112,7 @@ func OnLog(_Type: int, Contents: String) -> void:
 	if LogFile.is_open():
 		LogFile.store_line(Contents)
 	
-	Debugger.Dispatch(Debugger.MESSAGE.LOG, Contents)
+	Debugger.DispatchToClients(Debugger.MESSAGE.LOG, Contents)
 	
 
 func CreateLogFile() -> void:

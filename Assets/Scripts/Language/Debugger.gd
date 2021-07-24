@@ -164,16 +164,18 @@ func WaitForClient() -> bool:
 	
 	return true
 
-func Dispatch(Type: int, Contents: String) -> void:
-	if not Server.is_listening():
-		return
-	
-	var Payload: String = to_json({
+func GeneratePayload(Type: int, Contents: String) -> String:
+	return to_json({
 		"Type": Type,
 		"Contents": Contents
 	})
+
+func DispatchToClients(Type: int, Contents: String) -> void:
+	if not Server.is_listening():
+		return
 	
-	# For now, only support dispatching to debugging host to clients.
+	var Payload: String = GeneratePayload(Type, Contents)
+	
 	for Client in Clients:
 		Client.put_string(Payload)
 	
@@ -216,13 +218,13 @@ func OnClientDataReceived(Data: String) -> void:
 	
 
 func OnSnippetStart_Server(InSnippet: SnippetData) -> void:
-	Dispatch(MESSAGE.SNIPPET_START, InSnippet.Name)
+	DispatchToClients(MESSAGE.SNIPPET_START, InSnippet.Name)
 	
 
 func OnSnippetEnd_Server(InSnippet: SnippetData) -> void:
-	Dispatch(MESSAGE.SNIPPET_END, InSnippet.Name)
+	DispatchToClients(MESSAGE.SNIPPET_END, InSnippet.Name)
 	
 
 func OnBreak_Server(Line: int) -> void:
-	Dispatch(MESSAGE.BREAK, str(Line))
+	DispatchToClients(MESSAGE.BREAK, str(Line))
 	
