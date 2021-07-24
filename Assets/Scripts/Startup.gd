@@ -41,6 +41,7 @@ func _ready() -> void:
 	var Location = ""
 	var SnippetName = ""
 	var UseDebugger = false
+	var SkipBreakpoints = false
 	var Args: PoolStringArray = OS.get_cmdline_args()
 	for Arg in Args:
 		if Arg.begins_with("--snippet-run="):
@@ -51,9 +52,11 @@ func _ready() -> void:
 			UseDebugger = true
 		elif Arg == "--snippet-log":
 			CreateLogFile()
+		elif Arg == "--snippet-skipbp":
+			SkipBreakpoints = true
 	
 	if not Location.empty():
-		var ExitCode: int = Run(Location, SnippetName, UseDebugger)
+		var ExitCode: int = Run(Location, SnippetName, UseDebugger, SkipBreakpoints)
 		get_tree().quit(ExitCode)
 	else:
 		# The main UI application starts here.
@@ -61,7 +64,7 @@ func _ready() -> void:
 		add_child(Instance)
 	
 
-func Run(Location: String, SnippetName: String, UseDebugger := false) -> int:
+func Run(Location: String, SnippetName: String, UseDebugger := false, SkipBreakpoints := false) -> int:
 	var _Error = Log.connect("OnLog", self, "OnLog")
 	
 	if not Workspace.Open(Location):
@@ -88,7 +91,7 @@ func Run(Location: String, SnippetName: String, UseDebugger := false) -> int:
 	
 	var Data: SnippetData = Workspace.GetSnippet(SnippetName)
 	if Data:
-		Runtime.ExecuteSnippet(Data, IsUnitTest)
+		Runtime.ExecuteSnippet(Data, IsUnitTest, SkipBreakpoints)
 		
 		while Runtime.IsRunning():
 			Runtime._process(FrameTime)

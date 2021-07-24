@@ -121,7 +121,7 @@ func Execute() -> void:
 	ExecuteSnippet(SnippetGraphNode.MainSnippet.Data)
 	
 
-func ExecuteSnippet(InSnippet: SnippetData, IsUnitTest := false) -> void:
+func ExecuteSnippet(InSnippet: SnippetData, IsUnitTest := false, SkipBreakpoints := false) -> void:
 	if not IsEnabled():
 		return
 	
@@ -145,7 +145,7 @@ func ExecuteSnippet(InSnippet: SnippetData, IsUnitTest := false) -> void:
 		"Source": InSnippet.Source,
 		"Name": InSnippet.Name,
 		"Arguments": Args,
-		"Breakpoints": InSnippet.Breakpoints
+		"Breakpoints": InSnippet.Breakpoints if not SkipBreakpoints else []
 	}
 	
 	Latent = Thread.new()
