@@ -64,6 +64,9 @@ var Connection = DebuggerClient.new()
 # Store the last process ID and kill it if application is exiting.
 var ProcessID = 0
 
+# The frame data when the debugger breaks.
+var FrameData = {}
+
 func _ready() -> void:
 	var _Error = Connection.connect("OnConnected", self, "OnClientConnected")
 	_Error = Connection.connect("OnDisconnected", self, "OnClientDisconnected")
@@ -246,7 +249,10 @@ func OnClientDataReceived(Data: String) -> void:
 			else:
 				Log.Warn("Failed to find snippet '%s'." % Contents)
 		MESSAGE.BREAK:
-			Runtime.emit_signal("OnBreak", int(Contents))
+			var Table: Dictionary = parse_json(Contents)
+			var Line: int = Table["Line"]
+			FrameData = Table["Variables"]
+			Runtime.emit_signal("OnBreak", Line)
 	
 
 func OnSnippetStart_Server(InSnippet: SnippetData) -> void:
@@ -258,7 +264,12 @@ func OnSnippetEnd_Server(InSnippet: SnippetData) -> void:
 	
 
 func OnBreak_Server(Line: int) -> void:
-	DispatchToClients(MESSAGE.BREAK, str(Line))
+	var Variables: Dictionary = Runtime.GetVariables()
+	var Payload = {
+		"Line": Line,
+		"Variables": Variables
+	}
+	DispatchToClients(MESSAGE.BREAK, to_json(Payload))
 	
 
 func Resume() -> void:
