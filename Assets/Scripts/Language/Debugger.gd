@@ -36,7 +36,8 @@ enum MESSAGE {
 	LOG,
 	SNIPPET_START,
 	SNIPPET_END,
-	BREAK
+	BREAK,
+	RESUME,
 }
 
 # Emitted when the state of the debugger changes.
@@ -70,10 +71,15 @@ func _ready() -> void:
 	
 
 func _process(_delta: float) -> void:
-	if Server.is_connection_available():
-		var Peer: StreamPeerTCP = Server.take_connection()
-		Peer.set_no_delay(true)
-		Clients.append(Peer)
+	if Server.is_listening():
+		if Server.is_connection_available():
+			var Peer: StreamPeerTCP = Server.take_connection()
+			Peer.set_no_delay(true)
+			Clients.append(Peer)
+		
+		for Client in Clients:
+			if Client.get_available_bytes() > 0:
+				OnServerDataReceived(Client.get_string())
 	
 	Connection.Update()
 	
@@ -180,6 +186,15 @@ func DispatchToClients(Type: int, Contents: String) -> void:
 		Client.put_string(Payload)
 	
 
+func DispatchToServer(Type: int, Contents: String) -> void:
+	if not Connection.is_connected_to_host():
+		return
+	
+	var Payload: String = GeneratePayload(Type, Contents)
+	
+	Connection.put_string(Payload)
+	
+
 func OnClientConnected() -> void:
 	emit_signal("OnStateChange", STATE.CONNECTED)
 	
@@ -190,6 +205,20 @@ func OnClientDisconnected() -> void:
 
 func OnClientConnectionError() -> void:
 	emit_signal("OnStateChange", STATE.FAILED_TO_CONNECT)
+	
+
+func OnServerDataReceived(Data: String) -> void:
+	var Payload = parse_json(Data)
+	
+	if typeof(Payload) != TYPE_DICTIONARY:
+		return
+	
+	var Type: int = Payload["Type"]
+	var _Contents: String = Payload["Contents"]
+	
+	match (Type):
+		MESSAGE.RESUME:
+			Runtime.Resume()
 	
 
 func OnClientDataReceived(Data: String) -> void:
@@ -227,4 +256,8 @@ func OnSnippetEnd_Server(InSnippet: SnippetData) -> void:
 
 func OnBreak_Server(Line: int) -> void:
 	DispatchToClients(MESSAGE.BREAK, str(Line))
+	
+
+func Resume() -> void:
+	DispatchToServer(MESSAGE.RESUME, "")
 	
