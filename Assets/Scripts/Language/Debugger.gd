@@ -38,6 +38,7 @@ enum MESSAGE {
 	SNIPPET_END,
 	BREAK,
 	RESUME,
+	STOP
 }
 
 # Emitted when the state of the debugger changes.
@@ -219,6 +220,8 @@ func OnServerDataReceived(Data: String) -> void:
 	match (Type):
 		MESSAGE.RESUME:
 			Runtime.Resume()
+		MESSAGE.STOP:
+			Runtime.Stop()
 	
 
 func OnClientDataReceived(Data: String) -> void:
@@ -260,4 +263,8 @@ func OnBreak_Server(Line: int) -> void:
 
 func Resume() -> void:
 	DispatchToServer(MESSAGE.RESUME, "")
+	
+
+func Stop() -> void:
+	DispatchToServer(MESSAGE.STOP, "")
 	
