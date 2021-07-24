@@ -244,6 +244,8 @@ _global_script_class_icons={
 
 config/name="Snippet"
 run/main_scene="res://Assets/Startup.tscn"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="Snippet"
 boot_splash/image="res://Assets/Resources/Icons/icon_1024.png"
 config/icon="res://Assets/Resources/Icons/icon.png"
 config/macos_native_icon="res://Assets/Resources/Icons/Icons.icns"
