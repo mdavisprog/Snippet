@@ -82,6 +82,7 @@ func _ready() -> void:
 	_Error = Runtime.connect("OnStart", self, "OnRuntimeStart")
 	_Error = Runtime.connect("OnBreak", self, "OnRuntimeBreak")
 	_Error = Runtime.connect("OnEnd", self, "OnRuntimeEnd")
+	_Error = Debugger.connect("OnStateChange", self, "OnDebuggerStateChange")
 	
 	Status.text = ""
 	Editor.HoverWordTimer.paused = true
@@ -114,20 +115,27 @@ func Show(InSnippet: Snippet) -> void:
 	
 
 func OnAction(Action: int) -> void:
+	var Launched = false
 	match (Action):
 		SnippetToolbar.ACTION.RUN:
-			Runtime.Execute()
-		SnippetToolbar.ACTION.RUNUT:
+			Launched = Debugger.Launch()
+		SnippetToolbar.ACTION.RUNUT, SnippetToolbar.ACTION.RESUME:
 			if Runtime.IsRunning():
-				Runtime.Resume()
-				Toolbar.Resume(false)
+				if Action == SnippetToolbar.ACTION.RUNUT:
+					Debugger.Step()
+				else:
+					Debugger.Resume()
+				Toolbar.SetResume(false)
 				Editor.ClearLineStates()
 				Editor.HoverWordTimer.paused = true
 			else:
-				RunUnitTest()
+				Launched = Debugger.Launch(This.Data.Name)
 		SnippetToolbar.ACTION.STOP:
-			Runtime.Stop()
+			Debugger.Stop()
 			Editor.ClearLineStates()
+	
+	if Launched:
+		OnRuntimeStart()
 	
 
 func UpdateStatusBar(Success: bool, Error: String) -> void:
@@ -318,7 +326,7 @@ func OnRuntimeStart() -> void:
 
 func OnRuntimeBreak(Line: int) -> void:
 	Toolbar.Stop.disabled = false
-	Toolbar.Resume(true)
+	Toolbar.SetResume(true)
 	if Runtime.IsActiveSnippet(This.Data):
 		Editor.SetLineState(Line + 1, BaseTextEdit.LINE_STATE.ERROR)
 		Editor.HoverWordTimer.stop()
@@ -337,7 +345,7 @@ func OnBreakpointToggled(_Row: int) -> void:
 	
 
 func OnHoverWord(Word: String) -> void:
-	var Variables: Dictionary = Runtime.GetVariables()
+	var Variables: Dictionary = Debugger.FrameData
 	if not Variables.has(Word):
 		return
 	
@@ -354,4 +362,10 @@ func OnClosePressed() -> void:
 		This.Destroy()
 	
 	.OnClosePressed()
+	
+
+func OnDebuggerStateChange(State: int) -> void:
+	match (State):
+		Debugger.STATE.FINISHED, Debugger.STATE.FAILED_TO_CONNECT:
+			OnRuntimeEnd()
 	

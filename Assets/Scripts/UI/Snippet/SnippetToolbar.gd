@@ -32,6 +32,7 @@ signal OnAction(Action)
 enum ACTION {
 	RUN,
 	RUNUT,
+	RESUME,
 	STOP
 }
 
@@ -46,6 +47,9 @@ onready var Run: TextureButton = $Run
 
 # The 'Run Unit Tests' button.
 onready var RunUT: TextureButton = $RunUT
+
+# The 'Resume' button used to continue a paused debug execution.
+onready var Resume: TextureButton = $Resume
 
 # The 'Stop' button.
 onready var Stop: TextureButton = $Stop
@@ -62,6 +66,7 @@ func _ready() -> void:
 	# Begin game initialization only.
 	_Error = Run.connect("pressed", self, "OnRun")
 	_Error = RunUT.connect("pressed", self, "OnRunUT")
+	_Error = Resume.connect("pressed", self, "OnResume")
 	_Error = Stop.connect("pressed", self, "OnStop")
 	
 	RunUTTooltip = RunUT.hint_tooltip
@@ -105,11 +110,16 @@ func OnRunUT() -> void:
 	emit_signal("OnAction", ACTION.RUNUT)
 	
 
+func OnResume() -> void:
+	emit_signal("OnAction", ACTION.RESUME)
+	
+
 func OnStop() -> void:
 	emit_signal("OnAction", ACTION.STOP)
 	
 
-func Resume(Enabled: bool) -> void:
+func SetResume(Enabled: bool) -> void:
 	RunUT.disabled = not Enabled
-	RunUT.hint_tooltip = "Resume" if Enabled else RunUTTooltip
+	RunUT.hint_tooltip = "Step" if Enabled else RunUTTooltip
+	Resume.disabled = not Enabled
 	
