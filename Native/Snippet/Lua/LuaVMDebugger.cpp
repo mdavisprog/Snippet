@@ -149,8 +149,10 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 			int Index = Ar->currentline - 1;
 			
 			// If we hit a breakpoint, grab all needed data.
-			if (Breakpoints.has(Index))
+			if (Breakpoints.has(Index) || VM->GetDebugger()->ShouldStep())
 			{
+				VM->GetDebugger()->SetStep(false);
+
 				// Grab all valid local variables.
 				VM->GetDebugger()->ClearVariables();
 				const char *Name = nullptr;
@@ -250,6 +252,7 @@ LuaVMDebugger::~LuaVMDebugger()
 
 void LuaVMDebugger::_init()
 {
+	Step = false;
 }
 
 void LuaVMDebugger::SetBreakpoints(Array InBreakpoints)
@@ -295,6 +298,16 @@ void LuaVMDebugger::Unhook(lua_State *State)
 	}
 
 	lua_sethook(State, nullptr, 0, 0);
+}
+
+void LuaVMDebugger::SetStep(bool InStep)
+{
+	Step = InStep;
+}
+
+bool LuaVMDebugger::ShouldStep() const
+{
+	return Step;
 }
 
 }

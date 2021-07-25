@@ -38,6 +38,7 @@ enum MESSAGE {
 	SNIPPET_END,
 	BREAK,
 	RESUME,
+	STEP,
 	STOP
 }
 
@@ -223,6 +224,8 @@ func OnServerDataReceived(Data: String) -> void:
 	match (Type):
 		MESSAGE.RESUME:
 			Runtime.Resume()
+		MESSAGE.STEP:
+			Runtime.Step()
 		MESSAGE.STOP:
 			Runtime.Stop()
 	
@@ -274,6 +277,10 @@ func OnBreak_Server(Line: int) -> void:
 
 func Resume() -> void:
 	DispatchToServer(MESSAGE.RESUME, "")
+	
+
+func Step() -> void:
+	DispatchToServer(MESSAGE.STEP, "")
 	
 
 func Stop() -> void:

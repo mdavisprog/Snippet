@@ -72,6 +72,7 @@ public:
 	void Reset();
 	void Resume();
 	void Stop();
+	void Step();
 	void AttachDebugger();
 	Ref<LuaVMDebugger> GetDebugger() const;
 

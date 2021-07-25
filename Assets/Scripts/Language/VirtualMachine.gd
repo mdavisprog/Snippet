@@ -63,8 +63,8 @@ func _process(_delta: float) -> void:
 		Guard.unlock()
 	
 	if State == STATE.BREAK:
-		emit_signal("OnBreak", LineBreak)
 		State = STATE.PAUSED
+		emit_signal("OnBreak", LineBreak)
 	
 
 func ToLua(Code: String) -> ParserResult:
@@ -138,6 +138,19 @@ func Resume() -> void:
 	
 	Guard.lock()
 	ActiveVM.Resume()
+	State = STATE.RUNNING
+	Guard.unlock()
+	
+
+func Step() -> void:
+	if not ActiveVM:
+		return
+	
+	if State != STATE.PAUSED:
+		return
+	
+	Guard.lock()
+	ActiveVM.Step()
 	State = STATE.RUNNING
 	Guard.unlock()
 	

@@ -41,6 +41,7 @@ class LuaVMDebugger : public Reference
 private:
 	Array Breakpoints;
 	Dictionary Variables;
+	bool Step;
 
 	static void OnHook(lua_State *State, lua_Debug *Ar);
 
@@ -60,6 +61,8 @@ public:
 	void ClearVariables();
 	void Hook(lua_State *State);
 	void Unhook(lua_State *State);
+	void SetStep(bool InStep);
+	bool ShouldStep() const;
 };
 
 }

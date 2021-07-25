@@ -205,6 +205,10 @@ func Resume() -> void:
 	Code.Resume()
 	
 
+func Step() -> void:
+	Code.Step()
+	
+
 func Compile(InSnippet: SnippetData) -> Reference:
 	if not InSnippet:
 		return null
