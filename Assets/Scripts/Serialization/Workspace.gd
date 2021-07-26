@@ -56,6 +56,11 @@ func IsLoaded() -> bool:
 func IsTempModified() -> bool:
 	return State == STATE.TEMP_MODIFIED
 
+func MarkTempDirty() -> void:
+	if State == STATE.TEMP:
+		State = STATE.TEMP_MODIFIED
+	
+
 func GetPath(InLocation: String) -> String:
 	return InLocation + "/.snippet/"
 

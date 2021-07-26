@@ -99,7 +99,7 @@ func Show(InSnippet: Snippet) -> void:
 	Title.text = This.Data.Name
 	
 	if not Runtime.IsRunning():
-		OnSnippetTextChanged()
+		PrimeTimers()
 	else:
 		OnRuntimeStart()
 		if Runtime.IsPaused():
@@ -144,6 +144,11 @@ func UpdateStatusBar(Success: bool, Error: String) -> void:
 	
 
 func OnSnippetTextChanged() -> void:
+	PrimeTimers()
+	Workspace.MarkTempDirty()
+	
+
+func PrimeTimers() -> void:
 	ToggleRunButtons(false)
 	CompileTimer.start()
 	AutoCompleteTimer.start()
