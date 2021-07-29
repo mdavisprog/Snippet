@@ -68,6 +68,11 @@ var ProcessID = 0
 # The frame data when the debugger breaks.
 var FrameData = {}
 
+# The amount of times to retry the connection to the server. Non-Windows systems
+# does not have an initial connection delay and will error out immediately. We will
+# just retry up to a number of times before failing completely.
+var Retries = 0
+
 func _ready() -> void:
 	var _Error = Connection.connect("OnConnected", self, "OnClientConnected")
 	_Error = Connection.connect("OnDisconnected", self, "OnClientDisconnected")
@@ -134,6 +139,7 @@ func Launch(Name := "") -> bool:
 	Log.Clear()
 	Log.Info("Launching debug session...")
 	
+	Retries = 0
 	if not Connection.Connect(PORT):
 		return false
 	
@@ -209,7 +215,22 @@ func OnClientDisconnected() -> void:
 	
 
 func OnClientConnectionError() -> void:
-	emit_signal("OnStateChange", STATE.FAILED_TO_CONNECT)
+	# Early failure may have occurred here. Attempt a retry. If max number is
+	# reached, emit the signal.
+	var Emit = false
+	if Connection.IsConnecting() and Retries < 5:
+		var Scene: SceneTree = Engine.get_main_loop()
+		yield(Scene.create_timer(0.5), "timeout")
+		
+		Retries += 1
+		if not Connection.Connect(PORT):
+			Emit = true
+	else:
+		Emit = true
+		
+	if Emit:
+		Log.Error("Failed to connect to remote debugging host.")
+		emit_signal("OnStateChange", STATE.FAILED_TO_CONNECT)
 	
 
 func OnServerDataReceived(Data: String) -> void:

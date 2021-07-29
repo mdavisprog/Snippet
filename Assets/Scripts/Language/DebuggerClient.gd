@@ -67,7 +67,6 @@ func Disconnect() -> void:
 
 func Update() -> void:
 	if get_status() == STATUS_ERROR:
-		Log.Error("Failed to connect to remote debugging host.")
 		emit_signal("OnConnectionError")
 		disconnect_from_host()
 	
@@ -84,3 +83,6 @@ func Update() -> void:
 		State = STATE.DISCONNECTED
 		emit_signal("OnDisconnected")
 	
+
+func IsConnecting() -> bool:
+	return State == STATE.CONNECTING
