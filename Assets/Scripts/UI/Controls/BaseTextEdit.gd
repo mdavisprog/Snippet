@@ -62,6 +62,11 @@ func _ready() -> void:
 	for Item in SyntaxColors:
 		for Keyword in Item.Keywords:
 			add_keyword_color(Keyword, Item.Highlight)
+		
+		for Region in Item.Regions:
+			var CRegion = Region as ColorRegion
+			if CRegion:
+				add_color_region(CRegion.Start, CRegion.End, CRegion.Highlight, CRegion.End.empty())
 	
 	add_color_region("\"", "\"", Color("#ac916a"))
 	

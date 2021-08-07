@@ -1,8 +1,22 @@
-[gd_resource type="Resource" load_steps=2 format=2]
+[gd_resource type="Resource" load_steps=5 format=2]
 
 [ext_resource path="res://Assets/Scripts/Language/SyntaxColor.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Scripts/Language/ColorRegion.gd" type="Script" id=2]
+
+[sub_resource type="Resource" id=1]
+script = ExtResource( 2 )
+Start = "--[["
+End = "--]]"
+Highlight = Color( 0.545098, 0.580392, 0.619608, 1 )
+
+[sub_resource type="Resource" id=2]
+script = ExtResource( 2 )
+Start = "--"
+End = ""
+Highlight = Color( 0.545098, 0.580392, 0.619608, 1 )
 
 [resource]
 script = ExtResource( 1 )
 Highlight = Color( 0.63, 0.1386, 0.1386, 1 )
 Keywords = PoolStringArray( "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while" )
+Regions = [ SubResource( 1 ), SubResource( 2 ) ]

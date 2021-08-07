@@ -39,6 +39,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Assets/Scripts/UI/Docks/BottomDock.gd"
 }, {
+"base": "Resource",
+"class": "ColorRegion",
+"language": "GDScript",
+"path": "res://Assets/Scripts/Language/ColorRegion.gd"
+}, {
 "base": "Node",
 "class": "ConnectionManager",
 "language": "GDScript",
@@ -206,6 +211,7 @@ _global_script_class_icons={
 "BasePopupMenu": "",
 "BaseTextEdit": "",
 "BottomDock": "",
+"ColorRegion": "",
 "ConnectionManager": "",
 "DebuggerClient": "",
 "DynamicSizer": "",

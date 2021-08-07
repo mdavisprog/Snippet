@@ -20,19 +20,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-class_name SyntaxColor
+class_name ColorRegion
 extends Resource
 
-# Stores a list of keywords associated with a color.
+# Resource to define color regions for the TextEdit control.
 
-# The color used for the list.
+# The starting token.
+export(String) var Start
+
+# The ending token. If this is empty, then the TextEdit will be notified this region
+# should operate on the single line.
+export(String) var End
+
+# The color to highlight the region.
 export(Color) var Highlight
-
-# List of keywords associated with the highlight.
-export(PoolStringArray) var Keywords
-
-# List of color regions to highlight.
-# The ordering matters here. Lua's multi-line comment has similar starting
-# characters as their single-line comments. The engine will check things in 
-# order so placing the multi-line region first is a must.
-export(Array, Resource) var Regions
