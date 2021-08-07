@@ -63,6 +63,8 @@ func _ready() -> void:
 		for Keyword in Item.Keywords:
 			add_keyword_color(Keyword, Item.Highlight)
 	
+	add_color_region("\"", "\"", Color("#ac916a"))
+	
 
 func _gui_input(event: InputEvent) -> void:
 	var Key = event as InputEventKey
