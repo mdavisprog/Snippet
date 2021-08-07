@@ -29,9 +29,6 @@ export(Font) var TooltipFont
 # Hold a reference to the SnippetGraph node.
 var SnippetGraphNode: SnippetGraph = null
 
-# HACK: Keep track developer workspace operations. Prevent opening context menu.
-var PerformedOp = false
-
 # Layer to add all SnippetWindow instances to.
 onready var SnippetsLayer = $SnippetsLayer
 
@@ -59,22 +56,6 @@ func _ready() -> void:
 	get_tree().set_auto_accept_quit(false)
 	
 
-func _gui_input(event: InputEvent) -> void:
-	if not Workspace.IsLoaded() or Runtime.IsRunning():
-		return
-	
-	var MouseButton = event as InputEventMouseButton
-	if MouseButton:
-		if MouseButton.button_index == BUTTON_RIGHT:
-			if not MouseButton.pressed and not PerformedOp:
-				if SnippetGraphNode:
-					if SnippetGraphNode.HoveredSnippet:
-						PopupsNode.SnippetMenu.SetSnippet(SnippetGraphNode.HoveredSnippet)
-						PopupsNode.SnippetMenu.popup_at_mouse()
-					else:
-						PopupsNode.GraphMenu.popup_at_mouse()
-	
-
 func _notification(what: int) -> void:
 	match (what):
 		MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
@@ -89,16 +70,17 @@ func OnConfirm(Confirm: bool) -> void:
 	Utility.ShowFileExplorer(funcref(self, "OnQuitSavePrompt"))
 	
 
-func OnSnippetGraphOperation(Phase: int, Operation: int) -> void:
-	match (Phase):
-		SnippetGraph.PHASES.BEGIN:
-			PerformedOp = false
-		SnippetGraph.PHASES.END:
-			PerformedOp = true
-	
+func OnSnippetGraphOperation(_Phase: int, Operation: int) -> void:
 	match (Operation):
 		SnippetGraph.OPS.EDIT:
 			EditSnippet(SnippetGraphNode.SelectedSnippet)
+		SnippetGraph.OPS.TRANSLATE_GRAPH_CANCEL:
+			if SnippetGraphNode:
+				if SnippetGraphNode.HoveredSnippet:
+					PopupsNode.SnippetMenu.SetSnippet(SnippetGraphNode.HoveredSnippet)
+					PopupsNode.SnippetMenu.popup_at_mouse()
+				else:
+					PopupsNode.GraphMenu.popup_at_mouse()
 	
 
 func OnSnippetGraphAddSnippet(Item: Snippet) -> void:

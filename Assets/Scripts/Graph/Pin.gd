@@ -87,6 +87,8 @@ func _input(event: InputEvent) -> void:
 			State = New
 			update()
 	
+
+func _unhandled_input(event: InputEvent) -> void:
 	var MouseButton = event as InputEventMouseButton
 	if MouseButton:
 		if MouseButton.pressed and MouseButton.button_index == BUTTON_LEFT and State == STATES.HOVERED:

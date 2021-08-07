@@ -41,6 +41,7 @@ signal OnAddSnippet(Item)
 enum OPS {
 	NONE,
 	TRANSLATE_GRAPH,
+	TRANSLATE_GRAPH_CANCEL,
 	MOVING_SNIPPET,
 	EDIT,
 }
@@ -82,6 +83,36 @@ func _input(event: InputEvent) -> void:
 	if not MainSnippet:
 		return
 	
+	var MouseMotion = event as InputEventMouseMotion
+	if MouseMotion:
+		if Op == OPS.NONE:
+			var Nodes: Array = get_tree().get_nodes_in_group("Snippet")
+			for I in Nodes:
+				var Item = I as Snippet
+				if Item.Contains(MouseMotion.global_position):
+					if HoveredSnippet != Item:
+						HoveredSnippet = Item
+						HoveredSnippet.OnMouseEntered()
+				elif HoveredSnippet == Item:
+					HoveredSnippet.OnMouseExited()
+					HoveredSnippet = null
+		
+		match (Op):
+			OPS.TRANSLATE_GRAPH:
+				position += MouseMotion.relative
+				
+				if not PerformedOp:
+					PerformedOp = true
+					Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		
+		if SelectedSnippet:
+			SelectedSnippet.Move(MouseMotion.relative)
+	
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not MainSnippet:
+		return
+	
 	var MouseButton = event as InputEventMouseButton
 	if MouseButton:
 		if MouseButton.pressed:
@@ -109,31 +140,8 @@ func _input(event: InputEvent) -> void:
 			if PerformedOp:
 				emit_signal("OnOperation", PHASES.END, LastOp)
 				PerformedOp = false
-	
-	var MouseMotion = event as InputEventMouseMotion
-	if MouseMotion:
-		if Op == OPS.NONE:
-			var Nodes: Array = get_tree().get_nodes_in_group("Snippet")
-			for I in Nodes:
-				var Item = I as Snippet
-				if Item.Contains(MouseMotion.global_position):
-					if HoveredSnippet != Item:
-						HoveredSnippet = Item
-						HoveredSnippet.OnMouseEntered()
-				elif HoveredSnippet == Item:
-					HoveredSnippet.OnMouseExited()
-					HoveredSnippet = null
-		
-		match (Op):
-			OPS.TRANSLATE_GRAPH:
-				position += MouseMotion.relative
-				
-				if not PerformedOp:
-					PerformedOp = true
-					Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		
-		if SelectedSnippet:
-			SelectedSnippet.Move(MouseMotion.relative)
+			elif LastOp == OPS.TRANSLATE_GRAPH:
+				emit_signal("OnOperation", PHASES.END, OPS.TRANSLATE_GRAPH_CANCEL)
 	
 
 func AddSnippet(ScreenPosition: Vector2, Emit := true) -> Snippet:
