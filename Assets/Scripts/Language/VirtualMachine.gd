@@ -40,9 +40,6 @@ enum STATE {
 # The type of virtual machine to instance.
 export(NativeScript) var VMClass: NativeScript
 
-# Buffer holding any output received from the language vm.
-var Buffer = ""
-
 # For now, only a single VM instance can be used.
 var ActiveVM = null
 
@@ -53,12 +50,6 @@ var Guard = Mutex.new()
 var State = STATE.IDLE
 
 func _process(_delta: float) -> void:
-	if not Buffer.empty():
-		Guard.lock()
-		Log.Info(Buffer)
-		Buffer = ""
-		Guard.unlock()
-	
 	if State == STATE.BREAK:
 		State = STATE.PAUSED
 		emit_signal("OnBreak", ActiveVM.GetDebugger().GetLineBreak())
@@ -107,9 +98,7 @@ func Execute(Code: String, Name: String, Args: Array, Breakpoints: Array) -> Ref
 	return Result
 
 func OnPrint(Contents: String) -> void:
-	Guard.lock()
-	Buffer += Contents + "\n"
-	Guard.unlock()
+	Log.Info(Contents)
 	
 
 func OnBreak(_Line: int) -> void:
