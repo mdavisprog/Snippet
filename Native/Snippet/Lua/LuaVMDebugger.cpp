@@ -152,6 +152,7 @@ void LuaVMDebugger::OnHook(lua_State *State, lua_Debug *Ar)
 			if (Breakpoints.has(Index) || VM->GetDebugger()->ShouldStep())
 			{
 				VM->GetDebugger()->SetStep(false);
+				VM->GetDebugger()->SetLineBreak(Index);
 
 				// Grab all valid local variables.
 				VM->GetDebugger()->ClearVariables();
@@ -239,6 +240,7 @@ void LuaVMDebugger::_register_methods()
 {
 	register_method((char*)"SetBreakpoints", &LuaVMDebugger::SetBreakpoints);
 	register_method((char*)"GetVariables", &LuaVMDebugger::GetVariables);
+	register_method((char*)"GetLineBreak", &LuaVMDebugger::GetLineBreak);
 	register_signal<LuaVMDebugger>((char*)"OnBreak", "Line", GODOT_VARIANT_TYPE_INT);
 }
 
@@ -253,6 +255,7 @@ LuaVMDebugger::~LuaVMDebugger()
 void LuaVMDebugger::_init()
 {
 	Step = false;
+	LineBreak = 0;
 }
 
 void LuaVMDebugger::SetBreakpoints(Array InBreakpoints)
@@ -263,6 +266,11 @@ void LuaVMDebugger::SetBreakpoints(Array InBreakpoints)
 Dictionary LuaVMDebugger::GetVariables() const
 {
 	return Variables;
+}
+
+int LuaVMDebugger::GetLineBreak() const
+{
+	return LineBreak;
 }
 
 Array LuaVMDebugger::GetBreakpoints() const
@@ -308,6 +316,11 @@ void LuaVMDebugger::SetStep(bool InStep)
 bool LuaVMDebugger::ShouldStep() const
 {
 	return Step;
+}
+
+void LuaVMDebugger::SetLineBreak(int InLineBreak)
+{
+	LineBreak = InLineBreak;
 }
 
 }

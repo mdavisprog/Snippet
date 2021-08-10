@@ -42,6 +42,7 @@ private:
 	Array Breakpoints;
 	Dictionary Variables;
 	bool Step;
+	int LineBreak;
 
 	static void OnHook(lua_State *State, lua_Debug *Ar);
 
@@ -54,6 +55,7 @@ public:
 	void _init();
 	void SetBreakpoints(Array InBreakpoints);
 	Dictionary GetVariables() const;
+	int GetLineBreak() const;
 
 	// Native
 	Array GetBreakpoints() const;
@@ -63,6 +65,7 @@ public:
 	void Unhook(lua_State *State);
 	void SetStep(bool InStep);
 	bool ShouldStep() const;
+	void SetLineBreak(int InLineBreak);
 };
 
 }

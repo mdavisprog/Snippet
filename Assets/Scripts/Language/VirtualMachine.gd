@@ -52,9 +52,6 @@ var Guard = Mutex.new()
 # The current state for this virtual machine. May be modified by multiple threads.
 var State = STATE.IDLE
 
-# The line number the virtual machine is breaking on.
-var LineBreak = 0
-
 func _process(_delta: float) -> void:
 	if not Buffer.empty():
 		Guard.lock()
@@ -64,7 +61,7 @@ func _process(_delta: float) -> void:
 	
 	if State == STATE.BREAK:
 		State = STATE.PAUSED
-		emit_signal("OnBreak", LineBreak)
+		emit_signal("OnBreak", ActiveVM.GetDebugger().GetLineBreak())
 	
 
 func ToLua(Code: String) -> ParserResult:
@@ -115,9 +112,8 @@ func OnPrint(Contents: String) -> void:
 	Guard.unlock()
 	
 
-func OnBreak(Line: int) -> void:
+func OnBreak(_Line: int) -> void:
 	Guard.lock()
-	LineBreak = Line
 	State = STATE.BREAK
 	Guard.unlock()
 	
