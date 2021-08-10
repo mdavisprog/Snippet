@@ -72,6 +72,10 @@ var HoveredSnippet: Snippet = null
 # The main snippet. This is where a full program execution begins.
 var MainSnippet: Snippet = null
 
+# Store mouse position when the app is capturing during graph translation.
+# Will be restored upon translation completion.
+var MousePos: Vector2
+
 # Manages connections between pins. There is a const path located in Utility to this node.
 onready var Connections: ConnectionManager = $Connections
 
@@ -103,6 +107,7 @@ func _input(event: InputEvent) -> void:
 				
 				if not PerformedOp:
 					PerformedOp = true
+					MousePos = get_viewport().get_mouse_position()
 					Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		
 		if SelectedSnippet:
@@ -135,7 +140,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			var LastOp = Op
 			Op = OPS.NONE
 			SelectedSnippet = null
+			
+			var WasCaptured = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			
+			if WasCaptured:
+				get_viewport().warp_mouse(MousePos)
 			
 			if PerformedOp:
 				emit_signal("OnOperation", PHASES.END, LastOp)
