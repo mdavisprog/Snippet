@@ -351,6 +351,15 @@ func OnRuntimeEnd() -> void:
 	
 
 func OnBreakpointToggled(_Row: int) -> void:
+	# We are deferring here as the breakpoint_toggled signal that is emitted when
+	# lines are deleted are not updated until the next frame. This will fix an issue
+	# where the Snippet's breakpoints are not properly updated when this action occurs
+	# and prevents breaking on lines with no active breakpoint set. This should
+	# be investigated with Godot version 4.0.
+	call_deferred("OnBreakpointToggled_Deferred")
+	
+
+func OnBreakpointToggled_Deferred() -> void:
 	This.Data.Breakpoints = Editor.get_breakpoints()
 	Runtime.UpdateBreakpoints(This.Data.Breakpoints)
 	
