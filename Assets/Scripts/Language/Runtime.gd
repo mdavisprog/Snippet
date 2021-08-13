@@ -46,28 +46,11 @@ signal OnSnippetStart(InSnippet)
 # InSnippet: SnippetData
 signal OnSnippetEnd(InSnippet)
 
-enum EXEC_TYPE {
-	ALL,
-	UNITTEST,
-}
+# The type of virtual machine to use for any runtime operation.
+export(NativeScript) var VMClass: NativeScript
 
-# Execute snippets on a separate thread to keep from blocking the main thread.
-var Latent = null
-
-# Dictionary used to pass information when executing in a separate thread.
-var Arguments = {}
-
-# The currently executing snippet.
-var ActiveSnippet: SnippetData = null
-
-# Store the result of the last snippet execution.
-var ActiveResult = null
-
-# Flag set to true when the threaded operation is complete.
-var IsActiveComplete = false
-
-# The type of execution the runtime is engaged in.
-var ExecType = EXEC_TYPE.ALL
+# The current task being executed.
+var Task: RuntimeTask = null
 
 # The instanced virtual machine with scene templates and instancing.
 onready var Code: VirtualMachine = $Code
@@ -77,40 +60,45 @@ func _ready() -> void:
 	
 
 func _exit_tree() -> void:
-	if Latent:
-		Latent.wait_to_finish()
-		Latent = null
+	if Task:
+		Task.Wait()
+		Task = null
 	
 
-func _process(_delta: float) -> void:
-	if ActiveSnippet:
-		if IsActiveComplete:
-			FinishSnippet(ActiveSnippet, ExecType == EXEC_TYPE.ALL)
+func _process(delta: float) -> void:
+	if Task:
+		Task._process(delta)
+		if Task.IsComplete():
+			FinishSnippet(Task.Data, not IsUnitTest())
 	
-
-func IsEnabled() -> bool:
-	return Code != null
 
 func IsRunning() -> bool:
-	return ActiveSnippet != null
+	return Task != null and Task.Data != null
 
 func IsPaused() -> bool:
-	return Code.IsPaused()
+	if not Task:
+		return false
+	
+	return Task.IsPaused()
 
 func IsActiveSnippet(InSnippet: SnippetData) -> bool:
-	return ActiveSnippet == InSnippet
+	if not Task:
+		return false
+	
+	return Task.Data == InSnippet
 
 func IsUnitTest() -> bool:
-	return ExecType == EXEC_TYPE.UNITTEST
+	if not Task:
+		return false
+	
+	return Task.IsUnitTest()
 
 func Execute() -> void:
-	if not IsEnabled():
+	# If a task already exists, then execution is in progress.
+	if Task:
 		return
 	
-	# If a latent object already exists, then execution is in progress.
-	if Latent:
-		return
-	
+	# TODO: Deprecate this to remove dependency.
 	var SnippetGraphNode: SnippetGraph = get_node(Utility.GRAPH)
 	
 	Log.Clear()
@@ -121,92 +109,80 @@ func Execute() -> void:
 	ExecuteSnippet(SnippetGraphNode.MainSnippet.Data)
 	
 
-func ExecuteSnippet(InSnippet: SnippetData, IsUnitTest := false, SkipBreakpoints := false) -> void:
-	if not IsEnabled():
-		return
-	
+func ExecuteSnippet(InSnippet: SnippetData, IsUnitTest := false, SkipBreakpoints := false, Parameters := []) -> void:
 	if not InSnippet:
 		return
 	
-	if Latent:
+	if Task:
 		return
 	
-	ActiveSnippet = InSnippet
-	IsActiveComplete = false
-	ExecType = EXEC_TYPE.UNITTEST if IsUnitTest else EXEC_TYPE.ALL
-	
-	var Args = []
-	if ActiveResult:
-		Args = ActiveResult.Results
+	var Args = {
+		"skipbp": SkipBreakpoints,
+		"params": Parameters
+	}
 	
 	emit_signal("OnSnippetStart", InSnippet)
 	
-	Arguments = {
-		"Source": InSnippet.Source,
-		"Name": InSnippet.Name,
-		"Arguments": Args,
-		"Breakpoints": InSnippet.Breakpoints if not SkipBreakpoints else []
-	}
+	if IsUnitTest:
+		Task = RuntimeTask_RunUT.new()
+	else:
+		Task = RuntimeTask_Run.new()
 	
-	Latent = Thread.new()
-	Latent.start(self, "ExecuteSnippet_Thread", Arguments)
-	
-
-func ExecuteSnippet_Thread(InArguments: Dictionary) -> void:
-	var Source: String = InArguments["Source"]
-	var Name: String = InArguments["Name"]
-	var Args: Array = InArguments["Arguments"]
-	var Breakpoints: Array = InArguments["Breakpoints"]
-	
-	ActiveResult = Code.Execute(Source, Name, Args, Breakpoints)
-	IsActiveComplete = true
-	
-	# TODO: Should error messaging dispatching happend here? Useful for reporting
-	# any errors that were dispatched from native.
+	Task.Init(VMClass)
+	var _Error = Task.connect("OnBreak", self, "OnBreak")
+	if not Task.Execute(InSnippet, Args):
+		# TODO: emit signal for runtime end
+		pass
 	
 
 func FinishSnippet(InSnippet: SnippetData, GoToNext := true) -> void:
 	if not InSnippet:
 		return
 	
-	# There may not be a valid ActiveResult object if the execution is terminated early.
-	if ActiveResult and not ActiveResult.Success:
-		Log.Error("Failed to execute snippet '" + InSnippet.GetTitle() + "'.\n" + ActiveResult.GetError().Contents)
+	var Next = null
+	var Result = null
+	var SkipBP = false
+	if Task:
+		Next = Task.Data.Next
+		Result = Task.Wait()
+		SkipBP = Task.ShouldSkipBreakpoints()
+		Task = null
+	
+	if not Result.Success:
+		Log.Error("Failed to execute snippet '" + InSnippet.Name + "'.\n" + Result.GetError().Contents)
 		GoToNext = false
 	
 	emit_signal("OnSnippetEnd", InSnippet)
 	
-	if Latent:
-		Latent.wait_to_finish()
-		Latent = null
-	
-	# TODO: Update when 'Next' snippet is stored in SnippetData object.
-	var Next: SnippetData = ActiveSnippet.Next
 	if Next and GoToNext:
-		ExecuteSnippet(Next)
+		ExecuteSnippet(Next, false, SkipBP, Result.Results)
 	else:
-		ActiveSnippet = null
-		ActiveResult = null
 		# All snippets have been executed. The program has finished.
 		emit_signal("OnEnd")
 	
 
 func Stop() -> void:
-	if not ActiveSnippet:
+	if not Task:
 		return
 	
 	# This notifies any sleeping threads that the VM is executing that it must be terminated.
-	Code.Stop()
+	Task.Stop()
 	
-	FinishSnippet(ActiveSnippet, false)
+	FinishSnippet(Task.Data, false)
 	
 
 func Resume() -> void:
-	Code.Resume()
+	if not Task:
+		return
+	
+	Task.Resume()
 	
 
 func Step() -> void:
-	Code.Step()
+	if not Task:
+		return
+	
+	Task.Step()
 	
 
 func Compile(InSnippet: SnippetData) -> Reference:
@@ -220,33 +196,50 @@ func OnBreak(Line: int) -> void:
 	
 
 func UpdateBreakpoints(Breakpoints: Array) -> void:
-	Code.UpdateBreakpoints(Breakpoints)
+	if not Task:
+		return
+	
+	Task.UpdateBreakpoints(Breakpoints)
 	
 
 func GetVariables() -> Dictionary:
-	return Code.GetVariables()
+	if not Task:
+		return {}
+	
+	return Task.GetVariables()
 
 func GetLineBreak() -> int:
-	return Code.LineBreak
+	if not Task:
+		return -1
+	
+	return Task.GetLineBreak()
 
+# This is called on the client to simulate emitting signals for the UI to respond.
 func ClientSnippetStart(InSnippet: SnippetData) -> void:
 	if not InSnippet:
 		return
 	
-	if ActiveSnippet == InSnippet:
+	# Create a task object, but don't perform any operations on it.
+	if not Task:
+		Task = RuntimeTask.new()
+	
+	if Task.Data == InSnippet:
 		return
 	
-	ActiveSnippet = InSnippet
-	emit_signal("OnSnippetStart", ActiveSnippet)
+	Task.Data = InSnippet
+	emit_signal("OnSnippetStart", InSnippet)
 	
 
 func ClientSnippetEnd(InSnippet: SnippetData) -> void:
 	if not InSnippet:
 		return
 	
-	if ActiveSnippet != InSnippet:
+	if not Task:
 		return
 	
-	emit_signal("OnSnippetEnd", ActiveSnippet)
-	ActiveSnippet = null
+	if Task.Data != InSnippet:
+		return
+	
+	emit_signal("OnSnippetEnd", InSnippet)
+	Task.Data = null
 	

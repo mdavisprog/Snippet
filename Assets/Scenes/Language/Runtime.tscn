@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Assets/Scripts/Language/Runtime.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Scenes/Language/VirtualMachine.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Libraries/Snippet/Classes/LuaVM.gdns" type="Script" id=3]
 
 [node name="Runtime" type="Node"]
 script = ExtResource( 1 )
+VMClass = ExtResource( 3 )
 
 [node name="Code" parent="." instance=ExtResource( 2 )]
