@@ -83,10 +83,11 @@ func Execute(InData: SnippetData, InArguments := {}) -> bool:
 # The return value for this function will be returned to the calling object through
 # the wait_to_finish() function.
 func Execute_Thread(_InArguments: Dictionary):
-	VM = VMClass.new()
-	VM.PushArguments(Arguments["params"])
-	
 	var Breakpoints = [] if ShouldSkipBreakpoints() else Data.Breakpoints
+	var Params = [] if not Arguments.has("params") else Arguments["params"]
+	
+	VM = VMClass.new()
+	VM.PushArguments(Params)
 	
 	VM.AttachDebugger()
 	VM.GetDebugger().SetBreakpoints(Breakpoints)

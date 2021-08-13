@@ -46,11 +46,20 @@ signal OnSnippetStart(InSnippet)
 # InSnippet: SnippetData
 signal OnSnippetEnd(InSnippet)
 
+# Emitted when a snippet compilation has completed.
+#
+# InSnippet: SnippetData
+# Result: LuaVMResult
+signal OnSnippetCompiled(InSnippet, Result)
+
 # The type of virtual machine to use for any runtime operation.
 export(NativeScript) var VMClass: NativeScript
 
 # The current task being executed.
 var Task: RuntimeTask = null
+
+# List of compile tasks in progress.
+var CompileTasks = []
 
 # The instanced virtual machine with scene templates and instancing.
 onready var Code: VirtualMachine = $Code
@@ -64,12 +73,27 @@ func _exit_tree() -> void:
 		Task.Wait()
 		Task = null
 	
+	for Item in CompileTasks:
+		Item.Wait()
+	
+	CompileTasks.clear()
+	
 
 func _process(delta: float) -> void:
 	if Task:
 		Task._process(delta)
 		if Task.IsComplete():
 			FinishSnippet(Task.Data, not IsUnitTest())
+	
+	var RemoveItems = []
+	for Item in CompileTasks:
+		if Item.IsComplete():
+			Item.Wait()
+			emit_signal("OnSnippetCompiled", Item.Data, Item.Result)
+			RemoveItems.append(Item)
+	
+	for Item in RemoveItems:
+		CompileTasks.erase(Item)
 	
 
 func IsRunning() -> bool:
@@ -185,11 +209,19 @@ func Step() -> void:
 	Task.Step()
 	
 
-func Compile(InSnippet: SnippetData) -> Reference:
+func Compile(InSnippet: SnippetData) -> void:
 	if not InSnippet:
-		return null
+		return
 	
-	return Code.Compile(InSnippet.Source)
+	var CompileTask = RuntimeTask_Compile.new()
+	CompileTask.Init(VMClass)
+	if not CompileTask.Execute(InSnippet):
+		CompileTask.Wait()
+		emit_signal("OnSnippetCompiled", InSnippet, null)
+		return
+	
+	CompileTasks.append(CompileTask)
+	
 
 func OnBreak(Line: int) -> void:
 	emit_signal("OnBreak", Line)

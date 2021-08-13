@@ -125,6 +125,11 @@ _global_script_classes=[ {
 "path": "res://Assets/Scripts/Language/RuntimeTask.gd"
 }, {
 "base": "RuntimeTask",
+"class": "RuntimeTask_Compile",
+"language": "GDScript",
+"path": "res://Assets/Scripts/Language/RuntimeTask_Compile.gd"
+}, {
+"base": "RuntimeTask",
 "class": "RuntimeTask_Run",
 "language": "GDScript",
 "path": "res://Assets/Scripts/Language/RuntimeTask_Run.gd"
@@ -243,6 +248,7 @@ _global_script_class_icons={
 "PinConnection": "",
 "Popups": "",
 "RuntimeTask": "",
+"RuntimeTask_Compile": "",
 "RuntimeTask_Run": "",
 "RuntimeTask_RunUT": "",
 "SettingsMenu": "",

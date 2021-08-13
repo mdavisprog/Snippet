@@ -82,6 +82,7 @@ func _ready() -> void:
 	_Error = Runtime.connect("OnStart", self, "OnRuntimeStart")
 	_Error = Runtime.connect("OnBreak", self, "OnRuntimeBreak")
 	_Error = Runtime.connect("OnEnd", self, "OnRuntimeEnd")
+	_Error = Runtime.connect("OnSnippetCompiled", self, "OnCompileComplete")
 	_Error = Debugger.connect("OnStateChange", self, "OnDebuggerStateChange")
 	
 	Status.text = ""
@@ -160,13 +161,18 @@ func OnCompileTimer() -> void:
 	var Source: String = Editor.text
 	This.Data.Source = Source
 	
-	var CompileResult = Runtime.Compile(This.Data)
+	Runtime.Compile(This.Data)
 	Lua.readonly = false
 	Lua.text = Source
 	Lua.readonly = true
 	
-	SetError(CompileResult)
-	ToggleRunButtons(CompileResult.Success and not Runtime.IsRunning())
+
+func OnCompileComplete(InSnippet: SnippetData, Result: Reference) -> void:
+	if InSnippet != This.Data:
+		return
+	
+	SetError(Result)
+	ToggleRunButtons(Result.Success and not Runtime.IsRunning())
 	UTBase.text = This.GetTitle() + "()"
 	
 
