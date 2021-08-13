@@ -61,13 +61,6 @@ var Task: RuntimeTask = null
 # List of compile tasks in progress.
 var CompileTasks = []
 
-# The instanced virtual machine with scene templates and instancing.
-onready var Code: VirtualMachine = $Code
-
-func _ready() -> void:
-	var _Error = Code.connect("OnBreak", self, "OnBreak")
-	
-
 func _exit_tree() -> void:
 	if Task:
 		Task.Wait()

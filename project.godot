@@ -218,11 +218,6 @@ _global_script_classes=[ {
 "class": "VariableInspector",
 "language": "GDScript",
 "path": "res://Assets/Scripts/UI/Popups/VariableInspector.gd"
-}, {
-"base": "Node",
-"class": "VirtualMachine",
-"language": "GDScript",
-"path": "res://Assets/Scripts/Language/VirtualMachine.gd"
 } ]
 _global_script_class_icons={
 "AboutDialog": "",
@@ -266,8 +261,7 @@ _global_script_class_icons={
 "UIFactory": "",
 "UnitTestTextEdit": "",
 "Variable": "",
-"VariableInspector": "",
-"VirtualMachine": ""
+"VariableInspector": ""
 }
 
 [application]
