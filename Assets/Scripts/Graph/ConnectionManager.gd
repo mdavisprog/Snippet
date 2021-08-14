@@ -39,6 +39,8 @@ func _input(event: InputEvent) -> void:
 	if MouseMotion:
 		Active.End = MouseMotion.global_position
 	
+
+func _unhandled_input(event: InputEvent) -> void:
 	var MouseButton = event as InputEventMouseButton
 	if MouseButton:
 		if MouseButton.pressed and Active:
