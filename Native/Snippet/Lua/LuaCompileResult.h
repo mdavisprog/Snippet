@@ -24,33 +24,43 @@ SOFTWARE.
 
 */
 
-#include "Lua/LuaCompileResult.h"
-#include "Lua/LuaError.h"
-#include "Lua/LuaStackTrace.h"
-#include "Lua/LuaStackTraceElement.h"
-#include "Lua/LuaResult.h"
-#include "Lua/LuaVM.h"
-#include "Lua/LuaVMDebugger.h"
+#pragma once
 
-extern "C" void GDN_EXPORT snippet_gdnative_init(godot_gdnative_init_options *Options)
+#include "Godot.hpp"
+#include "Reference.hpp"
+
+struct lua_State;
+
+namespace godot
 {
-	godot::Godot::gdnative_init(Options);
-}
 
-extern "C" void GDN_EXPORT snippet_gdnative_terminate(godot_gdnative_terminate_options *Options)
+class LuaError;
+
+class LuaCompileResult : public Reference
 {
-	godot::Godot::gdnative_terminate(Options);
-}
+	GODOT_CLASS(LuaCompileResult, Reference)
 
-extern "C" void GDN_EXPORT snippet_nativescript_init(void *Handle)
-{
-	godot::Godot::nativescript_init(Handle);
+public:
+	static void _register_methods();
 
-	godot::register_class<godot::LuaCompileResult>();
-	godot::register_class<godot::LuaError>();
-	godot::register_class<godot::LuaStackTrace>();
-	godot::register_class<godot::LuaStackTraceElement>();
-	godot::register_class<godot::LuaResult>();
-	godot::register_class<godot::LuaVM>();
-	godot::register_class<godot::LuaVMDebugger>();
+	LuaCompileResult();
+	~LuaCompileResult();
+
+	void _init();
+	void ParseSymbols(lua_State *State);
+	
+	void SetSuccess(bool InSuccess);
+	bool IsSuccess() const;
+
+	Ref<LuaError> GetError() const;
+
+	void SetSymbols(Dictionary InSymbols);
+	Dictionary GetSymbols() const;
+
+private:
+	bool Success;
+	Dictionary Symbols;
+	Ref<LuaError> Error;
+};
+
 }

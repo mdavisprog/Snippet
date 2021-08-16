@@ -24,12 +24,12 @@ SOFTWARE.
 
 */
 
-#include "LuaVM.h"
-
+#include "LuaCompileResult.h"
 #include "LuaError.h"
 #include "LuaHelpers.h"
 #include "LuaLibs.h"
 #include "LuaResult.h"
+#include "LuaVM.h"
 #include "LuaVMDebugger.h"
 #include "OS.hpp"
 
@@ -155,19 +155,21 @@ void LuaVM::_init()
 	InitState();
 }
 
-Ref<LuaResult> LuaVM::Compile(String Source)
+Ref<LuaCompileResult> LuaVM::Compile(String Source)
 {
-	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
+	Ref<LuaCompileResult> Result = Ref<LuaCompileResult>(LuaCompileResult::_new());
 
 	if (State == nullptr)
 	{
 		return Result;
 	}
 
-	Result->Success = luaL_loadstring(State, Source.ascii().get_data()) == LUA_OK;
-	if (!Result->Success)
+	Result->SetSuccess(luaL_loadstring(State, Source.ascii().get_data()) == LUA_OK);
+	// Grab symbols regardless of compilation results.
+	Result->ParseSymbols(State);
+	if (!Result->IsSuccess())
 	{
-		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::SYNTAX);
+		Result->GetError()->Parse(lua_tostring(State, -1), LuaError::TYPE::SYNTAX);
 	}
 
 	// Clean the stack.

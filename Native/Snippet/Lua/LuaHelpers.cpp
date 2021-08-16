@@ -177,4 +177,63 @@ namespace LuaHelpers
 			godot::Godot::print("   {0}: {1}", I, Item);
 		}
 	}
+
+	godot::Dictionary ParseSymbols(lua_State *State)
+	{
+		godot::Dictionary Result;
+
+		if (lua_type(State, -1) != LUA_TTABLE)
+		{
+			return Result;
+		}
+
+		lua_pushnil(State);
+		while (lua_next(State, -2))
+		{
+			godot::String Key;
+
+			// Checking key type.
+			int Type = lua_type(State, -2);
+			switch (Type)
+			{
+				case LUA_TSTRING: Key = lua_tostring(State, -2); break;
+				default: break;
+			}
+
+			// Checking value type.
+			bool IsValid = false;
+			Type = lua_type(State, -1);
+			switch (Type)
+			{
+				case LUA_TBOOLEAN:
+				case LUA_TNUMBER:
+				case LUA_TSTRING:
+				case LUA_TFUNCTION:
+				case LUA_TTABLE: IsValid = true; break;
+				case LUA_TNIL: break;
+				case LUA_TLIGHTUSERDATA: break;
+				case LUA_TUSERDATA: break;
+				case LUA_TTHREAD: break;
+				default: break;
+			}
+
+			// Ignore going through the global table. This will cause a circular dependency.
+			if (!Key.empty() && Key != "_G" && IsValid)
+			{
+				godot::Dictionary Value;
+
+				// Do not go through already loaded libraries, as they may reference other loaded libraries causing a circular dependency.
+				if (Type == LUA_TTABLE && Key != "loaded")
+				{
+					Value = ParseSymbols(State);
+				}
+
+				Result[Key] = Value;
+			}
+
+			lua_pop(State, 1);
+		}
+
+		return Result;
+	}
 }

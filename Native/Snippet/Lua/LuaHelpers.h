@@ -36,4 +36,5 @@ namespace LuaHelpers
 	void PushVariant(lua_State *State, godot::Variant Arg);
 	godot::Variant ToVariant(lua_State *State, int Index);
 	void PrintStack(lua_State *State);
+	godot::Dictionary ParseSymbols(lua_State *State);
 }

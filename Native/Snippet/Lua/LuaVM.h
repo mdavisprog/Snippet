@@ -36,6 +36,7 @@ SOFTWARE.
 namespace godot
 {
 
+class LuaCompileResult;
 class LuaResult;
 class LuaVMDebugger;
 
@@ -65,7 +66,7 @@ public:
 	~LuaVM();
 
 	void _init();
-	Ref<LuaResult> Compile(String Source);
+	Ref<LuaCompileResult> Compile(String Source);
 	Ref<LuaResult> Execute(String Source, String Name);
 	Ref<LuaResult> Call(String FnName, Variant Args);
 	void PushArguments(Array Args);

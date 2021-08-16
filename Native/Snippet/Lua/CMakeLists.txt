@@ -1,6 +1,7 @@
 set(
 	SOURCE
 	${SOURCE}
+	${CMAKE_CURRENT_SOURCE_DIR}/LuaCompileResult.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaError.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaHelpers.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LuaLibs.cpp
