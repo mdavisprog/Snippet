@@ -103,13 +103,13 @@ func GetValue(Arg: String) -> String:
 	var Pair: PoolStringArray = Arg.split("=", true, 2)
 	return Pair[1]
 
-func OnLog(_Type: int, Contents: String) -> void:
+func OnLog(Type: int, Contents: String) -> void:
 	print(Contents)
 	
 	if LogFile.is_open():
 		LogFile.store_line(Contents)
 	
-	Debugger.DispatchToClients(Debugger.MESSAGE.LOG, Contents)
+	Debugger.DispatchLog(Type, Contents)
 	
 
 func CreateLogFile() -> void:

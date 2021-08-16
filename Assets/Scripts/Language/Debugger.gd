@@ -262,7 +262,8 @@ func OnClientDataReceived(Data: String) -> void:
 	
 	match (Type):
 		MESSAGE.LOG:
-			Log.Info(Contents)
+			var LogPayload = parse_json(Contents)
+			Log.Internal(LogPayload["Type"], LogPayload["Contents"])
 		MESSAGE.SNIPPET_START, MESSAGE.SNIPPET_END:
 			var InSnippet: SnippetData = Workspace.GetSnippet(Contents)
 			if InSnippet:
@@ -306,4 +307,13 @@ func Step() -> void:
 
 func Stop() -> void:
 	DispatchToServer(MESSAGE.STOP, "")
+	
+
+func DispatchLog(Type: int, Contents: String) -> void:
+	var Payload = {
+		"Type": Type,
+		"Contents": Contents
+	}
+	
+	DispatchToClients(MESSAGE.LOG, to_json(Payload))
 	
