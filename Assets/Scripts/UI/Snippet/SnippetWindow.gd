@@ -28,8 +28,8 @@ extends FloatingWindow
 # The snippet associated with this window.
 var This: Snippet = null setget SetSnippet
 
-# The result of a parse that occurs after text has been entered.
-var ParseResult: ParserResult = null
+# Symbols found in the code that is updated after a compilation.
+var Symbols = {}
 
 # The toolbar used for registering signals.
 onready var Toolbar: SnippetToolbar = $Panel/VBoxContainer/Margins/Contents/Toolbar
@@ -171,27 +171,11 @@ func OnCompileComplete(InSnippet: SnippetData, Result: Reference) -> void:
 	if InSnippet != This.Data:
 		return
 	
+	Symbols = Result.Symbols
+	
 	SetError(Result)
 	ToggleRunButtons(Result.Success and not Runtime.IsRunning())
 	UTBase.text = This.GetTitle() + "()"
-	
-
-func RunUnitTest() -> void:
-	Log.Clear()
-	
-	var FnName: String = This.GetTitle()
-	Log.Info("Running unit tests for snippet '%s'." % FnName)
-	
-	# First, run the base unit test and ensure no invalid operations occur.
-	# TODO: Pass in parsed arguments results. This will require a cached ParserResult
-	# object that was generated after text has been entered.
-	Runtime.ExecuteSnippet(This.Data, true)
-	OnRuntimeStart()
-	
-	# TODO: Custom unit test code should just do a raw execute. It is up to
-	# the developer on how this unit test behaves and should assert if there is
-	# an error.
-	# var Source += UTEdit.text
 	
 
 func OnAutoComplete() -> void:
@@ -202,6 +186,7 @@ func OnAutoComplete() -> void:
 	
 	# Grab the keywords for the editor.
 	var Keywords: Array = Editor.GetKeywords()
+	Keywords += Symbols.keys()
 	if Keywords.empty():
 		return
 	
