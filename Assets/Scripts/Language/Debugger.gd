@@ -68,6 +68,9 @@ var ProcessID = 0
 # The frame data when the debugger breaks.
 var FrameData = {}
 
+# The line number the debugger broke on. This is stored for the client.
+var LineBreak = 0
+
 # The amount of times to retry the connection to the server. Non-Windows systems
 # does not have an initial connection delay and will error out immediately. We will
 # just retry up to a number of times before failing completely.
@@ -275,9 +278,9 @@ func OnClientDataReceived(Data: String) -> void:
 				Log.Warn("Failed to find snippet '%s'." % Contents)
 		MESSAGE.BREAK:
 			var Table: Dictionary = parse_json(Contents)
-			var Line: int = Table["Line"]
+			LineBreak = Table["Line"]
 			FrameData = Table["Variables"]
-			Runtime.emit_signal("OnBreak", Line)
+			Runtime.ClientBreak(LineBreak)
 	
 
 func OnSnippetStart_Server(InSnippet: SnippetData) -> void:
@@ -299,6 +302,7 @@ func OnBreak_Server(Line: int) -> void:
 
 func Resume() -> void:
 	DispatchToServer(MESSAGE.RESUME, "")
+	Runtime.ClientResume()
 	
 
 func Step() -> void:
@@ -316,4 +320,11 @@ func DispatchLog(Type: int, Contents: String) -> void:
 	}
 	
 	DispatchToClients(MESSAGE.LOG, to_json(Payload))
+	
+
+func GetLineBreak() -> int:
+	if Connection.is_connected_to_host():
+		return LineBreak
+	
+	return Runtime.GetLineBreak()
 	

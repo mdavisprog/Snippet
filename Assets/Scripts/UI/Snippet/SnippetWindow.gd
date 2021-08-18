@@ -104,7 +104,7 @@ func Show(InSnippet: Snippet) -> void:
 	else:
 		OnRuntimeStart()
 		if Runtime.IsPaused():
-			OnRuntimeBreak(Runtime.GetLineBreak())
+			OnRuntimeBreak(Debugger.GetLineBreak())
 	
 	var Bounds: Rect2 = InSnippet.BackgroundNode.GetBounds(InSnippet.global_position)
 	rect_global_position = Vector2(Bounds.end.x, Bounds.position.y)

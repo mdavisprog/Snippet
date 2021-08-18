@@ -252,6 +252,7 @@ func ClientSnippetStart(InSnippet: SnippetData) -> void:
 		return
 	
 	Task.Data = InSnippet
+	Task.Status = Task.STATUS.RUNNING
 	emit_signal("OnSnippetStart", InSnippet)
 	
 
@@ -266,5 +267,21 @@ func ClientSnippetEnd(InSnippet: SnippetData) -> void:
 		return
 	
 	emit_signal("OnSnippetEnd", InSnippet)
+	Task.Status = Task.STATUS.IDLE
 	Task.Data = null
+	
+
+func ClientBreak(Line: int) -> void:
+	if not Task:
+		return
+	
+	Task.Status = Task.STATUS.PAUSED
+	emit_signal("OnBreak", Line)
+	
+
+func ClientResume() -> void:
+	if not Task:
+		return
+	
+	Task.Status = Task.STATUS.RUNNING
 	
