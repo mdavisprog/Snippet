@@ -190,6 +190,13 @@ func OnAutoComplete() -> void:
 	if Keywords.empty():
 		return
 	
+	var Tokens: PoolStringArray = Word.split(".", false)
+	if Word.find(".") != -1:
+		var Key: String = Tokens[Tokens.size() - 2] if Tokens.size() > 2 else Tokens[0]
+		if Symbols.has(Key):
+			Keywords = Symbols[Key].keys()
+			Word = Tokens[Tokens.size() - 1] if Tokens.size() > 1 else ""
+	
 	var Filtered = Array()
 	for I in Keywords:
 		if I == Word:
@@ -207,6 +214,7 @@ func OnAutoComplete() -> void:
 		AutoCompleteWindow.visible = false
 		return
 	
+	AutoCompleteWindow.Token = Word
 	AutoCompleteWindow.List.select(0)
 	
 	var Pos: Vector2 = Editor.GetCursorPos()
@@ -214,7 +222,7 @@ func OnAutoComplete() -> void:
 	
 
 func OnAutoCompleteConfirm(Item: String) -> void:
-	Editor.SetWordAtCursor(Item)
+	var _Result = Editor.ReplaceWordAtCursor(AutoCompleteWindow.Token, Item)
 	
 
 func ToggleRunButtons(Enabled: bool) -> void:

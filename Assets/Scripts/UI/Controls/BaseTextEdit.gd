@@ -132,44 +132,41 @@ func GetLineHeight() -> float:
 	
 	return ThemeFont.get_height() + GetLineSpacing()
 
-func GetWordAtCursorStart() -> int:
-	var Result: PoolIntArray = search(" ", SEARCH_BACKWARDS, cursor_get_line(), cursor_get_column())
-	if not Result:
-		return 0
-	
-	var Line: int = Result[SEARCH_RESULT_LINE]
-	var Col: int = Result[SEARCH_RESULT_COLUMN]
-	
-	if Line != cursor_get_line():
-		# Did not find a space. Check for tab.
-		Result = search("\t", SEARCH_BACKWARDS, cursor_get_line(), cursor_get_column())
-		if not Result:
-			return 0
-		
-		Line = Result[SEARCH_RESULT_LINE]
-		Col = Result[SEARCH_RESULT_COLUMN]
-		
-		if Line != cursor_get_line():
-			return cursor_get_column()
-	
-	return Col + 1
-
 func GetWordAtCursor() -> String:
-	var Line: int = cursor_get_line()
-	var Column: int = GetWordAtCursorStart()
+	var Result = ""
+	var LineNo: int = cursor_get_line()
+	var Column: int = cursor_get_column()
 	
-	select(Line, Column, Line, cursor_get_column())
-	var Result: String = get_selection_text()
-	deselect()
+	var Line: String = get_line(LineNo)
+	if Column < Line.length():
+		Line = Line.left(Column)
+	
+	var Expr = RegEx.new()
+	Expr.compile("\\S+")
+	
+	var Items: Array = Expr.search_all(Line)
+	if Items.size() > 0:
+		Result = Items.back().get_string()
+	
 	return Result
 
-func SetWordAtCursor(Word: String) -> void:
-	var Line: int = cursor_get_line()
-	var Column: int = GetWordAtCursorStart()
+func ReplaceWordAtCursor(Word: String, With: String) -> bool:
+	if Word.empty():
+		insert_text_at_cursor(With)
 	
-	select(Line, Column, Line, cursor_get_column())
-	insert_text_at_cursor(Word)
+	var LineNo: int = cursor_get_line()
+	var Column: int = cursor_get_column()
+	var Result: PoolIntArray = search(Word, SEARCH_BACKWARDS, LineNo, Column)
+	if Result.size() == 0:
+		return false
 	
+	if Result[SEARCH_RESULT_LINE] != LineNo:
+		return false
+	
+	select(LineNo, Result[SEARCH_RESULT_COLUMN], LineNo, cursor_get_column())
+	insert_text_at_cursor(With)
+	
+	return true
 
 func GetKeywords() -> Array:
 	var Result = Array()

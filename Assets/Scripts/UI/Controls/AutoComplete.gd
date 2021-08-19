@@ -38,6 +38,9 @@ enum ACTION {
 	CANCEL
 }
 
+# The current token for which the word will be replaced.
+var Token = ""
+
 # ItemList reference for quick access.
 onready var List: ItemList = $ScrollContainer/ItemList
 
