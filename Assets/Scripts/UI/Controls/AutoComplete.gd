@@ -67,7 +67,7 @@ func _input(event: InputEvent) -> void:
 				KEY_DOWN: Action = ACTION.NAV_DOWN
 				KEY_TAB: Action = ACTION.CONFIRM
 				KEY_ENTER: Action = ACTION.CONFIRM
-				KEY_ESCAPE: Action = ACTION.CANCEL
+				KEY_ESCAPE, KEY_LEFT, KEY_RIGHT: Action = ACTION.CANCEL
 	
 	if Action == ACTION.NONE:
 		return
@@ -90,8 +90,9 @@ func _input(event: InputEvent) -> void:
 	elif Action == ACTION.CANCEL:
 		visible = false
 	
-	# Prevent the focused editor window from handling auto complete input.
-	get_tree().set_input_as_handled()
+	if Action != ACTION.CANCEL:
+		# Prevent the focused editor window from handling auto complete input.
+		get_tree().set_input_as_handled()
 	
 
 func OnItemSelected(Index: int) -> void:
