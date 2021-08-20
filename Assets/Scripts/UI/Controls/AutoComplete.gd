@@ -83,6 +83,7 @@ func _input(event: InputEvent) -> void:
 		Index = clamp(Index, 0, List.get_item_count() - 1)
 		
 		List.select(Index)
+		List.ensure_current_is_visible()
 	elif Action == ACTION.CONFIRM:
 		visible = false
 		emit_signal("OnConfirm", List.get_item_text(Index))
