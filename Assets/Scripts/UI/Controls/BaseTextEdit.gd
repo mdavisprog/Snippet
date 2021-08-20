@@ -279,3 +279,18 @@ func OnHoverWordTimerComplete() -> void:
 	if not Word.empty():
 		emit_signal("OnHoverWord", Word)
 	
+
+func IsCursorInStringLiteral() -> bool:
+	var LineNo: int = cursor_get_line()
+	var Column: int = cursor_get_column()
+	var Line: String = get_line(LineNo)
+	
+	var InString = false
+	var Anchor = 0
+	var Pos = Line.find("\"", Anchor)
+	while Pos != -1 and Anchor < Column and Pos < Column:
+		Anchor = Pos + 1
+		Pos = Line.find("\"", Anchor)
+		InString = not InString
+	
+	return InString

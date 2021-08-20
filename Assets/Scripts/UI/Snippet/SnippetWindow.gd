@@ -179,6 +179,9 @@ func OnCompileComplete(InSnippet: SnippetData, Result: Reference) -> void:
 	
 
 func OnAutoComplete() -> void:
+	if Editor.IsCursorInStringLiteral():
+		return
+	
 	var Word: String = Editor.GetWordAtCursor().to_lower()
 	if Word.empty():
 		AutoCompleteWindow.visible = false
