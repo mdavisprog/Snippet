@@ -32,6 +32,8 @@ SOFTWARE.
 #include "LuaVM.h"
 #include "LuaVMDebugger.h"
 #include "OS.hpp"
+#include "RegEx.hpp"
+#include "RegExMatch.hpp"
 
 #define VM_KEY "__vm"
 
@@ -165,14 +167,41 @@ Ref<LuaCompileResult> LuaVM::Compile(String Source)
 	}
 
 	Result->SetSuccess(luaL_loadstring(State, Source.ascii().get_data()) == LUA_OK);
+
 	// Grab symbols regardless of compilation results.
 	Result->ParseSymbols(State);
-	if (!Result->IsSuccess())
+
+	if (Result->IsSuccess())
+	{
+		Ref<RegEx> Expr = Ref<RegEx>(RegEx::_new());
+		Expr->compile("\\S+\\(");
+		Array Matches = Expr->search_all(Source);
+
+		Array FunctionCalls;
+		for (int I = 0; I < Matches.size(); I++)
+		{
+			Ref<RegExMatch> Match = Matches[I];
+			String Decl = Match->get_string().trim_suffix("(");
+
+			// TODO: Check for member functions. We are only concerned with global functions.
+			// All other functions will cause the runtime to error.
+			if (Decl.find(".") != -1)
+			{
+				continue;
+			}
+			
+			if (!Result->GetSymbols().has(Decl))
+			{
+				FunctionCalls.push_back(Decl);
+			}
+		}
+		Result->SetFunctionCalls(FunctionCalls);
+	}
+	else
 	{
 		Result->GetError()->Parse(lua_tostring(State, -1), LuaError::TYPE::SYNTAX);
 	}
 
-	// Clean the stack.
 	lua_pop(State, 1);
 
 	return Result;

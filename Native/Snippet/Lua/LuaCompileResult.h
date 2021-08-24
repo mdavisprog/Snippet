@@ -57,9 +57,13 @@ public:
 	void SetSymbols(Dictionary InSymbols);
 	Dictionary GetSymbols() const;
 
+	void SetFunctionCalls(PoolStringArray InFunctionCalls);
+	PoolStringArray GetFunctionCalls() const;
+
 private:
 	bool Success;
 	Dictionary Symbols;
+	PoolStringArray FunctionCalls;
 	Ref<LuaError> Error;
 };
 

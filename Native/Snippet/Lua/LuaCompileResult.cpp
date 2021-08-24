@@ -37,6 +37,7 @@ void LuaCompileResult::_register_methods()
 
 	register_property<LuaCompileResult, bool>("Success", &LuaCompileResult::SetSuccess, &LuaCompileResult::IsSuccess, false);
 	register_property<LuaCompileResult, Dictionary>("Symbols", &LuaCompileResult::SetSymbols, &LuaCompileResult::GetSymbols, Dictionary());
+	register_property<LuaCompileResult, PoolStringArray>("FunctionCalls", &LuaCompileResult::SetFunctionCalls, &LuaCompileResult::GetFunctionCalls, PoolStringArray());
 }
 
 LuaCompileResult::LuaCompileResult()
@@ -51,6 +52,7 @@ void LuaCompileResult::_init()
 {
 	Success = false;
 	Symbols = Dictionary();
+	FunctionCalls = PoolStringArray();
 	Error = Ref<LuaError>(LuaError::_new());
 }
 
@@ -89,6 +91,16 @@ void LuaCompileResult::SetSymbols(Dictionary InSymbols)
 Dictionary LuaCompileResult::GetSymbols() const
 {
 	return Symbols;
+}
+
+void LuaCompileResult::SetFunctionCalls(PoolStringArray InFunctionCalls)
+{
+	FunctionCalls = InFunctionCalls;
+}
+
+PoolStringArray LuaCompileResult::GetFunctionCalls() const
+{
+	return FunctionCalls;
 }
 
 }
