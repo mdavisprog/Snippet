@@ -27,6 +27,12 @@ func OnExecute():
 	if not VM:
 		return null
 	
+	var FnNames = Data.Functions.keys()
+	for FnName in FnNames:
+		var Result = VM.DefineFunction(FnName)
+		if not Result.Success:
+			return Result
+	
 	var Name: String = Data.Name
 	var Code: String = Data.Source
 	

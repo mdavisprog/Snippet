@@ -74,7 +74,7 @@ void LuaVM::_register_methods()
 {
 	register_method((char*)"Compile", &LuaVM::Compile);
 	register_method((char*)"Execute", &LuaVM::Execute);
-	register_method((char*)"Call", &LuaVM::Call);
+	register_method((char*)"DefineFunction", &LuaVM::DefineFunction);
 	register_method((char*)"PushArguments", &LuaVM::PushArguments);
 	register_method((char*)"Reset", &LuaVM::Reset);
 	register_method((char*)"Resume", &LuaVM::Resume);
@@ -281,7 +281,7 @@ Ref<LuaResult> LuaVM::Execute(String Source, String Name)
 	return Result;
 }
 
-Ref<LuaResult> LuaVM::Call(String FnName, Variant Args)
+Ref<LuaResult> LuaVM::DefineFunction(String Name)
 {
 	Ref<LuaResult> Result = Ref<LuaResult>(LuaResult::_new());
 
@@ -290,23 +290,11 @@ Ref<LuaResult> LuaVM::Call(String FnName, Variant Args)
 		return Result;
 	}
 
-	int Type = lua_getglobal(State, FnName.ascii().get_data());
-	if (Type != LUA_TFUNCTION)
+	const String Definition = String("function {0}() end").format(Array::make(Name));
+	Result->Success = luaL_dostring(State, Definition.ascii().get_data()) == LUA_OK;
+	if (!Result->Success)
 	{
-		Godot::print_error(FnName.format("Failed to find function {0}.", FnName), "LuaVM::Call", __FILE__, __LINE__);
-		return Result;
-	}
-
-	LuaHelpers::PushVariant(State, Args);
-
-	Result->Success = lua_pcall_handler(State, 1, LUA_MULTRET) == LUA_OK;
-	if (Result->Success)
-	{
-		Result->Results = GetReturnValues(State);
-	}
-	else
-	{
-		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::RUNTIME);
+		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::SYNTAX);
 		lua_pop(State, 1);
 	}
 

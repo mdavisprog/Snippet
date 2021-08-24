@@ -68,7 +68,7 @@ public:
 	void _init();
 	Ref<LuaCompileResult> Compile(String Source);
 	Ref<LuaResult> Execute(String Source, String Name);
-	Ref<LuaResult> Call(String FnName, Variant Args);
+	Ref<LuaResult> DefineFunction(String Name);
 	void PushArguments(Array Args);
 	void Reset();
 	void Resume();
