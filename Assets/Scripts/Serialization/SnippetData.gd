@@ -40,3 +40,19 @@ var Breakpoints = []
 
 # The next Snippet to execute.
 var Next = null
+
+# List of non-standard library function calls. This is used to provide an empty
+# defintion for the function if it is not connected to a snippet.
+var Functions = {}
+
+func ResolveFunctions(List: Array) -> void:
+	var FnNames = Functions.keys()
+	for FnName in FnNames:
+		if List.has(FnName):
+			List.erase(FnName)
+		else:
+			Functions.erase(FnName)
+	
+	for FnName in List:
+		Functions[FnName] = {}
+	

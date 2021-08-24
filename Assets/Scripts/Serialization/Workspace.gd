@@ -402,7 +402,8 @@ func SaveSnippets() -> void:
 		
 		var Entry = {
 			"Next": Item.Next.Name if Item.Next else "",
-			"Breakpoints": Item.Breakpoints
+			"Breakpoints": Item.Breakpoints,
+			"Functions": Item.Functions
 		}
 		
 		PDB[Item.Name] = Entry
@@ -419,10 +420,14 @@ func LoadSnippets() -> void:
 	
 	for Item in Snippets:
 		if PDB.has(Item.Name):
-			Item.Breakpoints = PDB[Item.Name].Breakpoints as PoolIntArray
+			var Entry = PDB[Item.Name]
+			Item.Breakpoints = Entry.Breakpoints as PoolIntArray
+			
+			if Entry.has("Functions"):
+				Item.Functions = Entry.Functions
 			
 			for Next in Snippets:
-				if Next.Name == PDB[Item.Name].Next:
+				if Next.Name == Entry.Next:
 					Item.Next = Next
 					break
 	
