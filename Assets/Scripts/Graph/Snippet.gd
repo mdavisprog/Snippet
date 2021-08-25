@@ -64,7 +64,7 @@ var State = STATE.NORMAL
 
 # The pins used to connect this snippet to others.
 var InputPin: Pin = null
-var OutputPin: Pin = null
+var OutputPins = []
 
 func _ready() -> void:
 	var _Error
@@ -77,7 +77,7 @@ func _ready() -> void:
 		return
 	
 	InputPin = NewPin(Pin.TYPE.INPUT)
-	OutputPin = NewPin()
+	OutputPins.append(NewPin())
 	
 	_Error = Animations.connect("animation_finished", self, "OnAnimationFinished")
 	_Error = Runtime.connect("OnSnippetStart", self, "OnSnippetStart")
@@ -134,8 +134,9 @@ func Update() -> void:
 		if InputPin:
 			InputPin.position = Vector2(Bounds.position.x + Border.x, Y)
 		
-		if OutputPin:
-			OutputPin.position = Vector2(Bounds.end.x - Border.x, Y)
+		for Item in OutputPins:
+			Item.position = Vector2(Bounds.end.x - Border.x, Y)
+			Y += PinSize.y
 	
 
 func OnMouseEntered() -> void:
@@ -175,13 +176,13 @@ func OnPinPressed(InPin: Pin) -> void:
 		return
 	
 	var _Result = null
-	if OutputPin == InPin:
+	if OutputPins.has(InPin):
 		if Connections.Active:
-			_Result = Connections.ConnectTo(OutputPin)
-		elif OutputPin.Connection:
-			Connections.Modify(OutputPin)
+			_Result = Connections.ConnectTo(InPin)
+		elif InPin.Connection:
+			Connections.Modify(InPin)
 		else:
-			Connections.CreateActive(OutputPin)
+			Connections.CreateActive(InPin)
 	elif InputPin == InPin:
 		# Attempting to make a connection.
 		if Connections.Active:
@@ -208,7 +209,7 @@ func Move(Delta: Vector2) -> void:
 	if InputPin:
 		InputPin.Update()
 	
-	if OutputPin:
+	for OutputPin in OutputPins:
 		OutputPin.Update()
 	
 
@@ -218,25 +219,24 @@ func RemovePin(Type: int) -> void:
 		InputPin.queue_free()
 		InputPin = null
 	elif Type == Pin.TYPE.OUTPUT:
-		BackgroundNode.remove_child(OutputPin)
-		OutputPin.queue_free()
-		OutputPin = null
+		# TODO: Should pass an index or the pin reference.
+		pass
 	
 
 func GetPinSize() -> Vector2:
 	if InputPin:
 		return InputPin.GetSize()
 	
-	if OutputPin:
-		return OutputPin.GetSize()
+	if OutputPins.size() > 0:
+		return OutputPins[0].GetSize()
 	
 	return Vector2.ZERO
 
 func GetNextSnippet() -> Snippet:
-	if not OutputPin:
+	if OutputPins.size() == 0:
 		return null
 	
-	var Connection: PinConnection = OutputPin.Connection
+	var Connection: PinConnection = OutputPins[0].Connection
 	
 	if not Connection:
 		return null
@@ -253,7 +253,9 @@ func Destroy() -> void:
 		return
 	
 	Connections.Disconnect(InputPin)
-	Connections.Disconnect(OutputPin)
+	
+	for OutputPin in OutputPins:
+		Connections.Disconnect(OutputPin)
 	
 	if not Data:
 		return
@@ -313,3 +315,21 @@ func SetData(InData: SnippetData) -> void:
 		TextHash = ""
 		SetTitle("Empty")
 	
+
+func ConnectTo(InSnippet: Snippet) -> bool:
+	if OutputPins.size() == 0:
+		return false
+	
+	if not InSnippet or not InSnippet.InputPin:
+		return false
+	
+	var Connections: ConnectionManager = get_node_or_null(Utility.CONNECTIONS)
+	if not Connections:
+		return false
+	
+	Connections.CreateActive(OutputPins[0])
+	if not Connections.ConnectTo(InSnippet.InputPin):
+		Connections.DestroyActive()
+		return false
+	
+	return true

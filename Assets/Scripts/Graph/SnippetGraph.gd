@@ -258,7 +258,7 @@ func Load() -> void:
 		if Item.Data.Next:
 			for Next in List:
 				if Item.Data.Next == Next.Data:
-					var _Result = Connections.ConnectSnippets(Item, Next)
+					var _Result = Item.ConnectTo(Next)
 					break
 	
 
