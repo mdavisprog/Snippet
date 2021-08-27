@@ -3,6 +3,7 @@
 [ext_resource path="res://Assets/Scripts/Graph/PinConnection.gd" type="Script" id=1]
 
 [node name="PinConnection" type="Node2D"]
+scale = Vector2( 0.35, 0.35 )
 z_index = -1
 z_as_relative = false
 script = ExtResource( 1 )

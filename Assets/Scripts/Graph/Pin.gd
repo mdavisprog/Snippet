@@ -46,6 +46,7 @@ export(Rect2) var Normal: Rect2
 export(Rect2) var Hovered: Rect2
 export(Rect2) var Filled_Normal: Rect2
 export(Rect2) var Filled_Hovered: Rect2
+export(float) var TextureScale = 0.35 setget SetTextureScale
 
 # The current state of the pin, determined by connection status and mouse hover.
 var State = STATES.NORMAL
@@ -55,6 +56,13 @@ var Connection: PinConnection = null setget SetConnection
 
 # The type of pin this pin is. Default is output.
 var Type = TYPE.OUTPUT
+
+# Text rendered to display a label for this given pin.
+onready var Name: Label2D = $Name
+
+func _ready() -> void:
+	var _Error = Name.connect("TextChanged", self, "OnNameChange")
+	
 
 func _draw() -> void:
 	if not States:
@@ -68,8 +76,8 @@ func _draw() -> void:
 		_:
 			Region = Filled_Normal if Filled else Normal
 	
-	var Size: Vector2 = States.get_size()
-	draw_texture_rect_region(States, Rect2(Vector2.ZERO + Size * -0.5, States.get_size()), Region)
+	var Size: Vector2 = States.get_size() * TextureScale
+	draw_texture_rect_region(States, Rect2(Vector2.ZERO + Size * -0.5, Size), Region)
 	
 
 func _input(event: InputEvent) -> void:
@@ -118,3 +126,28 @@ func Update() -> void:
 func GetSnippet():
 	# Pin -> Background -> Snippet
 	return get_parent().get_parent()
+
+func SetTextureScale(Value: float) -> void:
+	TextureScale = Value
+	update()
+	
+
+func OnNameChange(_Value: String) -> void:
+	var NameSize: Vector2 = Name.GetSize()
+	var Size: Vector2 = GetSize()
+	Name.position = Vector2(NameSize.x * -0.5 - Size.x, NameSize.y * -0.5 + Size.y * 0.5)
+	update()
+	
+
+func SetName(Value: String) -> void:
+	if not Name:
+		return
+	
+	if Type == TYPE.INPUT:
+		return
+	
+	Name.SetText(Value)
+	
+
+func GetName() -> String:
+	return Name.Text

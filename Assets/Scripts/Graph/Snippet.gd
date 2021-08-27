@@ -121,10 +121,27 @@ func SetBorder(Value: Vector2) -> void:
 	
 
 func Update() -> void:
+	if Data:
+		var FnNames: Array = Data.Functions.keys()
+		for FnName in FnNames:
+			if not HasOutputPin(FnName):
+				OutputPins.append(NewPin(Pin.TYPE.OUTPUT, FnName))
+		
+		var ToRemove = []
+		for OutputPin in OutputPins:
+			if not FnNames.has(OutputPin.GetName()):
+				ToRemove.append(OutputPin.GetName())
+		
+		for FnName in ToRemove:
+			var _Result = RemoveOutputPin(FnName)
+	
 	if TitleNode:
 		var PinSize: Vector2 = GetPinSize()
 		var Size: Vector2 = TitleNode.GetSize()
-		BackgroundNode.SetSize(Size + Border + Vector2(0, PinSize.y))
+		
+		var PinCount = max(1.0, OutputPins.size())
+		var BgSize = Size + Border + Vector2(0.0, PinSize.y * PinCount)
+		BackgroundNode.SetSize(BgSize)
 		
 		var Bounds: Rect2 = BackgroundNode.GetBounds()
 		TitleNode.position = Vector2(0, Bounds.position.y + Size.y)
@@ -193,7 +210,7 @@ func OnPinPressed(InPin: Pin) -> void:
 			Connections.CreateActive(InputPin)
 	
 
-func NewPin(Type := Pin.TYPE.OUTPUT) -> Pin:
+func NewPin(Type := Pin.TYPE.OUTPUT, Name := "") -> Pin:
 	if not PinScene:
 		return null
 	
@@ -201,7 +218,15 @@ func NewPin(Type := Pin.TYPE.OUTPUT) -> Pin:
 	Result.Type = Type
 	var _Error = Result.connect("OnPressed", self, "OnPinPressed")
 	BackgroundNode.add_child(Result)
+	Result.SetName(Name)
 	return Result
+
+func HasOutputPin(Name: String) -> bool:
+	for OutputPin in OutputPins:
+		if OutputPin.GetName() == Name:
+			return true
+	
+	return false
 
 func Move(Delta: Vector2) -> void:
 	position += Delta
@@ -213,15 +238,29 @@ func Move(Delta: Vector2) -> void:
 		OutputPin.Update()
 	
 
-func RemovePin(Type: int) -> void:
+func RemovePin(Type: int, Index := 0) -> void:
 	if Type == Pin.TYPE.INPUT:
 		BackgroundNode.remove_child(InputPin)
 		InputPin.queue_free()
 		InputPin = null
 	elif Type == Pin.TYPE.OUTPUT:
-		# TODO: Should pass an index or the pin reference.
-		pass
+		var OutputPin: Pin = OutputPins[Index]
+		OutputPins.remove(Index)
+		BackgroundNode.remove_child(OutputPin)
+		OutputPin.queue_free()
 	
+
+func RemoveOutputPin(Name: String) -> bool:
+	if Name.empty():
+		return false
+	
+	for I in range(OutputPins.size()):
+		var OutputPin: Pin = OutputPins[I]
+		if OutputPin.GetName() == Name:
+			RemovePin(Pin.TYPE.OUTPUT, I)
+			return true
+	
+	return false
 
 func GetPinSize() -> Vector2:
 	if InputPin:

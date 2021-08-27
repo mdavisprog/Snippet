@@ -173,6 +173,7 @@ func OnCompileComplete(InSnippet: SnippetData, Result: Reference) -> void:
 	
 	Symbols = Result.Symbols
 	This.Data.ResolveFunctions(Result.FunctionCalls)
+	This.Update()
 	
 	SetError(Result)
 	ToggleRunButtons(Result.Success and not Runtime.IsRunning())
