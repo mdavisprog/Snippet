@@ -17,3 +17,4 @@ Filled_Hovered = Rect2( 20, 32, 20, 32 )
 position = Vector2( -19, 16 )
 script = ExtResource( 3 )
 FontRef = ExtResource( 4 )
+MaxWidth = 75.0

@@ -38,10 +38,19 @@ export(Font) var FontRef: Font
 # The text to render.
 export(String) var Text: String setget SetText
 
+# The maximum width allowed for this label. If non-zero, will ensure the
+# text fits within the specified width. If not, the text will be rendered with
+# a shortened version of the text.
+export(float) var MaxWidth = 0.0 setget SetMaxWidth
+
+# The visual rendering of the text. Stored for quick access when querying for
+# the size of this label.
+var Visual = ""
+
 func _draw() -> void:
 	if FontRef:
-		var Size: Vector2 = FontRef.get_string_size(Text)
-		draw_string(FontRef, Vector2(Size.x * -0.5, 0.0), Text)
+		var Size: Vector2 = FontRef.get_string_size(Visual)
+		draw_string(FontRef, Vector2(Size.x * -0.5, 0.0), Visual)
 	
 
 func SetFont(Value: Font) -> void:
@@ -65,6 +74,7 @@ func OnFontChanged() -> void:
 
 func SetText(Value: String) -> void:
 	Text = Value
+	UpdateVisualText()
 	emit_signal("TextChanged", Text)
 	update()
 	
@@ -77,4 +87,35 @@ func GetSize() -> Vector2:
 		return Vector2.ZERO
 	
 	return FontRef.get_string_size(Text)
+
+func GetVisualSize() -> Vector2:
+	if not FontRef:
+		return Vector2.ZERO
+	
+	if Visual.empty():
+		return Vector2.ZERO
+	
+	return FontRef.get_string_size(Visual)
+
+func UpdateVisualText() -> void:
+	Visual = Text
+	
+	if not FontRef:
+		return
+	
+	var Size: Vector2 = FontRef.get_string_size(Text)
+	if MaxWidth > 0.0 and Size.x > MaxWidth:
+		Visual = ""
+		var DotSize: Vector2 = FontRef.get_string_size("...")
+		for I in range(Text.length()):
+			Visual += Text[I]
+			Size = FontRef.get_string_size(Visual)
+			if Size.x + DotSize.x >= MaxWidth:
+				Visual += "..."
+				break
+	
+
+func SetMaxWidth(Value: float) -> void:
+	MaxWidth = Value
+	SetText(Text)
 	
