@@ -105,7 +105,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 
 func GetSize() -> Vector2:
-	return Normal.size
+	return Normal.size + Vector2(Name.GetVisualSize().x, 0.0)
 
 func SetConnection(Value: PinConnection) -> void:
 	if Connection != Value:
@@ -134,7 +134,7 @@ func SetTextureScale(Value: float) -> void:
 
 func OnNameChange(_Value: String) -> void:
 	var NameSize: Vector2 = Name.GetVisualSize()
-	var Size: Vector2 = GetSize()
+	var Size: Vector2 = Normal.size
 	Name.position = Vector2(NameSize.x * -0.5 - Size.x, NameSize.y * -0.5 + Size.y * 0.5)
 	update()
 	

@@ -136,11 +136,16 @@ func Update() -> void:
 			var _Result = RemoveOutputPin(FnName)
 	
 	if TitleNode:
-		var PinSize: Vector2 = GetPinSize()
 		var Size: Vector2 = TitleNode.GetSize()
 		
+		var PinSize = Vector2.ZERO
+		for OutputPin in OutputPins:
+			var OPSize: Vector2 = OutputPin.GetSize()
+			PinSize.x = max(PinSize.x, OPSize.x)
+			PinSize.y = OPSize.y
+		
 		var PinCount = max(1.0, OutputPins.size())
-		var BgSize = Size + Border + Vector2(0.0, PinSize.y * PinCount)
+		var BgSize = Size + Border + Vector2(PinSize.x, PinSize.y * PinCount)
 		BackgroundNode.SetSize(BgSize)
 		
 		var Bounds: Rect2 = BackgroundNode.GetBounds()
@@ -261,15 +266,6 @@ func RemoveOutputPin(Name: String) -> bool:
 			return true
 	
 	return false
-
-func GetPinSize() -> Vector2:
-	if InputPin:
-		return InputPin.GetSize()
-	
-	if OutputPins.size() > 0:
-		return OutputPins[0].GetSize()
-	
-	return Vector2.ZERO
 
 func GetNextSnippet() -> Snippet:
 	if OutputPins.size() == 0:
