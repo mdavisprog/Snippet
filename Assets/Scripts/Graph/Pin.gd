@@ -83,7 +83,7 @@ func _draw() -> void:
 func _input(event: InputEvent) -> void:
 	var Motion = event as InputEventMouseMotion
 	if Motion:
-		var Size: Vector2 = States.get_size() * scale
+		var Size: Vector2 = States.get_size() * TextureScale
 		var Bounds = Rect2(global_position + Size * -0.5, Size)
 		var New = State
 		if Bounds.has_point(Motion.global_position):
