@@ -8,10 +8,12 @@
 [node name="Pin" type="Node2D"]
 script = ExtResource( 1 )
 States = ExtResource( 2 )
-Normal = Rect2( 0, 0, 19, 32 )
-Hovered = Rect2( 20, 0, 20, 32 )
-Filled_Normal = Rect2( 0, 32, 19, 32 )
-Filled_Hovered = Rect2( 20, 32, 20, 32 )
+Normal = Rect2( 20, 0, 19, 32 )
+Hovered = Rect2( 40, 0, 20, 32 )
+Disabled = Rect2( 0, 0, 20, 32 )
+Filled_Normal = Rect2( 20, 32, 19, 32 )
+Filled_Hovered = Rect2( 40, 32, 20, 32 )
+Filled_Disabled = Rect2( 0, 32, 20, 32 )
 
 [node name="Name" type="Node2D" parent="."]
 position = Vector2( -19, 16 )

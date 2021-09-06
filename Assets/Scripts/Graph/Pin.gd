@@ -36,16 +36,17 @@ signal OnPressed(InPin)
 enum STATES {
 	NORMAL,
 	HOVERED,
-	FILLED_NORMAL,
-	FILLED_HOVERED
+	DISABLED
 }
 
 # The texture used to render the different pin states.
 export(Texture) var States: Texture
 export(Rect2) var Normal: Rect2
 export(Rect2) var Hovered: Rect2
+export(Rect2) var Disabled: Rect2
 export(Rect2) var Filled_Normal: Rect2
 export(Rect2) var Filled_Hovered: Rect2
+export(Rect2) var Filled_Disabled: Rect2
 export(float) var TextureScale = 0.35 setget SetTextureScale
 
 # The current state of the pin, determined by connection status and mouse hover.
@@ -71,6 +72,8 @@ func _draw() -> void:
 	var Filled = is_instance_valid(Connection)
 	var Region = Rect2()
 	match (State):
+		STATES.DISABLED:
+			Region = Filled_Disabled if Filled else Disabled
 		STATES.HOVERED:
 			Region = Filled_Hovered if Filled else Hovered
 		_:
@@ -82,7 +85,7 @@ func _draw() -> void:
 
 func _input(event: InputEvent) -> void:
 	var Motion = event as InputEventMouseMotion
-	if Motion:
+	if Motion and not IsDisabled():
 		var Size: Vector2 = States.get_size() * TextureScale
 		var Bounds = Rect2(global_position + Size * -0.5, Size)
 		var New = State
@@ -151,3 +154,13 @@ func SetName(Value: String) -> void:
 
 func GetName() -> String:
 	return Name.Text
+
+func SetDisabled(Value: bool) -> void:
+	if Value:
+		State = STATES.DISABLED
+	else:
+		State = STATES.NORMAL
+	
+
+func IsDisabled() -> bool:
+	return State == STATES.DISABLED
