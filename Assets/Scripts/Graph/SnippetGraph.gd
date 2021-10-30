@@ -269,5 +269,5 @@ func Clear() -> void:
 	
 	var Snippets: Array = get_tree().get_nodes_in_group("Snippet")
 	for Item in Snippets:
-		Item.queue_free()
+		Item.Destroy()
 	
