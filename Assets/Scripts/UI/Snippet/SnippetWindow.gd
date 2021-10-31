@@ -132,6 +132,7 @@ func OnAction(Action: int) -> void:
 			else:
 				Launched = Debugger.Launch(This.Data.Name)
 		SnippetToolbar.ACTION.STOP:
+			Toolbar.SetResume(false)
 			Debugger.Stop()
 			Editor.ClearLineStates()
 	
