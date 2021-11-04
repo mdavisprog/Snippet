@@ -154,20 +154,23 @@ func _unhandled_input(event: InputEvent) -> void:
 				emit_signal("OnOperation", PHASES.END, OPS.TRANSLATE_GRAPH_CANCEL)
 	
 
-func AddSnippet(ScreenPosition: Vector2, Emit := true) -> Snippet:
+func AddSnippet(Position: Vector2, Emit := true) -> Snippet:
 	if not SnippetScene:
 		push_warning("No Snippet scene specified for instancing.")
 		return null
 	
 	var Result: Snippet = SnippetScene.instance()
 	add_child(Result)
-	Result.position = to_local(ScreenPosition)
+	Result.position = Position
 	
 	if Emit:
 		emit_signal("OnAddSnippet", Result)
 	
 	return Result
 	
+
+func AddSnippetScreen(ScreenPosition: Vector2, Emit := true) -> Snippet:
+	return AddSnippet(to_local(ScreenPosition), Emit)
 
 func CreateMainSnippet() -> void:
 	if MainSnippet:

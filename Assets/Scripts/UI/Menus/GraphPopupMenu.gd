@@ -37,5 +37,5 @@ func OnPressed(Id: int) -> void:
 	match (Id):
 		New_Function:
 			var SnippetGraphNode: SnippetGraph = get_node(Utility.GRAPH)
-			var _Item: Snippet = SnippetGraphNode.AddSnippet(get_global_mouse_position())
+			var _Item: Snippet = SnippetGraphNode.AddSnippetScreen(get_global_mouse_position())
 	
