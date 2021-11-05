@@ -9,6 +9,6 @@
 script = ExtResource( 1 )
 SnippetScene = ExtResource( 2 )
 
-[node name="Connections" type="Node" parent="."]
+[node name="Connections" type="Node2D" parent="."]
 script = ExtResource( 3 )
 ConnectionScene = ExtResource( 4 )

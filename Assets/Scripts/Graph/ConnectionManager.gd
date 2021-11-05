@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 class_name ConnectionManager
-extends Node
+extends Node2D
 
 # Node to manage any active connections in the workspace.
 
@@ -44,15 +44,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var MouseButton = event as InputEventMouseButton
 	if MouseButton:
 		if MouseButton.pressed and Active:
-			# Notify the connection of the Pin that is associated with this
-			# connection.
-			var Parent = Active.get_parent() as Pin
-			if Parent:
-				Parent.Connection = null
-				Parent.update()
-			
-			Active.queue_free()
-			Active = null
+			DestroyActive()
 	
 
 func CreateConnection(Parent: Pin) -> PinConnection:
@@ -66,9 +58,15 @@ func CreateConnection(Parent: Pin) -> PinConnection:
 		return null
 	
 	if Parent:
-		Parent.add_child(Result)
 		Parent.Connection = Result
+		
+		if Parent.Type == Pin.TYPE.INPUT:
+			Result.EndPin = Parent
+		else:
+			Result.StartPin = Parent
 	
+	add_child(Result)
+	Result.End = get_global_mouse_position()
 	return Result
 
 func CreateActive(Parent: Pin) -> void:
@@ -82,8 +80,23 @@ func DestroyActive() -> void:
 	if not Active:
 		return
 	
-	Active.queue_free()
+	DestroyConnection(Active)
 	Active = null
+	
+
+func DestroyConnection(Connection: PinConnection) -> void:
+	if not Connection:
+		return
+	
+	remove_child(Connection)
+	
+	if Connection.StartPin:
+		Connection.StartPin.Connection = null
+	
+	if Connection.EndPin:
+		Connection.EndPin.Connection = null
+	
+	Connection.queue_free()
 	
 
 func CanConnect(A: Pin, B: Pin) -> bool:
@@ -106,26 +119,25 @@ func ConnectTo(InPin: Pin) -> bool:
 	if not Active:
 		return false
 	
-	var Parent = Active.get_parent() as Pin
-	if not Parent:
+	var From: Pin = Active.StartPin if Active.StartPin else Active.EndPin
+	if not From:
 		return false
 	
-	if not CanConnect(Parent, InPin):
-		return false
-	
-	var From: Pin = Parent
 	var To: Pin = InPin
+	if not CanConnect(From, To):
+		return false
+	
+	Disconnect(InPin)
 	
 	if InPin.Type == Pin.TYPE.OUTPUT:
+		To = From
 		From = InPin
-		To = Parent
-		Parent.remove_child(Active)
-		InPin.add_child(Active)
-		InPin.Connection = Active
-		InPin = Parent
 	
-	InPin.Connection = Active
-	Active.EndPin = InPin
+	From.Connection = Active
+	To.Connection = Active
+	
+	Active.StartPin = From
+	Active.EndPin = To
 	Active = null
 	
 	From.GetSnippet().Data.Next = To.GetSnippet().Data
@@ -148,18 +160,19 @@ func Modify(InPin: Pin) -> void:
 	Active = InPin.Connection
 	Active.HaltAnimation()
 	
-	var Out: Pin = Active.get_parent()
-	# Reparent before setting End position to prevent flickering.
-	if InPin.Type == Pin.TYPE.OUTPUT:
-		Out = InPin
-		InPin.remove_child(Active)
-		Active.EndPin.add_child(Active)
+	var Out: Pin = Active.StartPin
+	var End: Pin = Active.EndPin
 	
 	Out.GetSnippet().Data.Next = null
 	
-	Active.EndPin = null
+	if InPin.Type != Pin.TYPE.INPUT:
+		Out.Connection = null
+		Active.StartPin = null
+	else:
+		End.Connection = null
+		Active.EndPin = null
+	
 	Active.End = Active.get_global_mouse_position()
-	InPin.Connection = null
 	
 
 func Disconnect(InPin: Pin) -> void:
@@ -169,20 +182,12 @@ func Disconnect(InPin: Pin) -> void:
 	if not InPin.Connection:
 		return
 	
-	var Out: Pin = InPin
-	if InPin.Type == Pin.TYPE.OUTPUT:
-		if InPin.Connection.EndPin:
-			InPin.Connection.EndPin.Connection = null
-	else:
-		var Other = InPin.Connection.get_parent() as Pin
-		if Other:
-			Out = Other
-			Other.Connection = null
+	var Conn: PinConnection = InPin.Connection
+	var From: Pin = Conn.StartPin
 	
-	Out.GetSnippet().Data.Next = null
+	From.GetSnippet().Data.Next = null
 	
-	InPin.Connection.queue_free()
-	InPin.Connection = null
+	DestroyConnection(Conn)
 	
 
 func ConnectSnippets(A, B) -> bool:

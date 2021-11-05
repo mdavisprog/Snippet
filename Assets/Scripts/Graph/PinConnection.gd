@@ -26,6 +26,10 @@ extends Node2D
 # Represents a curve connecting snippets together through pins. This manages the
 # rendering of the curve which requires some conversions between node spaces.
 
+# The pin this connection starts from. This should be the OutputPin of a snippet.
+# No type is specified here due to GDScript cyclic references.
+var StartPin = null setget SetStartPin
+
 # The pin this connection is connected to. This should be the InputPin of a snippet.
 # No type is specified here due to GDScript cyclic references.
 var EndPin = null setget SetEndPin
@@ -49,9 +53,10 @@ var SpacingTime = 0.0
 var IsPlaying = false
 
 func _draw() -> void:
+	var Start = End if not StartPin else to_local(StartPin.global_position)
 	var Dest = End if not EndPin else to_local(EndPin.global_position)
 	Data.clear_points()
-	Data.add_point(Vector2.ZERO, Vector2.ZERO, Vector2(350.0, 0.0))
+	Data.add_point(Start, Vector2.ZERO, Vector2(350.0, 0.0))
 	Data.add_point(Dest, Vector2(-350.0, 0.0), Vector2.ZERO)
 	
 	draw_polyline(Data.get_baked_points(), Color.whitesmoke, 5.0, true)
@@ -73,6 +78,11 @@ func _process(delta: float) -> void:
 		if SpacingTime >= Spacing: SpacingTime = 0.0
 		update()
 	
+
+func SetStartPin(Value) -> void:
+	if StartPin != Value:
+		StartPin = Value
+		update()
 
 func SetEndPin(Value) -> void:
 	if EndPin != Value:
