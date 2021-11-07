@@ -165,8 +165,11 @@ func FinishSnippet(InSnippet: SnippetData, GoToNext := true) -> void:
 		SkipBP = Task.ShouldSkipBreakpoints()
 		Task = null
 	
-	if not Result.Success:
-		Log.Error("Failed to execute snippet '" + InSnippet.Name + "'.\n" + Result.GetError().Contents)
+	if not Result.Success():
+		if Result.Stopped():
+			Log.Info("Execution stopped.")
+		else:
+			Log.Error("Failed to execute snippet '" + InSnippet.Name + "'.\n" + Result.GetError().Contents)
 		GoToNext = false
 	
 	emit_signal("OnSnippetEnd", InSnippet)

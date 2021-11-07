@@ -38,15 +38,24 @@ class LuaResult : public Reference
 	GODOT_CLASS(LuaResult, Reference)
 
 public:
+	enum class STATUS
+	{
+		OK,
+		STOPPED,
+		ERROR
+	};
+
 	static void _register_methods();
 
 	LuaResult();
 	~LuaResult();
 
 	void _init();
+	bool Success() const;
+	bool Stopped() const;
 	Ref<LuaError> GetError() const;
 
-	bool Success;
+	STATUS Status;
 	Array Results;
 
 	// https://github.com/godotengine/godot-cpp/issues/417

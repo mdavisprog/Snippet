@@ -197,8 +197,9 @@ Ref<LuaResult> LuaVM::Execute(String Source, String Name)
 	ShouldResume = false;
 
 	// Here, we will catch any syntax errors.
-	Result->Success = luaL_loadbuffer(State, Source.ascii().get_data(), Source.ascii().length(), Name.ascii().get_data()) == LUA_OK;
-	if (!Result->Success)
+	Result->Status = luaL_loadbuffer(State, Source.ascii().get_data(), Source.ascii().length(), Name.ascii().get_data()) == LUA_OK
+		? LuaResult::STATUS::OK : LuaResult::STATUS::ERROR;
+	if (!Result->Success())
 	{
 		Result->Error->Parse(lua_tostring(State, -1), LuaError::TYPE::SYNTAX);
 		lua_pop(State, 1);
@@ -235,14 +236,23 @@ Ref<LuaResult> LuaVM::Execute(String Source, String Name)
 
 	} while (Ret == LUA_YIELD);
 
-	Result->Success = Ret == LUA_OK;
-	if (Result->Success)
+	Result->Status = Ret == LUA_OK ? LuaResult::STATUS::OK : LuaResult::STATUS::ERROR;
+	if (Result->Success())
 	{
 		Result->Results = GetReturnValues(Coroutine);
 	}
 	else
 	{
-		Result->Error->Parse(lua_tostring(Coroutine, -1), LuaError::TYPE::RUNTIME);
+		// Look for 'Shutdown' message.
+		String Contents = lua_tostring(Coroutine, -1);
+		if (Contents == "Shutdown")
+		{
+			Result->Status = LuaResult::STATUS::STOPPED;
+		}
+		else
+		{
+			Result->Error->Parse(Contents, LuaError::TYPE::RUNTIME);
+		}
 		lua_pop(State, 1);
 	}
 
@@ -270,8 +280,8 @@ Ref<LuaResult> LuaVM::Call(String FnName, Variant Args)
 
 	LuaHelpers::PushVariant(State, Args);
 
-	Result->Success = lua_pcall_handler(State, 1, LUA_MULTRET) == LUA_OK;
-	if (Result->Success)
+	Result->Status = lua_pcall_handler(State, 1, LUA_MULTRET) == LUA_OK ? LuaResult::STATUS::OK : LuaResult::STATUS::ERROR;
+	if (Result->Success())
 	{
 		Result->Results = GetReturnValues(State);
 	}
