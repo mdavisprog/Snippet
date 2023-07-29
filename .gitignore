@@ -1,12 +1,1 @@
-.import/
-*.translation
-export_presets.cfg
-.mono/
-*.tpz
-bin/
-Native/bin
-Native/Build
-*.manifest
-*.dll
-*.dylib
-*.so
+

@@ -1,8 +1,0 @@
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://Assets/Scripts/Language/SyntaxColor.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-Highlight = Color( 0.63, 0.1386, 0.1386, 1 )
-Keywords = PoolStringArray( "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while" )
