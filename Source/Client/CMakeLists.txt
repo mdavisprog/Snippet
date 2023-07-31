@@ -1,5 +1,7 @@
 set(TARGET CLIENT)
 
+find_package(OctaneGUI REQUIRED)
+
 add_executable(${TARGET} Main.cpp)
 
 set_target_properties(
@@ -7,3 +9,15 @@ set_target_properties(
     PROPERTIES
     RUNTIME_OUTPUT_NAME Snippet
 )
+
+target_include_directories(
+    ${TARGET}
+    PRIVATE ${OctaneGUI_INCLUDE_DIRS}
+)
+
+target_link_libraries(
+    ${TARGET}
+    ${OctaneGUI_LIBRARIES}
+)
+
+file(COPY ${OctaneGUI_RESOURCES_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
