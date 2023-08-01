@@ -5,9 +5,6 @@
 
 int main(int argc, char** argv)
 {
-    (void)argc;
-    (void)argv;
-
     const char* Json = R"({
     "Theme": "Resources/Themes/Dark.json",
     "Windows": {
@@ -22,7 +19,9 @@ int main(int argc, char** argv)
     Frontend::Initialize(Application);
 
     std::unordered_map<std::string, OctaneGUI::ControlList> Controls;
-    Application.Initialize(Json, Controls);
+    Application
+        .SetCommandLine(argc, argv)
+        .Initialize(Json, Controls);
 
     return Application.Run();
 }
