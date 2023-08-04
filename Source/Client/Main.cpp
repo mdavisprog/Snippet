@@ -14,7 +14,11 @@ int main(int argc, char** argv)
                     {"Text": "Quit", "ID": "Quit"}
                 ]}
             ]},
-            "Body": {"Controls": []}
+            "Body": {"Controls": [
+                {"Type": "MarginContainer", "Expand": "Both", "Margins": [4, 4, 4, 4], "Controls": [
+                    {"Type": "Canvas", "Expand": "Both", "BackgroundColor": [96, 96, 96, 255]}
+                ]}
+            ]}
         }
     }
 })";
