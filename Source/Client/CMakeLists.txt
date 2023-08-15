@@ -2,7 +2,12 @@ set(TARGET CLIENT)
 
 find_package(OctaneGUI REQUIRED)
 
-add_executable(${TARGET} Main.cpp)
+set(SOURCE
+    Controls/ConnectionButton.cpp
+    Main.cpp
+)
+
+add_executable(${TARGET} ${SOURCE})
 
 set_target_properties(
     ${TARGET}
@@ -21,3 +26,4 @@ target_link_libraries(
 )
 
 file(COPY ${OctaneGUI_RESOURCES_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/Resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
