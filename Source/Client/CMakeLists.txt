@@ -12,7 +12,7 @@ add_executable(${TARGET} ${SOURCE})
 set_target_properties(
     ${TARGET}
     PROPERTIES
-    RUNTIME_OUTPUT_NAME Snippet
+    RUNTIME_OUTPUT_NAME SnippetClient
 )
 
 target_include_directories(
