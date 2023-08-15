@@ -7,6 +7,4 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-if(BUILD_CLIENT)
-    add_subdirectory(Client)
-endif()
+add_subdirectory(Client)
