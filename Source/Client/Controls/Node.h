@@ -24,29 +24,53 @@ SOFTWARE.
 
 */
 
-#include "Canvas.h"
-#include "Node.h"
-#include "OctaneGUI/OctaneGUI.h"
+#pragma once
+
+#include "OctaneGUI/Controls/HorizontalContainer.h"
+
+namespace OctaneGUI
+{
+class Text;
+class TextInput;
+}
 
 namespace Snippet
 {
 namespace Controls
 {
 
-Canvas::Canvas(OctaneGUI::Window* Window)
-    : OctaneGUI::Canvas(Window)
+class Node : public OctaneGUI::Container
 {
-    SetOnCreateContextMenu([this](OctaneGUI::Control&, const std::shared_ptr<OctaneGUI::Menu>& ContextMenu) -> void
-        {
-            ContextMenu->AddItem("New Snippet", [this]() -> void
-                {
-                    const std::shared_ptr<Node> Node_ = Scrollable()->AddControl<Node>();
-                    Node_
-                        ->EditName()
-                        .SetPosition(GetWindow()->GetMousePosition());
-                });
-        });
-}
+    CLASS(Snippet.Node)
+
+public:
+    Node(OctaneGUI::Window* Window);
+
+    Node& SetName(const char32_t* Name);
+    Node& EditName();
+    const char32_t* Name() const;
+
+private:
+    class Header : public OctaneGUI::HorizontalContainer
+    {
+    public:
+        Header(OctaneGUI::Window* Window);
+
+        Header& Set(const char32_t* Value);
+        Header& Edit();
+        const char32_t* Value() const;
+    
+    private:
+        Header& FinishEdit();
+
+        std::shared_ptr<OctaneGUI::Text> m_Label { nullptr };
+        std::shared_ptr<OctaneGUI::TextInput> m_Input { nullptr };
+    };
+
+    void Resize();
+
+    std::shared_ptr<Header> m_Header { nullptr };
+};
 
 }
 }
