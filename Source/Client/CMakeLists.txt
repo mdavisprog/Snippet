@@ -3,6 +3,7 @@ set(TARGET CLIENT)
 find_package(OctaneGUI REQUIRED)
 
 set(SOURCE
+    Controls/Canvas.cpp
     Controls/ConnectionButton.cpp
     Main.cpp
 )

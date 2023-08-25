@@ -24,6 +24,7 @@ SOFTWARE.
 
 */
 
+#include "Controls/Canvas.h"
 #include "Controls/ConnectionButton.h"
 #include "Frontend.h"
 #include "OctaneGUI/OctaneGUI.h"
@@ -44,7 +45,7 @@ int main(int argc, char** argv)
             "Body": {"Controls": [
                 {"Type": "MarginContainer", "Expand": "Both", "Margins": [4, 4, 4, 4], "Controls": [
                     {"Type": "VerticalContainer", "Expand": "Both", "Controls": [
-                        {"Type": "Canvas", "ID": "Canvas", "Expand": "Both", "BackgroundColor": [96, 96, 96, 255]},
+                        {"Type": "Snippet.Canvas", "ID": "Canvas", "Expand": "Both", "BackgroundColor": [96, 96, 96, 255]},
                         {"Type": "HorizontalContainer", "Expand": "Width", "Controls": [
                             {"Type": "MarginContainer", "Expand": "Both", "Controls": [
                                 {"Type": "Panel", "Expand": "Both"},
@@ -63,6 +64,15 @@ int main(int argc, char** argv)
 
     std::unordered_map<std::string, OctaneGUI::ControlList> Controls;
     Application
+        .SetOnCreateControl([](OctaneGUI::Container* Owner, const std::string& Type) -> std::shared_ptr<OctaneGUI::Control>
+            {
+                if (Type == Snippet::Controls::Canvas::TypeName())
+                {
+                    return Owner->AddControl<Snippet::Controls::Canvas>();
+                }
+
+                return nullptr;
+            })
         .SetCommandLine(argc, argv)
         .Initialize(Json, Controls);
     
