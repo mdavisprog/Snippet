@@ -87,7 +87,11 @@ Node::Header::Header(OctaneGUI::Window* Window)
     SetGrow(OctaneGUI::Grow::Center);
     SetExpand(OctaneGUI::Expand::Width);
 
-    m_Label = AddControl<OctaneGUI::Text>();
+    m_Label = AddControl<Label>();
+    m_Label->SetOnEdit([this](OctaneGUI::Control&) -> void
+        {
+            Edit();
+        });
     Set(U"New Snippet");
 
     m_Input = std::make_shared<OctaneGUI::TextInput>(Window);
@@ -115,7 +119,6 @@ Node::Header& Node::Header::Edit()
     m_Input
         ->SetText(m_Label->GetText())
         .SelectAll();
-    GetWindow()->SetFocus(m_Input->Interaction());
     return *this;
 }
 
@@ -124,12 +127,48 @@ const char32_t* Node::Header::Value() const
     return m_Label->GetText();
 }
 
+void Node::Header::Update()
+{
+    if (HasControl(m_Input))
+    {
+        GetWindow()->SetFocus(m_Input->Interaction());
+    }
+}
+
 Node::Header& Node::Header::FinishEdit()
 {
     RemoveControl(m_Input);
     InsertControl(m_Label);
     m_Label->SetText(m_Input->GetText());
     return *this;
+}
+
+//
+// Node::Header::Label
+//
+
+Node::Header::Label::Label(OctaneGUI::Window* Window)
+    : Text(Window)
+{
+}
+
+Node::Header::Label& Node::Header::Label::SetOnEdit(OctaneGUI::OnControlSignature&& Fn)
+{
+    m_OnEdit = std::move(Fn);
+    return *this;
+}
+
+bool Node::Header::Label::OnMousePressed(const OctaneGUI::Vector2&, OctaneGUI::Mouse::Button Button, OctaneGUI::Mouse::Count Count)
+{
+    if (Button == OctaneGUI::Mouse::Button::Left && Count == OctaneGUI::Mouse::Count::Double)
+    {
+        if (m_OnEdit)
+        {
+            m_OnEdit(*this);
+        }
+    }
+
+    return false;
 }
 
 }
