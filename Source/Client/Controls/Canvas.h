@@ -33,12 +33,23 @@ namespace Snippet
 namespace Controls
 {
 
+class Node;
+
 class Canvas : public OctaneGUI::Canvas
 {
     CLASS(Snippet.Canvas);
 
 public:
     Canvas(OctaneGUI::Window* Window);
+
+    virtual void OnPaint(OctaneGUI::Paint& Brush) const override;
+    virtual void OnMouseMove(const OctaneGUI::Vector2& Position) override;
+
+private:
+    Canvas& SetHovered(const std::shared_ptr<Node>& Hovered);
+
+    std::vector<std::shared_ptr<Node>> m_Nodes {};
+    std::weak_ptr<Node> m_Hovered {};
 };
 
 }
