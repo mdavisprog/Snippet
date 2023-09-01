@@ -52,14 +52,20 @@ Canvas::Canvas(OctaneGUI::Window* Window)
     Interaction()->SetAlwaysFocus(true);
 }
 
+std::weak_ptr<OctaneGUI::Control> Canvas::GetControl(const OctaneGUI::Vector2&) const
+{
+    return Interaction();
+}
+
 void Canvas::OnPaint(OctaneGUI::Paint& Brush) const
 {
     OctaneGUI::Canvas::OnPaint(Brush);
 
-    if (!m_Hovered.expired())
+    PaintSelected(Brush, m_Hovered.lock());
+
+    for (const std::weak_ptr<Node>& Selected : m_Selected)
     {
-        const std::shared_ptr<Node> Hovered { m_Hovered.lock() };
-        Brush.RectangleOutline(Hovered->GetAbsoluteBounds(), {255, 255, 0, 255}, 2.0f);
+        PaintSelected(Brush, Selected.lock());
     }
 }
 
@@ -67,20 +73,73 @@ void Canvas::OnMouseMove(const OctaneGUI::Vector2& Position)
 {
     OctaneGUI::Canvas::OnMouseMove(Position);
 
-    if (GetAction() == OctaneGUI::Canvas::Action::None)
+    const OctaneGUI::Vector2 Delta { Position - m_LastMousePos };
+    m_LastMousePos = Position;
+
+    switch (m_Action)
     {
-        std::shared_ptr<Node> Hovered { nullptr };
-
-        for (const std::shared_ptr<Node>& Node_ : m_Nodes)
-        {
-            if (Node_->Contains(Position))
-            {
-                Hovered = Node_;
-            }
-        }
-
-        SetHovered(Hovered);
+    case Action::MoveNodes:
+    {
+        MoveSelected(Delta);
     }
+    break;
+
+    case Action::None:
+    {
+        if (GetAction() == OctaneGUI::Canvas::Action::None)
+        {
+            std::shared_ptr<Node> Hovered { nullptr };
+
+            for (const std::shared_ptr<Node>& Node_ : m_Nodes)
+            {
+                if (Node_->Contains(Position))
+                {
+                    Hovered = Node_;
+                }
+            }
+
+            SetHovered(Hovered);
+        }
+    }
+    break;
+
+    default: break;
+    }
+}
+
+bool Canvas::OnMousePressed(const OctaneGUI::Vector2& Position, OctaneGUI::Mouse::Button Button, OctaneGUI::Mouse::Count Count)
+{
+    const bool Result { OctaneGUI::Canvas::OnMousePressed(Position, Button, Count) };
+
+    switch (Button)
+    {
+    case OctaneGUI::Mouse::Button::Left:
+    {
+        ClearSelected();
+
+        if (Count == OctaneGUI::Mouse::Count::Single && !m_Hovered.expired())
+        {
+            SetAction(Action::MoveNodes);
+            AddSelected(m_Hovered.lock());
+            OctaneGUI::Canvas::SetAction(OctaneGUI::Canvas::Action::None);
+        }
+        else
+        {
+            SetAction(Action::None);
+        }
+    }
+    break;
+
+    default: break;
+    }
+
+    return Result;
+}
+
+void Canvas::OnMouseReleased(const OctaneGUI::Vector2& Position, OctaneGUI::Mouse::Button Button)
+{
+    OctaneGUI::Canvas::OnMouseReleased(Position, Button);
+    SetAction(Action::None);
 }
 
 Canvas& Canvas::SetHovered(const std::shared_ptr<Node>& Hovered)
@@ -94,6 +153,88 @@ Canvas& Canvas::SetHovered(const std::shared_ptr<Node>& Hovered)
     }
 
     return *this;
+}
+
+Canvas& Canvas::SetAction(Canvas::Action Action)
+{
+    if (m_Action != Action)
+    {
+        m_Action = Action;
+    }
+
+    return *this;
+}
+
+Canvas& Canvas::AddSelected(const std::shared_ptr<Node>& Node_)
+{
+    if (Node_ == nullptr)
+    {
+        return *this;
+    }
+
+    bool Found { false };
+
+    for (const std::weak_ptr<Node>& Item : m_Selected)
+    {
+        if (Item.lock() == Node_)
+        {
+            Found = true;
+            break;
+        }
+    }
+
+    if (!Found)
+    {
+        m_Selected.push_back(Node_);
+        Invalidate();
+    }
+
+    return *this;
+}
+
+Canvas& Canvas::ClearSelected()
+{
+    m_Selected.clear();
+    Invalidate();
+    return *this;
+}
+
+Canvas& Canvas::MoveSelected(const OctaneGUI::Vector2& Delta)
+{
+    if (m_Selected.empty())
+    {
+        return *this;
+    }
+
+    for (std::vector<std::weak_ptr<Node>>::iterator It = m_Selected.begin(); It != m_Selected.end();)
+    {
+        const std::shared_ptr<Node> Node_ { (*It).lock() };
+
+        if (Node_ != nullptr)
+        {
+            const OctaneGUI::Vector2 NodePos { Node_->GetPosition() };
+            Node_->SetPosition(NodePos + Delta);
+            ++It;
+        }
+        else
+        {
+            It = m_Selected.erase(It);
+        }
+    }
+
+    Invalidate();
+
+    return *this;
+}
+
+void Canvas::PaintSelected(OctaneGUI::Paint& Brush, const std::shared_ptr<Node>& Node_) const
+{
+    if (Node_ == nullptr)
+    {
+        return;
+    }
+
+    Brush.RectangleOutline(Node_->GetAbsoluteBounds(), {255, 255, 0, 255}, 2.0f);
 }
 
 }

@@ -40,16 +40,35 @@ class Canvas : public OctaneGUI::Canvas
     CLASS(Snippet.Canvas);
 
 public:
+    enum class Action
+    {
+        None,
+        MoveNodes,
+    };
+
     Canvas(OctaneGUI::Window* Window);
+
+    virtual std::weak_ptr<OctaneGUI::Control> GetControl(const OctaneGUI::Vector2& Point) const override;
 
     virtual void OnPaint(OctaneGUI::Paint& Brush) const override;
     virtual void OnMouseMove(const OctaneGUI::Vector2& Position) override;
+    virtual bool OnMousePressed(const OctaneGUI::Vector2& Position, OctaneGUI::Mouse::Button Button, OctaneGUI::Mouse::Count Count) override;
+    virtual void OnMouseReleased(const OctaneGUI::Vector2& Position, OctaneGUI::Mouse::Button Button) override;
 
 private:
     Canvas& SetHovered(const std::shared_ptr<Node>& Hovered);
+    Canvas& SetAction(Action Action_);
+    Canvas& AddSelected(const std::shared_ptr<Node>& Node_);
+    Canvas& ClearSelected();
+    Canvas& MoveSelected(const OctaneGUI::Vector2& Delta);
+
+    void PaintSelected(OctaneGUI::Paint& Brush, const std::shared_ptr<Node>& Node_) const;
 
     std::vector<std::shared_ptr<Node>> m_Nodes {};
+    std::vector<std::weak_ptr<Node>> m_Selected {};
     std::weak_ptr<Node> m_Hovered {};
+    Action m_Action { Action::None };
+    OctaneGUI::Vector2 m_LastMousePos {};
 };
 
 }
