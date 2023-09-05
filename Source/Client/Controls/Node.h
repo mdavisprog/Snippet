@@ -27,7 +27,6 @@ SOFTWARE.
 #pragma once
 
 #include "OctaneGUI/Controls/HorizontalContainer.h"
-#include "OctaneGUI/Controls/Text.h"
 
 namespace OctaneGUI
 {
@@ -64,22 +63,9 @@ private:
         virtual void Update() override;
     
     private:
-        class Label : public OctaneGUI::Text
-        {
-        public:
-            Label(OctaneGUI::Window* Window);
-
-            Label& SetOnEdit(OctaneGUI::OnControlSignature&& Fn);
-
-            virtual bool OnMousePressed(const OctaneGUI::Vector2& Position, OctaneGUI::Mouse::Button Button, OctaneGUI::Mouse::Count Count) override;
-
-        private:
-            OctaneGUI::OnControlSignature m_OnEdit { nullptr };
-        };
-
         Header& FinishEdit();
 
-        std::shared_ptr<Label> m_Label { nullptr };
+        std::shared_ptr<OctaneGUI::Text> m_Label { nullptr };
         std::shared_ptr<OctaneGUI::TextInput> m_Input { nullptr };
     };
 
