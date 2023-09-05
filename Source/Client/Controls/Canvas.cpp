@@ -25,6 +25,7 @@ SOFTWARE.
 */
 
 #include "Canvas.h"
+#include "Document.h"
 #include "Node.h"
 #include "OctaneGUI/OctaneGUI.h"
 
@@ -132,15 +133,25 @@ bool Canvas::OnMousePressed(const OctaneGUI::Vector2& Position, OctaneGUI::Mouse
     {
         ClearSelected();
 
-        if (Count == OctaneGUI::Mouse::Count::Single && !m_Hovered.expired())
+        const std::shared_ptr<Node> Hovered { m_Hovered.lock() };
+        if (Count == OctaneGUI::Mouse::Count::Single)
         {
-            SetAction(Action::MoveNodes);
-            AddSelected(m_Hovered.lock());
-            OctaneGUI::Canvas::SetAction(OctaneGUI::Canvas::Action::None);
+            if (Hovered != nullptr)
+            {
+                SetAction(Action::MoveNodes);
+                AddSelected(m_Hovered.lock());
+                OctaneGUI::Canvas::SetAction(OctaneGUI::Canvas::Action::None);
+            }
+            else
+            {
+                SetAction(Action::None);
+            }
         }
-        else
+        else if (Count == OctaneGUI::Mouse::Count::Double)
         {
             SetAction(Action::None);
+            OctaneGUI::Canvas::SetAction(OctaneGUI::Canvas::Action::None);
+            Document::Open(GetWindow()->App(), m_Hovered.lock());
         }
     }
     break;
@@ -254,6 +265,7 @@ Canvas& Canvas::Remove(const std::shared_ptr<Node>& Item)
     }
 
     Scrollable()->RemoveControl(Item);
+    Document::Close(GetWindow()->App(), Item);
 
     return RemoveSelected(Item);
 }

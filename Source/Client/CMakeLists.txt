@@ -5,6 +5,7 @@ find_package(OctaneGUI REQUIRED)
 set(SOURCE
     Controls/Canvas.cpp
     Controls/ConnectionButton.cpp
+    Controls/Document.cpp
     Controls/Node.cpp
     Main.cpp
 )
