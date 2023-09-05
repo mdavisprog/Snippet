@@ -38,15 +38,30 @@ Canvas::Canvas(OctaneGUI::Window* Window)
 {
     SetOnCreateContextMenu([this](OctaneGUI::Control&, const std::shared_ptr<OctaneGUI::Menu>& ContextMenu) -> void
         {
-            ContextMenu->AddItem("New Snippet", [this]() -> void
-                {
-                    const std::shared_ptr<Node> Node_ = Scrollable()->AddControl<Node>();
-                    Node_
-                        ->EditName()
-                        .SetPosition(GetWindow()->GetMousePosition());
-                    
-                    m_Nodes.push_back(Node_);
-                });
+            if (m_Hovered.expired())
+            {
+                ContextMenu->AddItem("New Snippet", [this]() -> void
+                    {
+                        const std::shared_ptr<Node> Node_ = Scrollable()->AddControl<Node>();
+                        Node_
+                            ->EditName()
+                            .SetPosition(GetWindow()->GetMousePosition());
+                        
+                        m_Nodes.push_back(Node_);
+                    });
+            }
+            else
+            {
+                ContextMenu
+                    ->AddItem("Rename", [this]() -> void
+                        {
+                            m_Hovered.lock()->EditName();
+                        })
+                    .AddItem("Delete", [this]() -> void
+                        {
+                            Remove(m_Hovered.lock());
+                        });
+            }
         });
 
     Interaction()->SetAlwaysFocus(true);
@@ -223,6 +238,38 @@ Canvas& Canvas::MoveSelected(const OctaneGUI::Vector2& Delta)
     }
 
     Invalidate();
+
+    return *this;
+}
+
+Canvas& Canvas::Remove(const std::shared_ptr<Node>& Item)
+{
+    for (std::vector<std::shared_ptr<Node>>::iterator It { m_Nodes.begin() }; It != m_Nodes.end(); ++It)
+    {
+        if ((*It) == Item)
+        {
+            m_Nodes.erase(It);
+            break;
+        }
+    }
+
+    Scrollable()->RemoveControl(Item);
+
+    return RemoveSelected(Item);
+}
+
+Canvas& Canvas::RemoveSelected(const std::shared_ptr<Node>& Item)
+{
+    for (std::vector<std::weak_ptr<Node>>::iterator It { m_Selected.begin() }; It != m_Selected.end(); ++It)
+    {
+        const std::shared_ptr<Node> Node_ { (*It).lock() };
+
+        if (Node_ == Item)
+        {
+            m_Selected.erase(It);
+            break;
+        }
+    }
 
     return *this;
 }

@@ -61,6 +61,8 @@ private:
     Canvas& AddSelected(const std::shared_ptr<Node>& Node_);
     Canvas& ClearSelected();
     Canvas& MoveSelected(const OctaneGUI::Vector2& Delta);
+    Canvas& Remove(const std::shared_ptr<Node>& Item);
+    Canvas& RemoveSelected(const std::shared_ptr<Node>& Item);
 
     void PaintSelected(OctaneGUI::Paint& Brush, const std::shared_ptr<Node>& Node_) const;
 
