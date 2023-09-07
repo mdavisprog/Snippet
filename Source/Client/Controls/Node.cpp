@@ -74,7 +74,7 @@ const char32_t* Node::Name() const
 void Node::Resize()
 {
     const OctaneGUI::Vector2 Size { ChildrenSize() };
-    SetSize({ std::max(Size.X, 200.0f), Size.Y });
+    SetSize({ std::max(Size.X, 200.0f * GetWindow()->RenderScale().X), Size.Y });
 }
 
 //
