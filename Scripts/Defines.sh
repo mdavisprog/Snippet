@@ -16,7 +16,7 @@ do
         ninja) GENERATOR=Ninja NINJA=true ;;
         release) CONFIGURATION=Release ;;
         tools) TOOLS=ON ;;
-        xcode) XCODE=true ;;
+        xcode) GENERATOR=Xcode XCODE=true ;;
         *) break
     esac
 done

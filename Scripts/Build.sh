@@ -16,7 +16,6 @@ if [[ ! -z $GENERATOR ]] ; then
     CMAKE_OPTIONS="-G $GENERATOR $CMAKE_OPTIONS"
 fi
 
-echo CMAKE_OPTIONS: $CMAKE_OPTIONS
 cmake $CMAKE_OPTIONS
 
 if [ "$NINJA" = true ] ; then
@@ -24,7 +23,7 @@ if [ "$NINJA" = true ] ; then
     echo "Using ninja version $NINJA_VERSION"
     ninja -C $BUILD_PATH
 elif [ "$XCODE" = true ] ; then
-    xcodebuild -configuration $CONFIGURATION -scheme ALL_BUILD -project "$BUILD_PATH/OctaneGUI.xcodeproj"
+    xcodebuild -configuration $CONFIGURATION -scheme ALL_BUILD -project "$BUILD_PATH/Snippet.xcodeproj"
 else
     make -C $BUILD_PATH
 fi
