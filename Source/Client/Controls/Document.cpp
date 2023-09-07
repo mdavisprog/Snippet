@@ -88,7 +88,9 @@ Document::Document(OctaneGUI::Window* Window)
         .SetExpand(OctaneGUI::Expand::Both);
     
     m_Editor = Margins->AddControl<OctaneGUI::TextEditor>();
-    m_Editor->SetExpand(OctaneGUI::Expand::Both);
+    m_Editor
+        ->SetExpand(OctaneGUI::Expand::Both)
+        .SetProperty(OctaneGUI::ThemeProperties::FontPath, "Resources/SourceCodePro-Regular.ttf");
 }
 
 Document& Document::SetNode(const std::shared_ptr<Node>& Item)
